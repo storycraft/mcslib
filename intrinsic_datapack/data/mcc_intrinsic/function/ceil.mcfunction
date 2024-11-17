@@ -1,0 +1,1 @@
+$execute positioned 0 $(r1) 0 positioned ~ ~0.9999999999999998 ~ align y summon minecraft:item run data modify storage mcs:system registers.r1 set from entity @s Pos[1]

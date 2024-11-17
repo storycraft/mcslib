@@ -1,0 +1,19 @@
+{
+  "name": "mcslib",
+  "version": "0.1.0",
+  "description": "",
+  "main": "build/index.js",
+  "scripts": {
+    "start": "ts-node -r tsconfig-paths/register --swc examples/%npm_config_example%",
+    "build": "tsc"
+  },
+  "author": "storycraft <storycraft@pancake.sh>",
+  "license": "MIT",
+  "devDependencies": {
+    "@swc/core": "^1.9.2",
+    "@types/node": "^22.9.0",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.6.3"
+  }
+}

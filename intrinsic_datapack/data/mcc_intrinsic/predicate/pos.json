@@ -1,0 +1,11 @@
+{
+  "condition": "minecraft:value_check",
+  "value": {
+    "type": "minecraft:storage",
+    "storage": "mcs:system",
+    "path": "registers.r1"
+  },
+  "range": {
+    "min": 0
+  }
+}

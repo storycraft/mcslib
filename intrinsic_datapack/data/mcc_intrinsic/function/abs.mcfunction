@@ -1,0 +1,1 @@
+execute unless predicate mcs_intrinsic:pos run function mcs_intrinsic:neg with storage mcs:system registers

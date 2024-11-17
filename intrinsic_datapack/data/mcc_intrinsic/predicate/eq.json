@@ -1,0 +1,20 @@
+{
+  "condition": "minecraft:value_check",
+  "value": {
+    "type": "minecraft:storage",
+    "storage": "mcs:system",
+    "path": "registers.r1"
+  },
+  "range": {
+     "min": {
+      "type": "minecraft:storage",
+      "storage": "mcs:system",
+      "path": "registers.r2"
+    },
+	"max": {
+      "type": "minecraft:storage",
+      "storage": "mcs:system",
+      "path": "registers.r2"
+    }
+  }
+}

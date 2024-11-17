@@ -1,0 +1,1 @@
+execute store result storage mcs:system registers.r1 double 1 run data get storage mcs:system registers.r1
