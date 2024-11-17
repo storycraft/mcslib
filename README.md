@@ -8,6 +8,11 @@ Hand ported solution of [baekjoon #2447](https://www.acmicpc.net/problem/2447) f
 
 https://github.com/user-attachments/assets/2acdf2be-6b0c-423d-bba6-ecfe8ab5c7f9
 
+Run example files using
+```bash
+npm start --example=<example_name>
+```
+
 ## Detail
 ### Data type
 Currently mcslib only supports `number` (double precision float) type, like javascript's `number` type.
