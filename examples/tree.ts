@@ -1,7 +1,7 @@
-import { mcsAssign, mcsFunction, mcsVar, mcsReturn, mcsWhile, mcsExpr } from '@/builder';
+import { mcsAssign, mcsVar, mcsReturn, mcsWhile, mcsExpr, defineMcsFunction, build } from '@/builder';
 import { inspect } from 'node:util';
 
-const fn = mcsFunction(['number', 'number'] as const, (a, b) => {
+const tree = defineMcsFunction(['number', 'number'], (a, b) => {
   const c = mcsVar('number', mcsExpr`${50}`);
   mcsWhile(mcsExpr`${a} == ${b}`, () => {
     mcsReturn(mcsExpr`${100}`);
@@ -12,4 +12,4 @@ const fn = mcsFunction(['number', 'number'] as const, (a, b) => {
   mcsReturn(c);
 }, 'number');
 
-console.log(inspect(fn, true, 10, true));
+console.log(inspect(build(tree), true, 10, true));

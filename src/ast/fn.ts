@@ -6,8 +6,7 @@ export type Fn<
   Args extends VarType[] = VarType[],
   Ret extends VarType = VarType,
 > = AstTy<'fn'> & {
-  args: Args,
-  ret?: Ret,
+  fn: McsFunction<Args, Ret>,
   block: Block,
 }
 
@@ -24,6 +23,6 @@ export type McsFunction<
   Ret extends VarType = VarType,
 > = {
   args: Args,
-  returns: Ret,
-  fn: (...args: [...{[I in keyof Args]: Id<Args[I]>}]) => void,
+  returns?: Ret,
+  buildFn: (...args: [...{[I in keyof Args]: Id<Args[I]>}]) => void,
 }

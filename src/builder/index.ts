@@ -24,30 +24,25 @@ export function defineMcsFunction<
   const Ret extends VarType,
 >(
   args: Args,
-  fn: (
+  buildFn: (
     ...args: [...{[I in keyof Args]: Id<Args[I]>}]
   ) => void,
   returns: Ret,
 ): McsFunction<Args, Ret> {
   return {
     args,
-    fn,
+    buildFn,
     returns,
   };
 }
 
-export function mcsFunction<
+export function build<
   const Args extends VarType[],
   const Ret extends VarType,
->(
-  args: Args,
-  f: (...args: [...{[I in keyof Args]: Id<Args[I]>}]) => void,
-  ret?: Ret,
-): Fn<Args, Ret> {
-  const fn: Fn<Args, Ret> = {
+>(fn: McsFunction<Args, Ret>): Fn<Args, Ret> {
+  const item: Fn<Args, Ret> = {
     ast: 'fn',
-    args,
-    ret,
+    fn,
     block: {
       ast: 'block',
       stmts: [],
@@ -55,16 +50,16 @@ export function mcsFunction<
   };
 
   fnScope.with({
-    varCounter: args.length,
+    varCounter: fn.args.length,
   }, () => {
-    blockScope.with({ stmts: fn.block.stmts }, () => {
-      (f as (...args: Id[]) => void)(
-        ...args.map((_, id) => {
+    blockScope.with({ stmts: item.block.stmts }, () => {
+      (fn.buildFn as (...args: Id[]) => void)(
+        ...fn.args.map((_, id) => {
           return { ast: 'id', id } as const;
         })
       );
     });
   });
 
-  return fn;
+  return item;
 }
