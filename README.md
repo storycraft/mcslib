@@ -28,10 +28,9 @@ Remainder operator works correctly only if they were integer.
 Functions can receive arguments and return a value.
 Size of the stack frame is calculated on compile time.
 
-They uses mcslib's ABI. It's not compatible with datapack function's arguments and return value.
+They uses mcslib's ABI. It's not compatible with minecraft function's arguments and return value.
 
-Exported functions are compatible with datapack function.
-However compiler can create compatible function if you export them.
+Compiler will creates compatible function if you export them.
 
 ### control flow statements
 `if`, `while`, `loop` statements are supported.
