@@ -4,7 +4,9 @@
   "description": "",
   "main": "build/index.js",
   "scripts": {
-    "start": "ts-node -r tsconfig-paths/register --swc examples/%npm_config_example%",
+    "start": "run-script-os",
+    "start:win32": "ts-node -r tsconfig-paths/register --swc examples/%npm_config_example%",
+    "start:default": "ts-node -r tsconfig-paths/register --swc examples/${npm_config_example}",
     "build": "tsc"
   },
   "author": "storycraft <storycraft@pancake.sh>",
@@ -12,6 +14,7 @@
   "devDependencies": {
     "@swc/core": "^1.9.2",
     "@types/node": "^22.9.0",
+    "run-script-os": "^1.1.6",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.6.3"
