@@ -7,7 +7,7 @@
     "start": "run-script-os",
     "start:win32": "ts-node -r tsconfig-paths/register --swc examples/%npm_config_example%",
     "start:default": "ts-node -r tsconfig-paths/register --swc examples/${npm_config_example}",
-    "build": "tsc"
+    "build": "tsc -p tsconfig-build.json"
   },
   "author": "storycraft <storycraft@pancake.sh>",
   "license": "MIT",
