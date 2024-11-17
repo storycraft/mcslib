@@ -1,4 +1,4 @@
-import { AstTy, Block } from '.';
+import { AstTy, Block, Id } from '.';
 import { Expr } from './expr';
 import { Local } from './stmt';
 import { VarType } from './types';
@@ -10,6 +10,6 @@ export type Fn = AstTy<'fn'> & {
 }
 
 export type Call = AstTy<'call'> & {
-    fn: (...args: Expr[]) => void,
+    fn: (...args: Id[]) => void,
     args: Expr[],
 }

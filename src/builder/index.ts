@@ -21,7 +21,7 @@ export const blockScope: Store<BlockScope> = create();
 
 export function mcsFunction<const Args extends VarType[]>(
     args: Args,
-        f: (...params: [...{[I in keyof Args]: Id}]) => void,
+        f: (...params: [...{[I in keyof Args]: Id<Args[I]>}]) => void,
     ret?: VarType,
 ): Fn {
     const fn: Fn = {

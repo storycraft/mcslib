@@ -6,19 +6,19 @@ import { Break, Loop } from '@/ast/loop';
 import { Local } from '@/ast/stmt';
 import { VarType } from '@/ast/types';
 
-export function mcsVar(ty: VarType, init?: Expr): Id {
-    const local: Local = {
-        ast: 'local',
-        id: {
-            ast: 'id',
-            id: fnScope.get().varCounter++,
-        },
-        ty,
-        init,
+export function mcsVar<const T extends VarType>(ty: T, init?: Expr): Id<T> {
+    const id: Id<T> = {
+        ast: 'id',
+        id: fnScope.get().varCounter++,
     };
 
-    blockScope.get().stmts.push(local);
-    return local.id;
+    blockScope.get().stmts.push({
+        ast: 'local',
+        id,
+        ty,
+        init,
+    });
+    return id;
 }
 
 export function mcsAssign(id: Id, expr: Expr) {

@@ -43,3 +43,10 @@ export function mcsExpr(
     });
 }
 
+export function mcsCall(args: Expr[]): Call {
+    return {
+        ast: 'call',
+        fn: () => {},
+        args,
+    }
+}

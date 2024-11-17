@@ -1,4 +1,5 @@
 import { Stmt } from './stmt'
+import { VarType } from './types'
 
 /**
  * identifier for ast types
@@ -7,8 +8,11 @@ export type AstTy<T extends string> = {
     ast: T,
 }
 
-export type Id = AstTy<'id'> & {
+declare const marker: unique symbol;
+
+export type Id<T extends VarType = VarType> = AstTy<'id'> & {
     id: number,
+    [marker]?: T,
 }
 
 export type ConstNumber = AstTy<'number'> & {
