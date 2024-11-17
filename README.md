@@ -5,7 +5,8 @@ This project is WIP and does not work yet.
 
 ## Example
 Hand ported solution of [baekjoon #2447](https://www.acmicpc.net/problem/2447) from the c language code.
-[![boj 2447](https://raw.githubusercontent.com/storycraft/mcslib/main/assets/boj_2447.mp4)](https://raw.githubusercontent.com/storycraft/mcslib/main/assets/boj_2447.mp4)
+
+https://github.com/user-attachments/assets/2acdf2be-6b0c-423d-bba6-ecfe8ab5c7f9
 
 ## Detail
 ### Data type
