@@ -1,7 +1,7 @@
 /**
  * possible variable types
  */
-export type VarType = 'number' | 'test';
+export type VarType = 'number';
 
 /**
  * possible register values
