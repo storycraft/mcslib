@@ -5,20 +5,20 @@ import { VarType } from './types'
  * identifier for ast types
  */
 export type AstTy<T extends string> = {
-    ast: T,
+  ast: T,
 }
 
 declare const marker: unique symbol;
 
 export type Id<T extends VarType = VarType> = AstTy<'id'> & {
-    id: number,
-    [marker]?: T,
+  id: number,
+  [marker]?: T,
 }
 
 export type ConstNumber = AstTy<'number'> & {
-    value: number,
+  value: number,
 }
 
 export type Block = AstTy<'block'> & {
-    stmts: Stmt[],
+  stmts: Stmt[],
 }

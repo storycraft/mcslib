@@ -2,14 +2,14 @@ import { mcsAssign, mcsFunction, mcsVar, mcsReturn, mcsWhile, mcsExpr } from '@/
 import { inspect } from 'node:util';
 
 const fn = mcsFunction(['number', 'number'] as const, (a, b) => {
-    const c = mcsVar('number', mcsExpr`${50}`);
-    mcsWhile(mcsExpr`${a} == ${b}`, () => {
-        mcsReturn(mcsExpr`${100}`);
-    });
+  const c = mcsVar('number', mcsExpr`${50}`);
+  mcsWhile(mcsExpr`${a} == ${b}`, () => {
+    mcsReturn(mcsExpr`${100}`);
+  });
 
-    mcsAssign(c, mcsExpr`${a} + ${b} + -${15}`);
+  mcsAssign(c, mcsExpr`${a} + ${b} + -${15}`);
 
-    mcsReturn(c);
+  mcsReturn(c);
 }, 'number');
 
 console.log(inspect(fn, true, 10, true));

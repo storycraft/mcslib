@@ -8,17 +8,22 @@
     "start:win32": "ts-node -r tsconfig-paths/register --swc examples/%npm_config_example%",
     "start:default": "ts-node -r tsconfig-paths/register --swc examples/${npm_config_example}",
     "build": "tsc -p tsconfig-build.json",
-    "check": "tsc --noEmit --skipLibCheck"
+    "check": "tsc --noEmit --skipLibCheck",
+    "lint": "eslint ."
   },
   "author": "storycraft <storycraft@pancake.sh>",
   "license": "MIT",
   "devDependencies": {
+    "@eslint/js": "9.14.0",
     "@swc/core": "^1.9.2",
+    "@types/eslint__js": "^8.42.3",
     "@types/node": "^22.9.0",
+    "eslint": "9.14.0",
     "run-script-os": "^1.1.6",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.14.0"
   },
   "packageManager": "pnpm@9.13.2+sha512.88c9c3864450350e65a33587ab801acf946d7c814ed1134da4a924f6df5a2120fd36b46aab68f7cd1d413149112d53c7db3a4136624cfd00ff1846a0c6cef48a"
 }
