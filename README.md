@@ -18,7 +18,7 @@ npm start --example=<example_name>
 Currently mcslib only supports `number` (double precision float) type, like javascript's `number` type.
 
 ### operator
-`+`, `-`, `*`, `%`, `>`, `<`, `>=`, `<=`, `==`, `!=` operators are supported.  
+`+`, `-`, `*`, `/`, `%`, `>`, `<`, `>=`, `<=`, `==`, `!=` operators are supported.  
 Bitwise operations are not supported since they can be emulated and very slow anyways.  
 Comparison operators use predicates internally and very fast.
 
