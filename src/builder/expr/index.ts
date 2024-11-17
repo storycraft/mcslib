@@ -1,6 +1,7 @@
-import { Call } from '@/ast/fn';
+import { Call, McsFunction } from '@/ast/fn';
 import { Expr } from '@/ast/expr';
 import { parseExpr, Term } from './parse';
+import { VarType } from '@/ast/types';
 
 type ExprArg = number | Expr;
 
@@ -43,10 +44,16 @@ export function mcsExpr(
     });
 }
 
-export function mcsCall(args: Expr[]): Call {
+export function mcsCall<
+    const Args extends VarType[],
+    const Ret extends VarType,
+>(
+    fn: McsFunction<Args, Ret>,
+    args: Expr[]
+): Call<Args, Ret> {
     return {
         ast: 'call',
-        fn: () => {},
+        fn,
         args,
     }
 }

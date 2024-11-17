@@ -1,15 +1,29 @@
 import { AstTy, Block, Id } from '.';
 import { Expr } from './expr';
-import { Local } from './stmt';
 import { VarType } from './types';
 
-export type Fn = AstTy<'fn'> & {
-    args: Local[],
-    ret?: VarType,
+export type Fn<
+    Args extends VarType[] = VarType[],
+    Ret extends VarType = VarType,
+> = AstTy<'fn'> & {
+    args: Args,
+    ret?: Ret,
     block: Block,
 }
 
-export type Call = AstTy<'call'> & {
-    fn: (...args: Id[]) => void,
+export type Call<
+    Args extends VarType[] = VarType[],
+    Ret extends VarType = VarType,
+> = AstTy<'call'> & {
+    fn: McsFunction<Args, Ret>,
     args: Expr[],
+}
+
+export type McsFunction<
+    Args extends VarType[] = VarType[],
+    Ret extends VarType = VarType,
+> = {
+    args: Args,
+    returns: Ret,
+    fn: (...args: [...{[I in keyof Args]: Id<Args[I]>}]) => void,
 }
