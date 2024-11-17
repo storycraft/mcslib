@@ -1,10 +1,10 @@
 import { blockScope, fnScope } from '.';
-import { Id } from '../ast';
-import { Expr } from '../ast/expr';
-import { If } from '../ast/expr/condition';
-import { Break, Loop } from '../ast/loop';
-import { Local } from '../ast/stmt';
-import { VarType } from '../ast/types';
+import { Id } from '@/ast';
+import { Expr } from '@/ast/expr';
+import { If } from '@/ast/expr/condition';
+import { Break, Loop } from '@/ast/loop';
+import { Local } from '@/ast/stmt';
+import { VarType } from '@/ast/types';
 
 export function mcsVar(ty: VarType, init?: Expr): Id {
     const local: Local = {

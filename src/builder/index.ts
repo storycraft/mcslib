@@ -1,9 +1,8 @@
-import { Block, ConstNumber, Id } from '../ast';
+import { Id } from '../ast';
 import { Fn } from '../ast/fn';
 import { create, Store } from '../store';
 import { VarType } from '../ast/types';
-import { Local, Stmt } from '../ast/stmt';
-import { Expr } from '../ast/expr';
+import { Stmt } from '../ast/stmt';
 
 export * from './stmt';
 export * from './expr';

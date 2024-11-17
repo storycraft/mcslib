@@ -1,57 +1,20 @@
-import { Expr, Neg } from '../ast/expr';
-import { Not } from '../ast/expr/condition';
+import { Expr, Neg } from '@/ast/expr';
+import { Not } from '@/ast/expr/condition';
 
-type ExprArg = number | Expr;
-
-type Variant<T, V> = {
+export type Variant<T, V> = {
     ty: T,
     value: V,
 }
 
-type Term = Variant<'expr', Expr> | Variant<'token', string>;
+export type Term = Variant<'expr', Expr> | Variant<'token', string>;
 
-type ParseCx = {
+export type ParseCx = {
     terms: Term[],
     index: number,
 }
 
-export function mcsExpr(
-    arr: TemplateStringsArray,
-    ...args: [ExprArg, ...ExprArg[]]
-): Expr {
-    const terms: Term[] = [];
-    const length = args.length;
-    for (let i = 0; i < length; i++) {
-        if (arr[i] !== '') {
-            for (const value of arr[i].trim().split(' ')) {
-                terms.push({
-                    ty: 'token',
-                    value,
-                });
-            }
-        }
-
-        const arg = args[i];
-        if (typeof arg === 'number') {
-            terms.push({
-                ty: 'expr',
-                value: {
-                    ast: 'number',
-                    value: arg,
-                },
-            });
-        } else {
-            terms.push({
-                ty: 'expr',
-                value: arg,
-            });
-        }
-    }
-
-    return parseExpr({
-        terms,
-        index: 0,
-    });
+export function parseExpr(cx: ParseCx): Expr {
+    return parseCondition(cx);
 }
 
 function expectTokenVal(cx: ParseCx, literal: string) {
@@ -81,10 +44,6 @@ function peekToken(cx: ParseCx): string | null {
     }
 
     return term.value;
-}
-
-function parseExpr(cx: ParseCx): Expr {
-    return parseCondition(cx);
 }
 
 function parseCondition(cx: ParseCx): Expr {
