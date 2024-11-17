@@ -5,7 +5,7 @@ This project is WIP and does not work yet.
 
 ## Example
 Hand ported solution of [baekjoon #2447](https://www.acmicpc.net/problem/2447) from the c language code.
-![boj_2447_video](assets/boj_2447.mp4)
+[![boj 2447](https://raw.githubusercontent.com/storycraft/mcslib/main/assets/boj_2447.mp4)](https://raw.githubusercontent.com/storycraft/mcslib/main/assets/boj_2447.mp4)
 
 ## Detail
 ### Data type
