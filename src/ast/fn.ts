@@ -23,6 +23,6 @@ export type McsFunction<
   Ret extends VarType = VarType,
 > = {
   args: Args,
-  returns?: Ret,
+  returns: Ret,
   buildFn: (...args: [...{[I in keyof Args]: Id<Args[I]>}]) => void,
 }
