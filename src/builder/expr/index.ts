@@ -13,7 +13,11 @@ export function mcsExpr(
   const length = args.length;
   for (let i = 0; i < length; i++) {
     if (arr[i] !== '') {
-      for (const value of arr[i].trim().split(' ')) {
+      for (const value of arr[i]) {
+        if (value === ' ') {
+          continue;
+        }
+
         terms.push({
           ty: 'token',
           value,
