@@ -10,7 +10,7 @@ export type AstTy<T extends string> = {
 
 declare const marker: unique symbol;
 
-export type Id<T extends VarType = VarType> = AstTy<'id'> & {
+export type Id<T = VarType> = AstTy<'id'> & {
   id: number,
   [marker]?: T,
 }

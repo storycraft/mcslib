@@ -30,9 +30,11 @@ export function defineMcsFunction<
   returns: Ret,
 ): McsFunction<Args, Ret> {
   return {
-    args,
+    sig: {
+      args,
+      returns,
+    },
     buildFn,
-    returns,
   };
 }
 
@@ -50,11 +52,11 @@ export function build<
   };
 
   fnScope.with({
-    varCounter: fn.args.length,
+    varCounter: fn.sig.args.length,
   }, () => {
     blockScope.with({ stmts: item.block.stmts }, () => {
       (fn.buildFn as (...args: Id[]) => void)(
-        ...fn.args.map((_, id) => {
+        ...fn.sig.args.map((_, id) => {
           return { ast: 'id', id } as const;
         })
       );
