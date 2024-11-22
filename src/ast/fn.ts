@@ -6,7 +6,7 @@ export type Fn<
   Args extends unknown[] = VarType[],
   Ret = VarType,
 > = AstTy<'fn'> & {
-  fn: McsFunction<Args, Ret>,
+  sig: FnSig<Args, Ret>,
   block: Block,
 }
 
@@ -23,9 +23,12 @@ export type FnSig<
   Ret,
 > = {
   args: Args,
-  returns: Ret,
+  returns?: Ret,
 }
 
+/**
+ * Unique identifier for a function
+ */
 export type McsFunction<
   Args extends unknown[] = VarType[],
   Ret = VarType,

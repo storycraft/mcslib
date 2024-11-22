@@ -27,7 +27,7 @@ export function defineMcsFunction<
   buildFn: (
     ...args: [...{[I in keyof Args]: Id<Args[I]>}]
   ) => void,
-  returns: Ret,
+  returns?: Ret,
 ): McsFunction<Args, Ret> {
   return {
     sig: {
@@ -44,7 +44,7 @@ export function build<
 >(fn: McsFunction<Args, Ret>): Fn<Args, Ret> {
   const item: Fn<Args, Ret> = {
     ast: 'fn',
-    fn,
+    sig: fn.sig,
     block: {
       ast: 'block',
       stmts: [],
