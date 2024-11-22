@@ -15,7 +15,7 @@ export class Compiler {
   export<
     const Args extends VarType[],
     const Ret extends VarType,
-  >(f: McsFunction<Args, Ret>) {
+  >(name: string, f: McsFunction<Args, Ret>) {
 
   }
 }
