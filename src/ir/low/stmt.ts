@@ -1,10 +1,11 @@
 import { If } from '@/ast/expr/condition';
-import { Stmt, Local, Return, Block, Assign } from '@/ast/stmt';
+import { Stmt, Local, Return, Block, Assign, Command } from '@/ast/stmt';
 import { Env, newStorage, newStorageInit } from '.';
 import { Node, emptyNode } from '..';
 import { visitExpr } from './expr';
 import { Break, Continue, Loop } from '@/ast/loop';
 import { SwitchInt } from '../end';
+import { Expr } from '@/ast/expr';
 
 export function visitStmt(env: Env, node: Node, stmt: Stmt): Node {
   switch (stmt.ast) {
@@ -49,11 +50,12 @@ export function visitStmt(env: Env, node: Node, stmt: Stmt): Node {
     }
 
     case 'command': {
+      visitCommand(env, node, stmt);
       break;
     }
 
     default: {
-      // TODO::
+      visitStmtExpr(env, node, stmt);
       break;
     }
   }
@@ -164,4 +166,21 @@ function visitContinue(env: Env, node: Node, stmt: Continue): Node {
   };
 
   return emptyNode();
+}
+
+function visitCommand(env: Env, node: Node, cmd: Command) {
+  node.ins.push({
+    ins: 'cmd',
+    command: cmd.command,
+  });
+}
+
+function visitStmtExpr(env: Env, node: Node, expr: Expr) {
+  const [ty, exprIns] = visitExpr(env, node, expr);
+  const index = newStorage(env, ty);
+  node.ins.push({
+    ins: 'set',
+    index,
+    expr: exprIns,
+  });
 }
