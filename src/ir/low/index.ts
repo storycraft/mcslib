@@ -1,5 +1,5 @@
 import { Fn, FnSig } from '@/ast/fn';
-import { IrFunction, Storage, Node, emptyNode } from '..';
+import { IrFunction, Storage, Node, emptyNode, Ref } from '..';
 import { Expr } from '@/ast/expr';
 import { IrVarType } from '../types';
 import { visitBlock } from './stmt';
@@ -47,6 +47,20 @@ export type Env = {
   storages: Storage[],
 }
 
+export function refToIndex(env: Env, node: Node, ref: Ref): number {
+  if (ref.expr === 'const') {
+    const index = newStorage(env, ref.ty);
+    node.ins.push({
+      ins: 'set',
+      index,
+      expr: ref,
+    });
+    return index;
+  } else {
+    return ref.index;
+  }
+}
+
 export function newStorage(env: Env, ty: IrVarType): number {
   const index = env.storages.length;
   env.storages.push({ ty });
@@ -59,35 +73,13 @@ export function newStorageInit(
   ty: IrVarType,
   expr: Expr,
 ): number {
-  const [exprTy, irExpr] = visitExpr(env, node, expr);
+  const [exprTy, ref] = visitExpr(env, node, expr);
 
   if (exprTy !== ty) {
     throw new Error(`expected type: ${exprTy} got: ${ty}`);
   }
-  
-  const index = newStorage(env, ty);
-  node.ins.push({
-    ins: 'set',
-    index,
-    expr: irExpr,
-  });
-  return index;
-}
 
-export function newStorageInfer(
-  env: Env,
-  node: Node,
-  expr: Expr,
-): [IrVarType, number] {
-  const [exprTy, irExpr] = visitExpr(env, node, expr);
-  const index = newStorage(env, exprTy);
-  node.ins.push({
-    ins: 'set',
-    index,
-    expr: irExpr,
-  });
-
-  return [exprTy, index];
+  return refToIndex(env, node, ref);
 }
 
 /**

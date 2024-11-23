@@ -1,14 +1,14 @@
 import { Arithmetic, Expr, Neg } from '@/ast/expr';
-import { Env, newStorageInfer, newStorageInit } from '.';
-import { Node, ExprIns, Arith, Index } from '..';
+import { Env, newStorage, newStorageInit } from '.';
+import { Node, Index, Ref, ExprIns } from '..';
 import { IrVarType } from '../types';
 import { Id, Literal } from '@/ast';
 import { Call } from '@/ast/fn';
 import { BoolOperator, Comparison, Not } from '@/ast/expr/condition';
 
-export type TypedExprIns = [IrVarType, ExprIns];
+export type TypedRef = [IrVarType, Ref];
 
-export function visitExpr(env: Env, node: Node, expr: Expr): TypedExprIns {
+export function visitExpr(env: Env, node: Node, expr: Expr): TypedRef {
   switch (expr.ast) {
     case 'comparison': {
       return visitComp(env, node, expr);
@@ -44,88 +44,102 @@ export function visitExpr(env: Env, node: Node, expr: Expr): TypedExprIns {
   }
 }
 
-function visitComp(env: Env, node: Node, comp: Comparison): TypedExprIns {
-  const [leftTy, leftIndex] = newStorageInfer(env, node, comp.left);
-  const [rightTy, rightIndex] = newStorageInfer(env, node, comp.right);
+function visitComp(env: Env, node: Node, comp: Comparison): TypedRef {
+  const [leftTy, left] = visitExpr(env, node, comp.left);
+  const [rightTy, right] = visitExpr(env, node, comp.right);
 
   if (leftTy !== 'number' || rightTy !== 'number') {
     throw new Error(`cannot compare using ${comp.op} on type left: ${leftTy} right: ${rightTy}`);
   }
 
-  const left: Index = {
-    expr: 'index',
-    index: leftIndex,
-  };
-  const right: Index = {
-    expr: 'index',
-    index: rightIndex,
-  };
-  
+  const index = newStorage(env, leftTy);
+  let expr: ExprIns;
   switch (comp.op) {
     case '==': {
-      return [leftTy, { expr: 'eq', left, right }];
+      expr = { expr: 'eq', left, right };
+      break;
     }
 
     case '!=': {
-      return [leftTy, { expr: 'ne', left, right }];
+      expr = { expr: 'ne', left, right };
+      break;
     }
 
     case '>': {
-      return [leftTy, { expr: 'gt', left, right }];
+      expr = { expr: 'gt', left, right };
+      break;
     }
 
     case '<': {
-      return [leftTy, { expr: 'lt', left, right }];
+      expr = { expr: 'lt', left, right };
+      break;
     }
 
     case '>=': {
-      return [leftTy, { expr: 'goe', left, right }];
+      expr = { expr: 'goe', left, right };
+      break;
     }
 
     case '<=': {
-      return [leftTy, { expr: 'loe', left, right }];
+      expr = { expr: 'loe', left, right };
+      break;
     }
   }
+  node.ins.push({
+    ins: 'set',
+    index,
+    expr,
+  });
+
+  return [leftTy, { expr: 'index', index }];
 }
 
-function visitBool(env: Env, node: Node, bool: BoolOperator): TypedExprIns {
-  const [leftTy, leftIndex] = newStorageInfer(env, node, bool.left);
-  const [rightTy, rightIndex] = newStorageInfer(env, node, bool.right);
+function visitBool(env: Env, node: Node, bool: BoolOperator): TypedRef {
+  const [leftTy, left] = visitExpr(env, node, bool.left);
+  const [rightTy, right] = visitExpr(env, node, bool.left);
 
   if (leftTy !== 'number' || rightTy !== 'number') {
     throw new Error(`cannot apply ${bool.op} on type left: ${leftTy} right: ${rightTy}`);
   }
 
-  const left: Index = {
-    expr: 'index',
-    index: leftIndex,
-  };
-  const right: Index = {
-    expr: 'index',
-    index: rightIndex,
-  };
-  
+  const index = newStorage(env, leftTy);
+  let expr: ExprIns;
   switch (bool.op) {
     case '&&': {
-      return [leftTy, { expr: 'and', left, right }];
+      expr = { expr: 'and', left, right };
+      break;
     }
 
     case '||': {
-      return [leftTy, { expr: 'or', left, right }];
+      expr = { expr: 'or', left, right };
+      break;
     }
   }
+  node.ins.push({
+    ins: 'set',
+    index,
+    expr,
+  });
+
+  return [leftTy, { expr: 'index', index }];
 }
 
-function visitNot(env: Env, node: Node, not: Not): TypedExprIns {
-  const [ty, index] = newStorageInfer(env, node, not.expr);
+function visitNot(env: Env, node: Node, not: Not): TypedRef {
+  const [ty, ref] = visitExpr(env, node, not.expr);
   if (ty !== 'number') {
     throw new Error(`cannot apply ! on type: ${ty}`);
   }
 
-  return [ty, { expr: 'not', operand: { expr: 'index', index } }];
+  const index = newStorage(env, ty);
+  node.ins.push({
+    ins: 'set',
+    index,
+    expr: { expr: 'not', operand: ref },
+  })
+  return [ty, { expr: 'index', index }];
 }
 
-function visitCall(env: Env, node: Node, call: Call): TypedExprIns {
+function visitCall(env: Env, node: Node, call: Call): TypedRef {
   const returnTy: IrVarType = call.fn.sig.returns ?? 'empty';
 
   if (call.fn.sig.args.length !== call.args.length) {
@@ -135,60 +149,55 @@ function visitCall(env: Env, node: Node, call: Call): TypedExprIns {
   const length = call.args.length;
   for (let i = 0; i < length; i++) {
     const ty = call.fn.sig.args[i];
-    const [actualTy, index] = newStorageInfer(env, node, call.args[i]);
-    if (ty !== actualTy) {
-      throw new Error(`incompatible type ${actualTy} on argument: ${i} required: ${ty}`);
-    }
     args[i] = {
       expr: 'index',
-      index,
+      index: newStorageInit(env, node, ty, call.args[i]),
     };
   }
 
-  return [returnTy, { expr: 'call', args, f: call.fn }];
+  const index = newStorage(env, returnTy);
+  node.ins.push({
+    ins: 'set',
+    index,
+    expr: { expr: 'call', args, f: call.fn },
+  });
+
+  return [returnTy, { expr: 'index', index }];
 }
 
-function visitArith(env: Env, node: Node, arith: Arithmetic): TypedExprIns {
-  const [leftTy, leftIndex] = newStorageInfer(env, node, arith.left);
-  const [rightTy, rightIndex] = newStorageInfer(env, node, arith.right);
+function visitArith(env: Env, node: Node, arith: Arithmetic): TypedRef {
+  const [leftTy, left] = visitExpr(env, node, arith.left);
+  const [rightTy, right] = visitExpr(env, node, arith.right);
 
   if (leftTy !== rightTy) {
     throw new Error(`incompatible type for arithmetic. left: ${leftTy} right: ${rightTy}`);
   }
 
-  const left: Index = {
-    expr: 'index',
-    index: leftIndex,
-  };
-  const right: Index = {
-    expr: 'index',
-    index: rightIndex,
-  };
-
-  let ins: Arith;
+  const index = newStorage(env, leftTy);
+  let expr: ExprIns;
   switch (arith.op) {
     case '+': {
-      ins = { expr: 'add', left, right };
+      expr = { expr: 'add', left, right };
       break;
     }
 
     case '-': {
-      ins = { expr: 'sub', left, right };
+      expr = { expr: 'sub', left, right };
       break;
     }
 
     case '*': {
-      ins = { expr: 'mul', left, right };
+      expr = { expr: 'mul', left, right };
       break;
     }
 
     case '/': {
-      ins = { expr: 'div', left, right };
+      expr = { expr: 'div', left, right };
       break;
     }
 
     case '%': {
-      ins = { expr: 'remi', left, right };
+      expr = { expr: 'remi', left, right };
       break;
     }
 
@@ -196,25 +205,34 @@ function visitArith(env: Env, node: Node, arith: Arithmetic): TypedExprIns {
       throw new Error(`unknown arithmetic operator: ${arith.op}`);
     }
   }
+  node.ins.push({
+    ins: 'set',
+    index,
+    expr,
+  });
 
-  return [leftTy, ins];
+  return [leftTy, { expr: 'index', index }];
 }
 
-function visitNeg(env: Env, node: Node, neg: Neg): TypedExprIns {
-  const index = newStorageInit(env, node, 'number', neg.expr);
-  return [
-    'number',
-    {
+function visitNeg(env: Env, node: Node, neg: Neg): TypedRef {
+  const [ty, operand] = visitExpr(env, node, neg.expr);
+  if (ty !== 'number') {
+    throw new Error(`cannot apply - operator to type: ${ty}`);
+  }
+
+  const index = newStorage(env, ty);
+  node.ins.push({
+    ins: 'set',
+    index,
+    expr: {
       expr: 'neg',
-      operand: {
-        expr: 'index',
-        index,
-      },
+      operand,
     },
-  ];
+  });
+  return [ty, { expr: 'index', index }];
 }
 
-function visitLiteral(env: Env, node: Node, lit: Literal): TypedExprIns {
+function visitLiteral(env: Env, node: Node, lit: Literal): TypedRef {
   return [
     'number',
     {
@@ -225,7 +243,7 @@ function visitLiteral(env: Env, node: Node, lit: Literal): TypedExprIns {
   ];
 }
 
-function visitId(env: Env, node: Node, id: Id): TypedExprIns {
+function visitId(env: Env, node: Node, id: Id): TypedRef {
   const [ty, index] = env.varMap.get(id);
   return [
     ty,

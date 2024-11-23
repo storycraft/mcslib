@@ -1,6 +1,6 @@
 import { If } from '@/ast/expr/condition';
 import { Stmt, Local, Return, Block, Assign, Command } from '@/ast/stmt';
-import { Env, newStorage, newStorageInfer, newStorageInit } from '.';
+import { Env, newStorage, newStorageInit } from '.';
 import { Node, emptyNode } from '..';
 import { visitExpr } from './expr';
 import { Break, Continue, Loop } from '@/ast/loop';
@@ -176,5 +176,5 @@ function visitCommand(env: Env, node: Node, cmd: Command) {
 }
 
 function visitStmtExpr(env: Env, node: Node, expr: Expr) {
-  newStorageInfer(env, node, expr);
+  visitExpr(env, node, expr);
 }
