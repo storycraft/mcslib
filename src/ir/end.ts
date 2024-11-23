@@ -1,16 +1,19 @@
-import { ExprTy, Node } from '.';
+import { InsTy, Node } from '.';
 
-export type EndIns = SwitchInt | JmpIns | ReturnIns;
+export type EndIns = Unreachable | SwitchInt | Jmp | Ret;
 
-export type ReturnIns = ExprTy<'ret'> & {
+export type Ret = InsTy<'ret'> & {
   index: number,
 };
 
-export type JmpIns = ExprTy<'ret'> & {
+export type Jmp = InsTy<'jmp'> & {
   next: Node,
 };
 
-export type SwitchInt = ExprTy<'switch_int'> & {
+export type SwitchInt = InsTy<'switch_int'> & {
+  index: number,
   table: Node[],
   default: Node,
 }
+
+export type Unreachable = InsTy<'unreachable'>;

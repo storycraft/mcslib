@@ -2,7 +2,7 @@ import { blockScope, fnScope } from '.';
 import { Id } from '@/ast';
 import { Expr } from '@/ast/expr';
 import { If } from '@/ast/expr/condition';
-import { Break, Loop } from '@/ast/loop';
+import { Break, Continue, Loop } from '@/ast/loop';
 import { Local } from '@/ast/stmt';
 import { VarType } from '@/ast/types';
 
@@ -78,6 +78,17 @@ export function mcsWhile(condition: Expr, f: () => void, label?: string) {
 
     f();
   }, label);
+}
+
+export function mcsContinue(label?: string) {
+  const stmt: Continue = {
+    ast: 'continue',
+  };
+  if (label) {
+    stmt.label = { ast: 'label', name: label };
+  }
+
+  blockScope.get().stmts.push(stmt);
 }
 
 export function mcsBreak(label?: string) {

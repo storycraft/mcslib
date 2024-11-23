@@ -19,8 +19,8 @@ export type Call<
 }
 
 export type FnSig<
-  Args,
-  Ret,
+  Args = VarType[],
+  Ret = VarType,
 > = {
   args: Args,
   returns?: Ret,

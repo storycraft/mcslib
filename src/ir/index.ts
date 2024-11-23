@@ -1,34 +1,52 @@
 import { EndIns } from './end';
 import { McsFunction } from '@/ast/fn';
 import { IrVarType } from './types';
+import { VarType } from '@/ast/types';
 
-export type IrFunction = {
-  locals: Local[],
-  start: Node,
+/**
+ * create a new empty node with an end or unreachable end
+ */
+export function emptyNode(
+  end: EndIns = { ins: 'unreachable' },
+): Node {
+  return {
+    ins: [],
+    end,
+  };
 }
 
-export type Local = {
+export type IrFunction = {
+  storages: Storage[],
+  node: Node,
+}
+
+export type Storage = {
   ty: IrVarType,
 }
 
 export type Node = {
-  ins: [...Ins[], EndIns],
+  ins: Ins[],
+  end: EndIns,
 }
 
 export type InsTy<T extends string> = {
-  expr: T,
+  ins: T,
 }
 
-export type Ins = AssignIns;
+export type Ins = RunCmd | Set;
 
-export type AssignIns = InsTy<'assign'> & {
+export type Set = InsTy<'set'> & {
   index: number,
   expr: ExprIns,
 }
 
+export type RunCmd = InsTy<'cmd'> & {
+  command: string,
+}
+
 export type ExprIns = Const | Arith | Call | Neg;
 
-export type ExprTy<T extends string> = {
+export type ExprInsTy<T extends string> = {
   expr: T,
 }
 
@@ -39,27 +57,28 @@ type ArithBody = {
 
 export type Arith = Add | Sub | Mul | Div | Remi;
 
-export type Add = ExprTy<'add'> & ArithBody;
-export type Sub = ExprTy<'sub'> & ArithBody;
-export type Mul = ExprTy<'mul'> & ArithBody;
-export type Div = ExprTy<'div'> & ArithBody;
-export type Remi = ExprTy<'remi'> & ArithBody;
+export type Add = ExprInsTy<'add'> & ArithBody;
+export type Sub = ExprInsTy<'sub'> & ArithBody;
+export type Mul = ExprInsTy<'mul'> & ArithBody;
+export type Div = ExprInsTy<'div'> & ArithBody;
+export type Remi = ExprInsTy<'remi'> & ArithBody;
 
-export type Neg = ExprTy<'neg'> & {
+export type Neg = ExprInsTy<'neg'> & {
   target: Ref,
 };
 
-export type Call = ExprTy<'call'> & {
+export type Call = ExprInsTy<'call'> & {
   args: Ref[],
   f: McsFunction,
 }
 
 export type Ref = Const | Index;
 
-export type Const = ExprTy<'const'> & {
+export type Const = ExprInsTy<'const'> & {
+  ty: VarType,
   value: number,
 }
 
-export type Index = ExprTy<'index'> & {
+export type Index = ExprInsTy<'index'> & {
   index: number,
 }

@@ -1,5 +1,6 @@
 import { Expr } from '.';
-import { AstTy, Block } from '..';
+import { AstTy } from '..';
+import { Block } from '../stmt';
 
 export type If = AstTy<'if'> & {
   condition: Expr,

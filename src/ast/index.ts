@@ -1,4 +1,3 @@
-import { Stmt } from './stmt'
 import { VarType } from './types'
 
 /**
@@ -17,8 +16,4 @@ export type Id<T = VarType> = AstTy<'id'> & {
 
 export type ConstNumber = AstTy<'number'> & {
   value: number,
-}
-
-export type Block = AstTy<'block'> & {
-  stmts: Stmt[],
 }
