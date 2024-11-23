@@ -94,6 +94,10 @@ function visitReturn(env: Env, node: Node, ret: Return): Node {
       ),
     };
   } else {
+    if (env.sig.returns != null) {
+      throw new Error(`cannot return without an expression on ${env.sig.returns} return type`);
+    }
+
     node.end = {
       ins: 'ret',
       index: newStorage(env, 'empty'),
