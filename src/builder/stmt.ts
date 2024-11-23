@@ -102,7 +102,7 @@ export function mcsBreak(label?: string) {
   blockScope.get().stmts.push(stmt);
 }
 
-export function mcsReturn(expr: Expr) {
+export function mcsReturn(expr?: Expr) {
   blockScope.get().stmts.push({
     ast: 'return',
     expr,
