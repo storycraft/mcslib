@@ -110,7 +110,6 @@ export class VarMap {
 }
 
 export type Loop = {
-  prevNode: Node,
   loopNode: Node,
   nextNode: Node,
 }
@@ -132,14 +131,12 @@ export class LoopStack {
       ins: 'jmp',
       next: loopNode,
     };
-
     node.end = {
       ins: 'jmp',
       next: loopNode,
     };
 
     const loop: Loop = {
-      prevNode: node,
       loopNode,
       nextNode: emptyNode(),
     };

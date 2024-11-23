@@ -143,7 +143,10 @@ function visitIf(env: Env, node: Node, stmt: If): Node {
 function visitLoop(env: Env, node: Node, stmt: Loop): Node {
   return env.loop.enter(
     node,
-    (loop) => visitBlock(env, loop.loopNode, stmt.block),
+    (loop) => {
+      visitBlock(env, loop.loopNode, stmt.block);
+      return loop.nextNode;
+    },
     stmt.label,
   );
 }
