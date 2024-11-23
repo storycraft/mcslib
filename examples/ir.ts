@@ -6,6 +6,6 @@ import { low } from '@/ir/low';
 console.log(inspect(
   low(build(tree)),
   true,
-  10,
+  20,
   true
 ));
