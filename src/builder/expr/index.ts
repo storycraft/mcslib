@@ -13,8 +13,8 @@ export function mcsExpr(
   const length = args.length;
   for (let i = 0; i < length; i++) {
     if (arr[i] !== '') {
-      for (const value of arr[i]) {
-        if (value === ' ') {
+      for (const value of arr[i].split(' ')) {
+        if (value === '') {
           continue;
         }
 
