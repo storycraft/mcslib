@@ -44,6 +44,9 @@ export function build<
 >(fn: McsFunction<Args, Ret>): Fn<Args, Ret> {
   const item: Fn<Args, Ret> = {
     ast: 'fn',
+    args: fn.sig.args.map((_, id) => {
+      return { ast: 'id', id } as const;
+    }),
     sig: fn.sig,
     block: {
       ast: 'block',
@@ -55,11 +58,7 @@ export function build<
     varCounter: fn.sig.args.length,
   }, () => {
     blockScope.with({ stmts: item.block.stmts }, () => {
-      (fn.buildFn as (...args: Id[]) => void)(
-        ...fn.sig.args.map((_, id) => {
-          return { ast: 'id', id } as const;
-        })
-      );
+      (fn.buildFn as (...args: Id[]) => void)(...item.args);
     });
   });
 

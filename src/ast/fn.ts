@@ -1,11 +1,13 @@
-import { AstTy, Block, Id } from '.';
+import { AstTy, Id } from '.';
 import { Expr } from './expr';
+import { Block } from './stmt';
 import { VarType } from './types';
 
 export type Fn<
   Args extends unknown[] = VarType[],
   Ret = VarType,
 > = AstTy<'fn'> & {
+  args: Id[],
   sig: FnSig<Args, Ret>,
   block: Block,
 }

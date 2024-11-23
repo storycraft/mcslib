@@ -19,18 +19,18 @@ export function parseExpr(cx: ParseCx): Expr {
 
 function expectTokenVal(cx: ParseCx, literal: string) {
   if (expectToken(cx) !== literal) {
-    throw `expected token '${literal}', got '${cx.terms[cx.index].value}'.  index: ${cx.index}`;
+    throw new Error(`expected token '${literal}', got '${cx.terms[cx.index].value}'.  index: ${cx.index}`);
   }
 }
 
 function expectToken(cx: ParseCx): string {
   const term = cx.terms[cx.index];
   if (term == null) {
-    throw `unexpected end of parse buffer. expected a token`;
+    throw new Error(`unexpected end of parse buffer. expected a token`);
   }
 
   if (term.ty !== 'token') {
-    throw `expected a token, got ${term.ty} ${term.value}. index: ${cx.index}`;
+    throw new Error(`expected a token, got ${term.ty} ${term.value}. index: ${cx.index}`);
   }
 
   cx.index++;
@@ -160,7 +160,7 @@ function parseParen(cx: ParseCx): Expr {
     terms.push(cx.terms[cx.index]);
   }
   
-  throw `unclosed paren at: ${cx.index}`;
+  throw new Error(`unclosed paren at: ${cx.index}`);
 }
 
 function parseNot(cx: ParseCx): Not {
@@ -191,5 +191,5 @@ function parseTerm(cx: ParseCx): Expr {
     return term.value;
   }
 
-  throw `expected an expression, found ${term.ty} ${term.value}. index: ${cx.index}`;
+  throw new Error(`expected an expression, found ${term.ty} ${term.value}. index: ${cx.index}`);
 }

@@ -1,6 +1,6 @@
 import { If } from '@/ast/expr/condition';
 import { Stmt, Local, Return, Block, Assign, Command } from '@/ast/stmt';
-import { Env, newStorage, newStorageInit } from '.';
+import { Env, newStorage, newStorageInfer, newStorageInit } from '.';
 import { Node, emptyNode } from '..';
 import { visitExpr } from './expr';
 import { Break, Continue, Loop } from '@/ast/loop';
@@ -107,7 +107,7 @@ function visitAssign(env: Env, node: Node, stmt: Assign) {
   const [varTy, index] = env.varMap.get(stmt.id);
   const [exprTy, expr] = visitExpr(env, node, stmt.expr);
   if (exprTy !== varTy) {
-    throw `cannot assign to variable with type: ${varTy} using expression returning ${exprTy}`;
+    throw new Error(`cannot assign to variable with type: ${varTy} using expression returning ${exprTy}`);
   }
   
   node.ins.push({
@@ -176,11 +176,5 @@ function visitCommand(env: Env, node: Node, cmd: Command) {
 }
 
 function visitStmtExpr(env: Env, node: Node, expr: Expr) {
-  const [ty, exprIns] = visitExpr(env, node, expr);
-  const index = newStorage(env, ty);
-  node.ins.push({
-    ins: 'set',
-    index,
-    expr: exprIns,
-  });
+  newStorageInfer(env, node, expr);
 }

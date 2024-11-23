@@ -30,7 +30,7 @@ export function mcsExpr(
       terms.push({
         ty: 'expr',
         value: {
-          ast: 'number',
+          ast: 'literal',
           value: arg,
         },
       });

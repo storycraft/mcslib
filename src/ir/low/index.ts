@@ -21,14 +21,20 @@ export function low(f: Fn): IrFunction {
     storages: [],
   };
 
-  for (const ty of f.sig.args) {
-    env.storages.push({ ty });
+  const length = f.args.length;
+  const args = new Array(length);
+  for (let i = 0; i < length; i++) {
+    const ty = f.sig.args[i];
+    const index = newStorage(env, ty);
+    env.varMap.register(f.args[i], ty, index);
+    args[i] = index;
   }
 
   const node = emptyNode();
   visitBlock(env, node, f.block);
 
   return {
+    args,
     storages: env.storages,
     node,
   };
@@ -53,20 +59,35 @@ export function newStorageInit(
   ty: IrVarType,
   expr: Expr,
 ): number {
-  const index = newStorage(env, ty);
   const [exprTy, irExpr] = visitExpr(env, node, expr);
 
   if (exprTy !== ty) {
-    throw `expected type: ${exprTy} got: ${ty}`;
+    throw new Error(`expected type: ${exprTy} got: ${ty}`);
   }
+  
+  const index = newStorage(env, ty);
+  node.ins.push({
+    ins: 'set',
+    index,
+    expr: irExpr,
+  });
+  return index;
+}
 
+export function newStorageInfer(
+  env: Env,
+  node: Node,
+  expr: Expr,
+): [IrVarType, number] {
+  const [exprTy, irExpr] = visitExpr(env, node, expr);
+  const index = newStorage(env, exprTy);
   node.ins.push({
     ins: 'set',
     index,
     expr: irExpr,
   });
 
-  return index;
+  return [exprTy, index];
 }
 
 /**
@@ -78,7 +99,7 @@ export class VarMap {
 
   register(id: Id, ty: VarType, index: number) {
     if (this.varToIr.has(id.id)) {
-      throw `duplicate local entry id: ${id.id}`;
+      throw new Error(`multiple local variable declaration. id: ${id.id}`);
     }
 
     this.varToIr.set(id.id, index);
@@ -89,7 +110,7 @@ export class VarMap {
     const ty = this.varToTy.get(id.id);
     const index = this.varToIr.get(id.id);
     if (index == null || ty == null) {
-      throw `unknown local id: ${id.id}`;
+      throw new Error(`local variable id: ${id.id} is not defined`);
     }
 
     return [ty, index];
@@ -134,7 +155,7 @@ export class LoopStack {
 
     if (label) {
       if (this.labelToIrNode.has(label.name)) {
-        throw `duplicate label name: ${label.name}`;
+        throw new Error(`duplicate label name: ${label.name}`);
       }
       this.labelToIrNode.set(label.name, loop);
     }
@@ -157,7 +178,7 @@ export class LoopStack {
   get(label?: Label): Loop {
     if (!label) {
       if (this.stack.length == 0) {
-        throw `cannot use outside of loop block`;
+        throw new Error(`cannot use outside of loop block`);
       }
 
       return this.stack[this.stack.length - 1];
@@ -165,7 +186,7 @@ export class LoopStack {
 
     const node = this.labelToIrNode.get(label.name);
     if (!node) {
-      throw `cannot find loop label: ${label.name}`;
+      throw new Error(`cannot find loop label: ${label.name}`);
     }
 
     return node;

@@ -14,6 +14,6 @@ export type Id<T = VarType> = AstTy<'id'> & {
   [marker]?: T,
 }
 
-export type ConstNumber = AstTy<'number'> & {
+export type Literal = AstTy<'literal'> & {
   value: number,
 }
