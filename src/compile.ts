@@ -26,8 +26,8 @@ type FnItem = {
 }
 
 class FunctionMap {
-  private nextId: number = 0;
-  private functionMap: Map<McsFunction, FnItem> = new Map();
+  private nextId = 0;
+  private functionMap = new Map<McsFunction, FnItem>();
 
   get(f: McsFunction): FnItem {
     const get = this.functionMap.get(f);

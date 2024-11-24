@@ -110,8 +110,8 @@ export function newStorageInit(
  * Map var id to ir index
  */
 export class VarMap {
-  private readonly varToIr: Map<number, number> = new Map();
-  private readonly varToTy: Map<number, VarType> = new Map();
+  private readonly varToIr = new Map<number, number>();
+  private readonly varToTy = new Map<number, VarType>();
 
   register(id: Id, ty: VarType, index: number) {
     if (this.varToIr.has(id.id)) {
@@ -142,7 +142,7 @@ export type Loop = {
  * create loop stack of node and map label to ir node
  */
 export class LoopStack {
-  private readonly labelToIrNode: Map<string, Loop> = new Map();
+  private readonly labelToIrNode = new Map<string, Loop>();
   private readonly stack: Loop[] = [];
 
   enter<T>(
