@@ -1,13 +1,13 @@
 import { Arithmetic, Expr, Neg } from '@/ast/expr';
 import { Env, newStorage, newStorageInit } from '.';
 import { Index, Ref, ExprIns } from '..';
-import { IrVarType } from '../types';
+import { IrType } from '../types';
 import { Id, Literal } from '@/ast';
 import { Call } from '@/ast/fn';
 import { BoolOperator, Comparison, Not } from '@/ast/expr/condition';
 import { Node } from '../node';
 
-export type TypedRef = [IrVarType, Ref];
+export type TypedRef = [IrType, Ref];
 
 export function visitExpr(env: Env, node: Node, expr: Expr): TypedRef {
   switch (expr.ast) {
@@ -141,7 +141,7 @@ function visitNot(env: Env, node: Node, not: Not): TypedRef {
 }
 
 function visitCall(env: Env, node: Node, call: Call): TypedRef {
-  const returnTy: IrVarType = call.fn.sig.returns ?? 'empty';
+  const returnTy: IrType = call.fn.sig.returns ?? 'empty';
 
   if (call.fn.sig.args.length !== call.args.length) {
     throw new Error(`required ${call.fn.sig.args.length} arguments but ${call.args.length} are supplied`);

@@ -1,7 +1,7 @@
 import { Fn, FnSig } from '@/ast/fn';
 import { IrFunction, Storage, Ref } from '..';
 import { Expr } from '@/ast/expr';
-import { IrVarType } from '../types';
+import { IrType } from '../types';
 import { visitBlock } from './stmt';
 import { visitExpr } from './expr';
 import { Id } from '@/ast';
@@ -85,7 +85,7 @@ export function refToIndex(env: Env, node: Node, ref: Ref): number {
   }
 }
 
-export function newStorage(env: Env, ty: IrVarType): number {
+export function newStorage(env: Env, ty: IrType): number {
   const index = env.storages.length;
   env.storages.push({ ty });
   return index;
@@ -94,7 +94,7 @@ export function newStorage(env: Env, ty: IrVarType): number {
 export function newStorageInit(
   env: Env,
   node: Node,
-  ty: IrVarType,
+  ty: IrType,
   expr: Expr,
 ): number {
   const [exprTy, ref] = visitExpr(env, node, expr);

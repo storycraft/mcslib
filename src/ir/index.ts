@@ -1,5 +1,5 @@
 import { McsFunction } from '@/ast/fn';
-import { IrVarType } from './types';
+import { IrType } from './types';
 import { VarType } from '@/ast/types';
 import { Node } from './node';
 
@@ -10,7 +10,7 @@ export type IrFunction = {
 }
 
 export type Storage = {
-  ty: IrVarType,
+  ty: IrType,
 }
 
 export type InsTy<T extends string> = {
