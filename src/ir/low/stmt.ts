@@ -1,11 +1,11 @@
-import { If } from '@/ast/expr/condition';
-import { Stmt, Local, Return, Block, Assign, Command } from '@/ast/stmt';
-import { Env, newStorage, newStorageInit } from '.';
-import { visitExpr } from './expr';
-import { Break, Continue, Loop } from '@/ast/loop';
-import { SwitchInt } from '../end';
-import { Expr } from '@/ast/expr';
-import { emptyNode, Node } from '../node';
+import { If } from '@/ast/expr/condition.js';
+import { Stmt, Local, Return, Block, Assign, Command } from '@/ast/stmt.js';
+import { Env, newStorage, newStorageInit } from '../low.js';
+import { visitExpr } from './expr.js';
+import { Break, Continue, Loop } from '@/ast/loop.js';
+import { SwitchInt } from '../end.js';
+import { Expr } from '@/ast/expr.js';
+import { emptyNode, Node } from '../node.js';
 
 export function visitStmt(env: Env, node: Node, stmt: Stmt): Node {
   switch (stmt.ast) {

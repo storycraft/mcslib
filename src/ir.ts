@@ -1,7 +1,7 @@
-import { McsFunction } from '@/ast/fn';
-import { IrType } from './types';
-import { VarType } from '@/ast/types';
-import { Node } from './node';
+import { McsFunction } from '@/ast/fn.js';
+import { IrType } from './ir/types.js';
+import { VarType } from '@/ast/types.js';
+import { Node } from './ir/node.js';
 
 export type IrFunction = {
   args: number[],

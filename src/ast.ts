@@ -1,4 +1,4 @@
-import { VarType } from './types'
+import { VarType } from './ast/types.js'
 
 /**
  * identifier for ast types

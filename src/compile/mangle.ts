@@ -1,6 +1,6 @@
-import { FnSig } from '@/ast/fn';
-import { VarType } from '@/ast/types';
-import { IrType } from '@/ir/types';
+import { FnSig } from '@/ast/fn.js';
+import { VarType } from '@/ast/types.js';
+import { IrType } from '@/ir/types.js';
 
 const MANGLE_MAP: Record<IrType, string> = {
   'number': 'N',

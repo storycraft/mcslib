@@ -1,7 +1,7 @@
-import { AstTy, Id } from '.';
-import { Expr } from './expr';
-import { Block } from './stmt';
-import { VarType } from './types';
+import { AstTy, Id } from '../ast.js';
+import { Expr } from './expr.js';
+import { Block } from './stmt.js';
+import { VarType } from './types.js';
 
 export type Fn<
   Args extends unknown[] = VarType[],

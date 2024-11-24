@@ -1,6 +1,6 @@
-import { Expr } from '.';
-import { AstTy } from '..';
-import { Block } from '../stmt';
+import { Expr } from '../expr.js';
+import { AstTy } from '../../ast.js';
+import { Block } from '../stmt.js';
 
 export type If = AstTy<'if'> & {
   condition: Expr,

@@ -1,8 +1,8 @@
-import { AstTy, Id } from '.';
-import { VarType } from './types';
-import { Expr } from './expr';
-import { If } from './expr/condition';
-import { Loop, Continue, Break } from './loop';
+import { AstTy, Id } from '../ast.js';
+import { VarType } from './types.js';
+import { Expr } from './expr.js';
+import { If } from './expr/condition.js';
+import { Loop, Continue, Break } from './loop.js';
 
 export type Stmt = Block | Local | Assign | If | Loop | Continue | Break | Return | Expr | Command;
 

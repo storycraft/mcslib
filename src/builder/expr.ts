@@ -1,7 +1,7 @@
-import { Call, McsFunction } from '@/ast/fn';
-import { Expr } from '@/ast/expr';
-import { parseExpr, Term } from './parse';
-import { VarType } from '@/ast/types';
+import { Call, McsFunction } from '@/ast/fn.js';
+import { Expr } from '@/ast/expr.js';
+import { parseExpr, Term } from './expr/parse.js';
+import { VarType } from '@/ast/types.js';
 
 type ExprArg = number | Expr;
 

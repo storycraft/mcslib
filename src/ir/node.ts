@@ -1,5 +1,5 @@
-import { Ins } from '.';
-import { EndIns } from './end';
+import { Ins } from '../ir.js';
+import { EndIns } from './end.js';
 
 export type Node = {
   ins: Ins[],

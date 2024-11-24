@@ -1,7 +1,7 @@
-import { McsFunction } from '@/ast/fn';
-import { FunctionDir } from '..';
-import { VarType } from '@/ast/types';
-import { mangle } from './mangle';
+import { McsFunction } from '@/ast/fn.js';
+import { FunctionDir } from './index.js';
+import { VarType } from '@/ast/types.js';
+import { mangle } from './compile/mangle.js';
 
 export class Compiler {
   private functionMap: FunctionMap = new FunctionMap();

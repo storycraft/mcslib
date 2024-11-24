@@ -1,5 +1,5 @@
-import { InsTy } from '.';
-import { Node } from './node';
+import { InsTy } from '../ir.js';
+import { Node } from './node.js';
 
 export type EndIns = Unreachable | SwitchInt | Jmp | Ret;
 

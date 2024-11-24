@@ -1,4 +1,4 @@
-import { VarType } from '@/ast/types';
+import { VarType } from '@/ast/types.js';
 
 /**
  * IR types

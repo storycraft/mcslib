@@ -1,11 +1,11 @@
-import { Id } from '../ast';
-import { Fn, McsFunction } from '../ast/fn';
-import { create, Store } from '../store';
-import { VarType } from '../ast/types';
-import { Stmt } from '../ast/stmt';
+import { Id } from './ast.js';
+import { Fn, McsFunction } from './ast/fn.js';
+import { create, Store } from './store.js';
+import { VarType } from './ast/types.js';
+import { Stmt } from './ast/stmt.js';
 
-export * from './stmt';
-export * from './expr';
+export * from './builder/stmt.js';
+export * from './builder/expr.js';
 
 export type FnScope = {
   varCounter: number,

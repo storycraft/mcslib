@@ -1,11 +1,11 @@
-import { Arithmetic, Expr, Neg } from '@/ast/expr';
-import { Env, newStorage, newStorageInit } from '.';
-import { Index, Ref, ExprIns } from '..';
-import { IrType } from '../types';
-import { Id, Literal } from '@/ast';
-import { Call } from '@/ast/fn';
-import { BoolOperator, Comparison, Not } from '@/ast/expr/condition';
-import { Node } from '../node';
+import { Arithmetic, Expr, Neg } from '@/ast/expr.js';
+import { Env, newStorage, newStorageInit } from '../low.js';
+import { Index, Ref, ExprIns } from '../../ir.js';
+import { IrType } from '../types.js';
+import { Id, Literal } from '@/ast.js';
+import { Call } from '@/ast/fn.js';
+import { BoolOperator, Comparison, Not } from '@/ast/expr/condition.js';
+import { Node } from '../node.js';
 
 export type TypedRef = [IrType, Ref];
 
@@ -200,10 +200,6 @@ function visitArith(env: Env, node: Node, arith: Arithmetic): TypedRef {
     case '%': {
       expr = { expr: 'remi', left, right };
       break;
-    }
-
-    default: {
-      throw new Error(`unknown arithmetic operator: ${arith.op}`);
     }
   }
   node.ins.push({

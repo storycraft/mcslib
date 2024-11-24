@@ -1,5 +1,5 @@
-import { AstTy } from '.';
-import { Block } from './stmt';
+import { AstTy } from '../ast.js';
+import { Block } from './stmt.js';
 
 export type Loop = AstTy<'loop'> & {
   label?: Label,

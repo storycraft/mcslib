@@ -1,5 +1,5 @@
-import { Expr, Neg } from '@/ast/expr';
-import { Not } from '@/ast/expr/condition';
+import { Expr, Neg } from '@/ast/expr.js';
+import { Not } from '@/ast/expr/condition.js';
 
 export type Variant<T, V> = {
   ty: T,

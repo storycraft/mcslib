@@ -1,13 +1,13 @@
-import { Fn, FnSig } from '@/ast/fn';
-import { IrFunction, Storage, Ref } from '..';
-import { Expr } from '@/ast/expr';
-import { IrType } from '../types';
-import { visitBlock } from './stmt';
-import { visitExpr } from './expr';
-import { Id } from '@/ast';
-import { Label } from '@/ast/loop';
-import { VarType } from '@/ast/types';
-import { emptyNode, Node, traverseNode } from '../node';
+import { Fn, FnSig } from '@/ast/fn.js';
+import { IrFunction, Storage, Ref } from '../ir.js';
+import { Expr } from '@/ast/expr.js';
+import { IrType } from './types.js';
+import { visitBlock } from './low/stmt.js';
+import { visitExpr } from './low/expr.js';
+import { Id } from '@/ast.js';
+import { Label } from '@/ast/loop.js';
+import { VarType } from '@/ast/types.js';
+import { emptyNode, Node, traverseNode } from './node.js';
 
 /**
  * create intermediate representation of a function

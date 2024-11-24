@@ -1,6 +1,6 @@
-import { AstTy, Id, Literal } from '..';
-import { Call } from '../fn';
-import { CompExpr } from './condition';
+import { AstTy, Id, Literal } from '../ast.js';
+import { Call } from './fn.js';
+import { CompExpr } from './expr/condition.js';
 
 export type Expr = Id | CompExpr | Arithmetic | Neg | Literal | Call;
 
