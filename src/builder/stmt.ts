@@ -3,7 +3,6 @@ import { Id } from '@/ast';
 import { Expr } from '@/ast/expr';
 import { If } from '@/ast/expr/condition';
 import { Break, Continue, Loop } from '@/ast/loop';
-import { Local } from '@/ast/stmt';
 import { VarType } from '@/ast/types';
 
 export function mcsVar<const T extends VarType>(ty: T, init?: Expr): Id<T> {
@@ -118,12 +117,4 @@ export function mcsCmd(command: string) {
     ast: 'command',
     command,
   });
-}
-
-export function mcsCmdFmt() {
-
-}
-
-export function cmdFmt(array: TemplateStringsArray, ...locals: Local[]) {
-
 }

@@ -1,5 +1,5 @@
 import { Fn, FnSig } from '@/ast/fn';
-import { IrFunction, Storage, Node, emptyNode, Ref } from '..';
+import { IrFunction, Storage, Ref } from '..';
 import { Expr } from '@/ast/expr';
 import { IrVarType } from '../types';
 import { visitBlock } from './stmt';
@@ -7,6 +7,7 @@ import { visitExpr } from './expr';
 import { Id } from '@/ast';
 import { Label } from '@/ast/loop';
 import { VarType } from '@/ast/types';
+import { emptyNode, Node, traverseNode } from '../node';
 
 /**
  * create intermediate representation of a function
@@ -32,6 +33,21 @@ export function low(f: Fn): IrFunction {
 
   const node = emptyNode();
   visitBlock(env, node, f.block);
+
+  traverseNode(node, (node) => {
+    if (node.end.ins !== 'unreachable') {
+      return;
+    }
+
+    if (f.sig.returns == null) {
+      node.end = {
+        ins: 'ret',
+        index: newStorage(env, 'empty'),
+      };
+    } else {
+      throw new Error(`function with return type ${f.sig.returns} ended without returning`);
+    }
+  });
 
   return {
     args,

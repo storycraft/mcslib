@@ -1,11 +1,11 @@
 import { If } from '@/ast/expr/condition';
 import { Stmt, Local, Return, Block, Assign, Command } from '@/ast/stmt';
 import { Env, newStorage, newStorageInit } from '.';
-import { Node, emptyNode } from '..';
 import { visitExpr } from './expr';
 import { Break, Continue, Loop } from '@/ast/loop';
 import { SwitchInt } from '../end';
 import { Expr } from '@/ast/expr';
+import { emptyNode, Node } from '../node';
 
 export function visitStmt(env: Env, node: Node, stmt: Stmt): Node {
   switch (stmt.ast) {

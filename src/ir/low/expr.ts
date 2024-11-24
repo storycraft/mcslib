@@ -1,10 +1,11 @@
 import { Arithmetic, Expr, Neg } from '@/ast/expr';
 import { Env, newStorage, newStorageInit } from '.';
-import { Node, Index, Ref, ExprIns } from '..';
+import { Index, Ref, ExprIns } from '..';
 import { IrVarType } from '../types';
 import { Id, Literal } from '@/ast';
 import { Call } from '@/ast/fn';
 import { BoolOperator, Comparison, Not } from '@/ast/expr/condition';
+import { Node } from '../node';
 
 export type TypedRef = [IrVarType, Ref];
 

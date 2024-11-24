@@ -1,19 +1,7 @@
-import { EndIns } from './end';
 import { McsFunction } from '@/ast/fn';
 import { IrVarType } from './types';
 import { VarType } from '@/ast/types';
-
-/**
- * create a new empty node with an end or unreachable end
- */
-export function emptyNode(
-  end: EndIns = { ins: 'unreachable' },
-): Node {
-  return {
-    ins: [],
-    end,
-  };
-}
+import { Node } from './node';
 
 export type IrFunction = {
   args: number[],
@@ -23,11 +11,6 @@ export type IrFunction = {
 
 export type Storage = {
   ty: IrVarType,
-}
-
-export type Node = {
-  ins: Ins[],
-  end: EndIns,
 }
 
 export type InsTy<T extends string> = {

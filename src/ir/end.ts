@@ -1,4 +1,5 @@
-import { InsTy, Node } from '.';
+import { InsTy } from '.';
+import { Node } from './node';
 
 export type EndIns = Unreachable | SwitchInt | Jmp | Ret;
 
@@ -12,7 +13,7 @@ export type Jmp = InsTy<'jmp'> & {
 
 export type SwitchInt = InsTy<'switch_int'> & {
   index: number,
-  table: Node[],
+  table: (Node | null)[],
   default: Node,
 }
 
