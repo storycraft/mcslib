@@ -15,6 +15,15 @@ import { emptyNode, Node, traverseNode } from '../node';
  * @returns ir of the function
  */
 export function low(f: Fn): IrFunction {
+  const [env, ir] = initIr(f);
+  visitBlock(env, ir.node, f.block);
+
+  checkNode(env, ir.node);
+
+  return ir;
+}
+
+function initIr(f: Fn): [Env, IrFunction] {
   const env: Env = {
     sig: f.sig,
     varMap: new VarMap(),
@@ -31,29 +40,28 @@ export function low(f: Fn): IrFunction {
     args[i] = index;
   }
 
-  const node = emptyNode();
-  visitBlock(env, node, f.block);
+  return [env, {
+    args,
+    storages: env.storages,
+    node: emptyNode(),
+  }];
+}
 
+function checkNode(env: Env, node: Node) {
   traverseNode(node, (node) => {
     if (node.end.ins !== 'unreachable') {
       return;
     }
 
-    if (f.sig.returns == null) {
+    if (env.sig.returns == null) {
       node.end = {
         ins: 'ret',
         index: newStorage(env, 'empty'),
       };
     } else {
-      throw new Error(`function with return type ${f.sig.returns} ended without returning`);
+      throw new Error(`function with return type ${env.sig.returns} ended without returning`);
     }
   });
-
-  return {
-    args,
-    storages: env.storages,
-    node,
-  };
 }
 
 export type Env = {
