@@ -19,18 +19,18 @@ export function parseExpr(cx: ParseCx): Expr {
 
 function expectTokenVal(cx: ParseCx, literal: string) {
   if (expectToken(cx) !== literal) {
-    throw new Error(`expected token '${literal}', got '${cx.terms[cx.index].value}'.  index: ${cx.index}`);
+    throw new Error(`expected token '${literal}', got '${cx.terms[cx.index].ty}'.  index: ${cx.index}`);
   }
 }
 
 function expectToken(cx: ParseCx): string {
-  const term = cx.terms[cx.index];
+  const term = cx.terms.at(cx.index);
   if (term == null) {
     throw new Error(`unexpected end of parse buffer. expected a token`);
   }
 
   if (term.ty !== 'token') {
-    throw new Error(`expected a token, got ${term.ty} ${term.value}. index: ${cx.index}`);
+    throw new Error(`expected a token, got ${term.ty}. index: ${cx.index}`);
   }
 
   cx.index++;
@@ -38,7 +38,7 @@ function expectToken(cx: ParseCx): string {
 }
 
 function peekToken(cx: ParseCx): string | null {
-  const term = cx.terms[cx.index];
+  const term = cx.terms.at(cx.index);
   if (!term || term.ty !== 'token') {
     return null;
   }
@@ -49,7 +49,7 @@ function peekToken(cx: ParseCx): string | null {
 function parseCondition(cx: ParseCx): Expr {
   const left = parseEquation(cx);
 
-  const term = cx.terms[cx.index];
+  const term = cx.terms.at(cx.index);
   if (term == null || term.ty !== 'token' || term.value !== '&&' && term.value !== '||') {
     return left;
   }
@@ -180,10 +180,10 @@ function parseNeg(cx: ParseCx): Neg {
 }
 
 function parseTerm(cx: ParseCx): Expr {
-  const term = cx.terms[cx.index];
+  const term = cx.terms.at(cx.index);
 
   if (!term) {
-    throw 'unexpected end of a parse buffer. expected an expression'
+    throw new Error('unexpected end of a parse buffer. expected an expression');
   }
 
   if (term.ty === 'expr') {

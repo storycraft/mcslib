@@ -146,7 +146,7 @@ function visitCall(env: Env, node: Node, call: Call): TypedRef {
   if (call.fn.sig.args.length !== call.args.length) {
     throw new Error(`required ${call.fn.sig.args.length} arguments but ${call.args.length} are supplied`);
   }
-  const args: Index[] = new Array(call.args.length);
+  const args = new Array<Index>(call.args.length);
   const length = call.args.length;
   for (let i = 0; i < length; i++) {
     const ty = call.fn.sig.args[i];

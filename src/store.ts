@@ -25,7 +25,7 @@ export function create<T>(): Store<T> {
   return {
     get(): T {
       if (current == null) {
-        throw 'value is not set';
+        throw new Error('value is not set');
       }
 
       return current;

@@ -32,7 +32,7 @@ function initIr(f: Fn): [Env, IrFunction] {
   };
 
   const length = f.args.length;
-  const args = new Array(length);
+  const args = new Array<number>(length);
   for (let i = 0; i < length; i++) {
     const ty = f.sig.args[i];
     const index = newStorage(env, ty);

@@ -16,6 +16,7 @@ export default [
     },
     rules: {
       '@typescript-eslint/consistent-type-definitions': 'off',
+      '@typescript-eslint/restrict-template-expressions': 'off',
     },
   }
 ];
