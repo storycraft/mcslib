@@ -27,4 +27,7 @@
   "include": [
     "./"
   ],
+  "exclude": [
+    "./build"
+  ]
 }
