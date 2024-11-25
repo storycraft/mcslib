@@ -19,15 +19,21 @@ export function emptyNode(
 }
 
 /**
- * Traverse node graph from the top
+ * Traverse every nodes in a graph once from the top
  * @param start node to start traverse
  */
 export function *traverseNode(
   start: Node
 ): Generator<Node, void, void> {
-  const stack: Node[] = [start];
+  const set = new Set<Node>();
+  set.add(start);
 
+  const stack: Node[] = [start];
   for (let node = stack.pop(); node != null; node = stack.pop()) {
+    if (set.has(node)) {
+      continue;
+    }
+    set.add(node);
     yield node;
 
     stack.push(...childrenNodes(node));
