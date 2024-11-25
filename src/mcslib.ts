@@ -1,5 +1,10 @@
 export interface FunctionDir {
   /**
+   * get namespace of the datapack dir
+   */
+  get namespace(): string;
+
+  /**
    * create a new writer
    * @param name name of the function
    */
@@ -36,18 +41,23 @@ export class FunctionWriter {
     
   }
 
+  get namespace() {
+    return this.dir.namespace;
+  }
+
   /**
    * create a new branch
    * @returns a writer to branch
    */
   async createBranch(): Promise<FunctionWriter> {
-    const name = `__${this.fnName}_b${this.branchId + 1}`;
+    const nextBranchId = this.branchId + 1;
+    const name = `__${this.fnName}_b${nextBranchId}`;
 
     return new FunctionWriter(
       this.dir,
       name,
       this.fnName,
-      this.branchId,
+      nextBranchId,
       await this.dir.create(name),
     );
   }
