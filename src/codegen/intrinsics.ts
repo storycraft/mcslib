@@ -1,7 +1,7 @@
 import { FunctionWriter } from '@/mcslib.js';
 import { Location } from './alloc.js';
 import { Env } from '@/codegen.js';
-import { Ref } from '@/ir.js';
+import { Arith, Ref } from '@/ir.js';
 import { IR_DEFAULT_CONST } from '@/ir/types.js';
 
 const NAMESPACE = 'mcs:system';
@@ -82,27 +82,7 @@ export async function loadIndex(env: Env, index: number, register: number, write
   );
 }
 
-export async function add(env: Env, left: Ref, right: Ref, writer: FunctionWriter) {
-  return arithmetic(env, 'add', left, right, writer);
-}
-
-export async function sub(env: Env, left: Ref, right: Ref, writer: FunctionWriter) {
-  return arithmetic(env, 'sub', left, right, writer);
-}
-
-export async function mul(env: Env, left: Ref, right: Ref, writer: FunctionWriter) {
-  return arithmetic(env, 'mul', left, right, writer);
-}
-
-export async function div(env: Env, left: Ref, right: Ref, writer: FunctionWriter) {
-  return arithmetic(env, 'div', left, right, writer);
-}
-
-export async function remi(env: Env, left: Ref, right: Ref, writer: FunctionWriter) {
-  return arithmetic(env, 'remi', left, right, writer);
-}
-
-async function arithmetic(env: Env, op: string, left: Ref, right: Ref, writer: FunctionWriter) {
+export async function arithmetic(env: Env, op: Arith['expr'], left: Ref, right: Ref, writer: FunctionWriter) {
   if (left.expr === 'const' && right.expr === 'const') {
     if (left.ty === 'empty' || right.ty === 'empty') {
       throw new Error(`Tried to run ${op} ins with non existent locations left: ${left.ty} right: ${right.ty}`);
@@ -118,6 +98,24 @@ async function arithmetic(env: Env, op: string, left: Ref, right: Ref, writer: F
   await load(env, right, 2, writer);
   await writer.write(
     `function mcs_intrinsic:${op} with storage ${NAMESPACE} ${REGISTERS}`
+  );
+}
+
+export async function neg(env: Env, operand: Ref, writer: FunctionWriter) {
+  if (operand.expr === 'const') {
+    if (operand.ty === 'empty') {
+      throw new Error(`Tried to run neg ins with a non existent location`);
+    }
+
+    await writer.write(
+      `data modify storage ${NAMESPACE} ${resolveRegister(1)} set value ${-operand.value}d`
+    );
+    return;
+  }
+
+  await load(env, operand, 1, writer);
+  await writer.write(
+    `function mcs_intrinsic:neg with storage ${NAMESPACE} ${REGISTERS}`
   );
 }
 
