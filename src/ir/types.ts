@@ -1,5 +1,4 @@
 import { VarType } from '@/ast/types.js';
-import { Const } from '@/ir.js';
 
 /**
  * IR types
@@ -9,7 +8,7 @@ export type IrType = VarType | 'empty';
 /**
  * IR type default const value
  */
-export const IR_DEFAULT_CONST: Record<IrType, Const> = {
+export const IR_DEFAULT_CONST = {
   'number': {
     expr: 'const',
     ty: 'number',

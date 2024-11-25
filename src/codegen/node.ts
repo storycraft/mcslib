@@ -3,7 +3,7 @@ import { ExprIns, Ins } from '@/ir.js';
 import { EndIns } from '@/ir/end.js';
 import { Node } from '@/ir/node.js';
 import { FunctionWriter } from '@/mcslib.js';
-import { load, loadConstNumber, loadIndex, storeFromR1 } from './intrinsics.js';
+import { disposeStackFrame, load, loadConstNumber, loadIndex, storeFromR1 } from './intrinsics.js';
 
 export async function walkNode(env: Env, node: Node, writer: FunctionWriter) {
   for (const ins of node.ins) {
@@ -29,7 +29,7 @@ async function walkIns(env: Env, ins: Ins, writer: FunctionWriter) {
 }
 
 async function walkExpr(env: Env, ins: ExprIns, writer: FunctionWriter) {
-
+  
 }
 
 async function walkEndIns(env: Env, ins: EndIns, writer: FunctionWriter) {
@@ -62,7 +62,7 @@ async function walkEndIns(env: Env, ins: EndIns, writer: FunctionWriter) {
           `execute if predicate mcs_intrinsic:eq run return run function ${writer.namespace}:${tableWriter.name}`
         );
 
-        queue.push(walkNode(env, ins.default, tableWriter));
+        queue.push(walkNode(env, target, tableWriter));
       }
 
       const defaultWriter = await writer.createBranch();
@@ -77,6 +77,7 @@ async function walkEndIns(env: Env, ins: EndIns, writer: FunctionWriter) {
 
     case 'ret': {
       await load(env, ins.ref, 1, writer);
+      await disposeStackFrame(env.stackSize, writer);
       break;
     }
 

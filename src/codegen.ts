@@ -2,6 +2,7 @@ import { IrFunction } from '@/ir.js';
 import { FunctionWriter } from './mcslib.js';
 import { allocator, Location } from './codegen/alloc.js';
 import { walkNode } from './codegen/node.js';
+import { initStackFrame } from './codegen/intrinsics.js';
 
 /**
  * generate functions from ir
@@ -14,11 +15,14 @@ export async function gen(ir: IrFunction, writer: FunctionWriter) {
     storages: ir.storages.map(
       (storage, index) => alloc.alloc(index, storage),
     ),
+    stackSize: alloc.stackSize,
   };
 
+  await initStackFrame(env.stackSize, writer);
   await walkNode(env, ir.node, writer);
 }
 
 export type Env = {
   storages: Location[],
+  stackSize: number,
 }

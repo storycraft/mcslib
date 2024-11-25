@@ -2,10 +2,34 @@ import { FunctionWriter } from '@/mcslib.js';
 import { Location } from './alloc.js';
 import { Env } from '@/codegen.js';
 import { Ref } from '@/ir.js';
+import { IR_DEFAULT_CONST } from '@/ir/types.js';
 
 const NAMESPACE = 'mcs:system';
 const STACK = 'stack';
 const REGISTERS = 'registers';
+
+export async function initStackFrame(size: number, writer: FunctionWriter) {
+  if (size == 0) {
+    return;
+  }
+  
+  const list = new Array<string>(size);
+  list.fill(`${IR_DEFAULT_CONST.number.value}d`);
+
+  await writer.write(
+    `data modify storage ${NAMESPACE} ${STACK} append value [${list.join(',')}]`
+  );
+}
+
+export async function disposeStackFrame(size: number, writer: FunctionWriter) {
+  if (size == 0) {
+    return;
+  }
+
+  await writer.write(
+    `data remove storage ${NAMESPACE} ${STACK}[-1]`
+  );
+}
 
 export async function storeFromR1(to: Location, writer: FunctionWriter) {
   if (to.at === 'none' || to.at === 'r1') {
