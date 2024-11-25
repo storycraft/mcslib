@@ -10,13 +10,13 @@ export type IrType = VarType | 'empty';
  */
 export const IR_DEFAULT_CONST = {
   'number': {
-    expr: 'const',
-    ty: 'number',
+    expr: 'const' as const,
+    ty: 'number' as const,
     value: 0,
   },
   'empty': {
-    expr: 'const',
-    ty: 'empty',
+    expr: 'const' as const,
+    ty: 'empty' as const,
     value: null,
   },
 }

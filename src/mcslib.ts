@@ -23,26 +23,26 @@ export class FunctionWriter {
    */
   public static async create(dir: FunctionDir, name: string): Promise<FunctionWriter> {
     return new FunctionWriter(
-      dir,
+      {
+        dir,
+        fnName: name,
+        nextBranchId: 1,
+      },
       name,
-      name,
-      0,
       await dir.create(name),
     );
   }
 
   private constructor(
-    private readonly dir: FunctionDir,
+    private readonly cx: Context,
     public readonly name: string,
-    private readonly fnName: string,
-    private readonly branchId: number,
     private readonly writer: Writer,
   ) {
-    
+
   }
 
   get namespace() {
-    return this.dir.namespace;
+    return this.cx.dir.namespace;
   }
 
   /**
@@ -50,18 +50,16 @@ export class FunctionWriter {
    * @returns a writer to branch
    */
   async createBranch(): Promise<FunctionWriter> {
-    const nextBranchId = this.branchId + 1;
-    const name = `__${this.fnName}_b${nextBranchId}`;
+    const nextBranchId = this.cx.nextBranchId++;
+    const name = `__${this.cx.fnName}_b${nextBranchId}`;
 
     return new FunctionWriter(
-      this.dir,
+      this.cx,
       name,
-      this.fnName,
-      nextBranchId,
-      await this.dir.create(name),
+      await this.cx.dir.create(name),
     );
   }
-  
+
   /**
    * write one command
    * @param command command to write
@@ -69,4 +67,10 @@ export class FunctionWriter {
   async write(command: string) {
     return this.writer.write(command);
   }
+}
+
+type Context = {
+  dir: FunctionDir,
+  nextBranchId: number,
+  fnName: string,
 }
