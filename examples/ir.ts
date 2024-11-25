@@ -1,10 +1,12 @@
-import { build } from '@/builder.js';
 import { inspect } from 'node:util';
-import { tree } from './common.js';
 import { low } from '@/ir/low.js';
+import { IrFunction } from '@/ir.js';
+import { AST_FN } from './tree.js';
+
+export const IR_FN: IrFunction = low(AST_FN);
 
 console.log(inspect(
-  low(build(tree)),
+  IR_FN,
   true,
   20,
   true
