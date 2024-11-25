@@ -32,16 +32,14 @@ function initIr(f: Fn): [Env, IrFunction] {
   };
 
   const length = f.args.length;
-  const args = new Array<number>(length);
   for (let i = 0; i < length; i++) {
     const ty = f.sig.args[i];
     const index = newStorage(env, ty);
     env.varMap.register(f.args[i], ty, index);
-    args[i] = index;
   }
 
   return [env, {
-    args,
+    args: length,
     storages: env.storages,
     node: emptyNode(),
   }];

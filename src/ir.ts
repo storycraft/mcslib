@@ -3,7 +3,7 @@ import { IrType } from './ir/types.js';
 import { Node } from './ir/node.js';
 
 export type IrFunction = {
-  args: number[],
+  args: number,
   storages: Storage[],
   node: Node,
 }
