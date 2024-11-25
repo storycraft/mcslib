@@ -3,7 +3,7 @@ import { ExprIns, Ins } from '@/ir.js';
 import { EndIns } from '@/ir/end.js';
 import { Node } from '@/ir/node.js';
 import { FunctionWriter } from '@/mcslib.js';
-import { disposeStackFrame, load, loadConstNumber, loadIndex, storeFromR1 } from './intrinsics.js';
+import { arithmetic, disposeStackFrame, load, loadConstNumber, loadIndex, neg, storeFromR1 } from './intrinsics.js';
 
 export async function walkNode(env: Env, node: Node, writer: FunctionWriter) {
   for (const ins of node.ins) {
@@ -29,7 +29,31 @@ async function walkIns(env: Env, ins: Ins, writer: FunctionWriter) {
 }
 
 async function walkExpr(env: Env, ins: ExprIns, writer: FunctionWriter) {
-  
+  switch (ins.expr) {
+    case 'index':
+    case 'const': {
+      await load(env, ins, 1, writer);
+      break;
+    }
+
+    case 'add':
+    case 'sub':
+    case 'mul':
+    case 'div':
+    case 'remi': {
+      await arithmetic(env, ins.expr, ins.left, ins.right, writer);
+      break;
+    }
+
+    case 'neg': {
+      await neg(env, ins.operand, writer);
+      break;
+    }
+
+    default: {
+      break;
+    }
+  }
 }
 
 async function walkEndIns(env: Env, ins: EndIns, writer: FunctionWriter) {
@@ -46,17 +70,25 @@ async function walkEndIns(env: Env, ins: EndIns, writer: FunctionWriter) {
       await loadIndex(env, ins.index, 1, writer);
 
       const length = ins.table.length;
-      for (let i = 0; i < length; i++) {
-        const target = ins.table[i];
-        if (!target) {
-          continue;
-        }
-
+      if (length === 1 && ins.table[0]) {
+        const target = ins.table[0];
         const name = await env.map.expand(env, target, writer);
-        await loadConstNumber(env, i, 2, writer);
         await writer.write(
-          `execute if predicate mcs_intrinsic:eq run return run function ${writer.namespace}:${name}`
+          `execute if predicate mcs_intrinsic:zero run return run function ${writer.namespace}:${name}`
         );
+      } else {
+        for (let i = 0; i < length; i++) {
+          const target = ins.table[i];
+          if (!target) {
+            continue;
+          }
+
+          const name = await env.map.expand(env, target, writer);
+          await loadConstNumber(env, i, 2, writer);
+          await writer.write(
+            `execute if predicate mcs_intrinsic:eq run return run function ${writer.namespace}:${name}`
+          );
+        }
       }
 
       const name = await env.map.expand(env, ins.default, writer);
