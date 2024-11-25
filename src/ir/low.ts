@@ -147,7 +147,7 @@ export class LoopStack {
     f: (loop: Loop) => Node,
     label?: Label
   ): Node {
-    const loopStart = emptyNode();
+    const loopStart = node.ins.length === 0 ? node : emptyNode();
     node.end = {
       ins: 'jmp',
       next: loopStart,
