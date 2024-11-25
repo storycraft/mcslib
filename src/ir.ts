@@ -29,7 +29,7 @@ export type RunCmd = InsTy<'cmd'> & {
   command: string,
 }
 
-export type ExprIns = Ref | Bool | Arith | Call | Neg;
+export type ExprIns = Ref | Bool | Not | Arith | Cmp | Call | Neg;
 
 export type ExprInsTy<T extends string> = {
   expr: T,
@@ -40,13 +40,9 @@ type Operands = {
   right: Ref,
 };
 
-export type Arith = Add | Sub | Mul | Div | Remi;
-
-export type Add = ExprInsTy<'add'> & Operands;
-export type Sub = ExprInsTy<'sub'> & Operands;
-export type Mul = ExprInsTy<'mul'> & Operands;
-export type Div = ExprInsTy<'div'> & Operands;
-export type Remi = ExprInsTy<'remi'> & Operands;
+export type Arith = ExprInsTy<'arith'> & Operands & {
+  op: '+' | '-' | '*' | '/' | '%'
+};
 
 type Operand = {
   operand: Ref,
@@ -59,14 +55,14 @@ export type Call = ExprInsTy<'call'> & {
   f: McsFunction,
 }
 
-export type Bool = And | Or | Cmp | Not;
+export type Bool = ExprInsTy<'bool'> & Operands & {
+  op: '&&' | '||'
+}
+export type Not = ExprInsTy<'not'> & Operand;
 
-export type And = ExprInsTy<'and'> & Operands;
-export type Or = ExprInsTy<'or'> & Operands;
 export type Cmp = ExprInsTy<'cmp'> & Operands & {
   op: '>' | '<' | '>=' | '<=' | '==' | '!='
 };
-export type Not = ExprInsTy<'not'> & Operand;
 
 export type Ref = Const | Index;
 

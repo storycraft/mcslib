@@ -1,6 +1,6 @@
 import { Arithmetic, Expr, Neg } from '@/ast/expr.js';
 import { Env, newStorage, newStorageInit } from '../low.js';
-import { Index, Ref, ExprIns } from '../../ir.js';
+import { Index, Ref } from '../../ir.js';
 import { IrType } from '../types.js';
 import { Id, Literal } from '@/ast.js';
 import { Call } from '@/ast/fn.js';
@@ -72,22 +72,10 @@ function visitBool(env: Env, node: Node, bool: BoolOperator): TypedRef {
   }
 
   const index = newStorage(env, leftTy);
-  let expr: ExprIns;
-  switch (bool.op) {
-    case '&&': {
-      expr = { expr: 'and', left, right };
-      break;
-    }
-
-    case '||': {
-      expr = { expr: 'or', left, right };
-      break;
-    }
-  }
   node.ins.push({
     ins: 'set',
     index,
-    expr,
+    expr: { expr: 'bool', op: bool.op, left, right },
   });
 
   return [leftTy, { expr: 'index', index }];
@@ -143,37 +131,10 @@ function visitArith(env: Env, node: Node, arith: Arithmetic): TypedRef {
   }
 
   const index = newStorage(env, leftTy);
-  let expr: ExprIns;
-  switch (arith.op) {
-    case '+': {
-      expr = { expr: 'add', left, right };
-      break;
-    }
-
-    case '-': {
-      expr = { expr: 'sub', left, right };
-      break;
-    }
-
-    case '*': {
-      expr = { expr: 'mul', left, right };
-      break;
-    }
-
-    case '/': {
-      expr = { expr: 'div', left, right };
-      break;
-    }
-
-    case '%': {
-      expr = { expr: 'remi', left, right };
-      break;
-    }
-  }
   node.ins.push({
     ins: 'set',
     index,
-    expr,
+    expr: { expr: 'arith', op: arith.op, left, right },
   });
 
   return [leftTy, { expr: 'index', index }];

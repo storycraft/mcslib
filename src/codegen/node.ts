@@ -3,7 +3,7 @@ import { ExprIns, Ins } from '@/ir.js';
 import { EndIns } from '@/ir/end.js';
 import { Node } from '@/ir/node.js';
 import { FunctionWriter } from '@/mcslib.js';
-import { arithmetic, call, cmp, disposeStackFrame, load, loadConstNumber, loadIndex, neg, storeFromR1 } from './intrinsics.js';
+import { arithmetic, bool, call, cmp, disposeStackFrame, load, loadConstNumber, loadIndex, neg, not, storeFromR1 } from './intrinsics.js';
 
 export async function walkNode(env: Env, node: Node, writer: FunctionWriter) {
   for (const ins of node.ins) {
@@ -36,12 +36,8 @@ async function walkExpr(env: Env, ins: ExprIns, writer: FunctionWriter) {
       break;
     }
 
-    case 'add':
-    case 'sub':
-    case 'mul':
-    case 'div':
-    case 'remi': {
-      await arithmetic(env, ins.expr, ins.left, ins.right, writer);
+    case 'arith': {
+      await arithmetic(env, ins.op, ins.left, ins.right, writer);
       break;
     }
 
@@ -62,6 +58,16 @@ async function walkExpr(env: Env, ins: ExprIns, writer: FunctionWriter) {
 
     case 'cmp': {
       await cmp(env, ins.op, ins.left, ins.right, writer);
+      break;
+    }
+
+    case 'bool': {
+      await bool(env, ins.op, ins.left, ins.right, writer);
+      break;
+    }
+
+    case 'not': {
+      await not(env, ins.operand, writer);
       break;
     }
 
