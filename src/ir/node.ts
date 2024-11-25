@@ -21,16 +21,14 @@ export function emptyNode(
 /**
  * Traverse node graph from the top
  * @param start node to start traverse
- * @param f function to run on each nodes
  */
-export function traverseNode(
-  start: Node,
-  f: (node: Node) => void,
-) {
+export function *traverseNode(
+  start: Node
+): Generator<Node, void, void> {
   const stack: Node[] = [start];
 
   for (let node = stack.pop(); node != null; node = stack.pop()) {
-    f(node);
+    yield node;
 
     stack.push(...childrenNodes(node));
   }

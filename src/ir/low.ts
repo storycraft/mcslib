@@ -44,8 +44,8 @@ function initIr(f: Fn): [Env, IrFunction] {
   }];
 }
 
-function checkNode(env: Env, node: Node) {
-  traverseNode(node, (node) => {
+function checkNode(env: Env, start: Node) {
+  for (const node of traverseNode(start)) {
     if (node.end.ins !== 'unreachable') {
       return;
     }
@@ -58,7 +58,7 @@ function checkNode(env: Env, node: Node) {
     } else {
       throw new Error(`function with return type ${env.sig.returns} ended without returning`);
     }
-  });
+  }
 }
 
 export type Env = {
