@@ -1,6 +1,5 @@
 import { IrFunction } from '@/ir.js';
 import { FunctionWriter } from './mcslib.js';
-import { childrenNodes } from './ir/node.js';
 import { allocator, Location } from './codegen/alloc.js';
 import { walkNode } from './codegen/node.js';
 
@@ -17,16 +16,7 @@ export async function gen(ir: IrFunction, writer: FunctionWriter) {
     ),
   };
 
-  const list: Promise<void>[] = [];
-  const children = childrenNodes(ir.node);
-  for (let child = children.pop(); child != null; child = children.pop()) {
-    const childWriter = await writer.createBranch();
-    list.push(walkNode(env, child, childWriter));
-
-    children.push(...childrenNodes(child));
-  }
-
-  await Promise.all(list);
+  await walkNode(env, ir.node, writer);
 }
 
 export type Env = {

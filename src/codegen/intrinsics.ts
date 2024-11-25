@@ -35,20 +35,27 @@ export async function load(env: Env, from: Ref, register: number, writer: Functi
       return;
     }
 
-    await writer.write(
-      `data modify storage ${NAMESPACE} ${resolveRegister(register)} set value ${from.value}d`
-    );
+    return loadConstNumber(env, from.value, register, writer);
   } else {
-    const loc = env.storages[from.index];
-    if (loc.at === 'r1' && register === 1) {
-      return;
-    }
-
-    await writer.write(
-      `data modify storage ${NAMESPACE} ${resolveRegister(register)} set from storage ${NAMESPACE} ${resolveLoc(loc)}`
-    );
+    return loadIndex(env, from.index, register, writer);
   }
-  
+}
+
+export async function loadConstNumber(env: Env, value: number, register: number, writer: FunctionWriter) {
+  await writer.write(
+    `data modify storage ${NAMESPACE} ${resolveRegister(register)} set value ${value}d`
+  );
+}
+
+export async function loadIndex(env: Env, index: number, register: number, writer: FunctionWriter) {
+  const loc = env.storages[index];
+  if (loc.at === 'none' || loc.at === 'r1' && register === 1) {
+    return;
+  }
+
+  await writer.write(
+    `data modify storage ${NAMESPACE} ${resolveRegister(register)} set from storage ${NAMESPACE} ${resolveLoc(loc)}`
+  );
 }
 
 export async function add(env: Env, left: Ref, right: Ref, writer: FunctionWriter) {

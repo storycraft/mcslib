@@ -3,6 +3,10 @@ import { FunctionDir, FunctionWriter } from '@/mcslib.js';
 import { IR_FN } from './ir.js';
 
 const LOGGING_WRITER: FunctionDir = {
+  get namespace() {
+    return 'example';
+  },
+
   create(name) {
     return Promise.resolve({
       write(command) {
