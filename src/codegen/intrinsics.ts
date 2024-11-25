@@ -1,7 +1,7 @@
 import { FunctionWriter } from '@/mcslib.js';
 import { Location } from './alloc.js';
 import { Env } from '@/codegen.js';
-import { Arith, Ref } from '@/ir.js';
+import { Arith, Cmp, Ref } from '@/ir.js';
 import { IR_DEFAULT_CONST } from '@/ir/types.js';
 
 const NAMESPACE = 'mcs:system';
@@ -130,6 +130,66 @@ export async function call(env: Env, name: string, args: Ref[], writer: Function
 
   await writer.write(`function ${name}`);
   await writer.write(`data remove storage ${NAMESPACE} ${ARGUMENTS}[-1]`);
+}
+
+export async function cmp(env: Env, op: Cmp['op'], left: Ref, right: Ref, writer: FunctionWriter) {
+  if (left.expr === 'const' && right.expr === 'const') {
+    if (left.ty === 'empty' || right.ty === 'empty') {
+      throw new Error(`Tried to run ${op} ins with non existent locations left: ${left.ty} right: ${right.ty}`);
+    }
+
+    await writer.write(
+      `data modify storage ${NAMESPACE} ${resolveRegister(1)} set value ${left.value + right.value}`
+    );
+    return;
+  }
+
+  await load(env, left, 1, writer);
+  await load(env, right, 2, writer);
+
+  switch (op) {
+    case '==': {
+      await writer.write(
+        `execute store success storage ${NAMESPACE} ${resolveRegister(1)} double 1 if predicate mcs_intrinsic:eq`
+      );
+      break;
+    }
+
+    case '!=': {
+      await writer.write(
+        `execute store success storage ${NAMESPACE} ${resolveRegister(1)} double 1 unless predicate mcs_intrinsic:eq`
+      );
+      break;
+    }
+
+    case '>': {
+      await writer.write(
+        `execute store success storage ${NAMESPACE} ${resolveRegister(1)} double 1 unless predicate mcs_intrinsic:loe`
+      );
+      break;
+    }
+
+    case '<': {
+      await writer.write(
+        `execute store success storage ${NAMESPACE} ${resolveRegister(1)} double 1 unless predicate mcs_intrinsic:goe`
+      );
+      break;
+    }
+
+    case '>=': {
+      await writer.write(
+        `execute store success storage ${NAMESPACE} ${resolveRegister(1)} double 1 if predicate mcs_intrinsic:goe`
+      );
+      break;
+    }
+
+    case '<=': {
+      await writer.write(
+        `execute store success storage ${NAMESPACE} ${resolveRegister(1)} double 1 if predicate mcs_intrinsic:loe`
+      );
+      break;
+    }
+  }
 }
 
 function resolveLoc(loc: Location): string {

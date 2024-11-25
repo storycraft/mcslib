@@ -12,7 +12,7 @@ export type TypedRef = [IrType, Ref];
 export function visitExpr(env: Env, node: Node, expr: Expr): TypedRef {
   switch (expr.ast) {
     case 'comparison': {
-      return visitComp(env, node, expr);
+      return visitCmp(env, node, expr);
     }
 
     case 'bool': {
@@ -45,7 +45,7 @@ export function visitExpr(env: Env, node: Node, expr: Expr): TypedRef {
   }
 }
 
-function visitComp(env: Env, node: Node, comp: Comparison): TypedRef {
+function visitCmp(env: Env, node: Node, comp: Comparison): TypedRef {
   const [leftTy, left] = visitExpr(env, node, comp.left);
   const [rightTy, right] = visitExpr(env, node, comp.right);
 
@@ -54,42 +54,10 @@ function visitComp(env: Env, node: Node, comp: Comparison): TypedRef {
   }
 
   const index = newStorage(env, leftTy);
-  let expr: ExprIns;
-  switch (comp.op) {
-    case '==': {
-      expr = { expr: 'eq', left, right };
-      break;
-    }
-
-    case '!=': {
-      expr = { expr: 'ne', left, right };
-      break;
-    }
-
-    case '>': {
-      expr = { expr: 'gt', left, right };
-      break;
-    }
-
-    case '<': {
-      expr = { expr: 'lt', left, right };
-      break;
-    }
-
-    case '>=': {
-      expr = { expr: 'goe', left, right };
-      break;
-    }
-
-    case '<=': {
-      expr = { expr: 'loe', left, right };
-      break;
-    }
-  }
   node.ins.push({
     ins: 'set',
     index,
-    expr,
+    expr: { expr: 'cmp', op: comp.op, left, right },
   });
 
   return [leftTy, { expr: 'index', index }];

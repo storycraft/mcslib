@@ -3,7 +3,7 @@ import { ExprIns, Ins } from '@/ir.js';
 import { EndIns } from '@/ir/end.js';
 import { Node } from '@/ir/node.js';
 import { FunctionWriter } from '@/mcslib.js';
-import { arithmetic, call, disposeStackFrame, load, loadConstNumber, loadIndex, neg, storeFromR1 } from './intrinsics.js';
+import { arithmetic, call, cmp, disposeStackFrame, load, loadConstNumber, loadIndex, neg, storeFromR1 } from './intrinsics.js';
 
 export async function walkNode(env: Env, node: Node, writer: FunctionWriter) {
   for (const ins of node.ins) {
@@ -57,6 +57,11 @@ async function walkExpr(env: Env, ins: ExprIns, writer: FunctionWriter) {
       }
 
       await call(env, name, ins.args, writer);
+      break;
+    }
+
+    case 'cmp': {
+      await cmp(env, ins.op, ins.left, ins.right, writer);
       break;
     }
 

@@ -59,16 +59,13 @@ export type Call = ExprInsTy<'call'> & {
   f: McsFunction,
 }
 
-export type Bool = And | Or | Gt | Lt | Goe | Loe | Eq | NotEq | Not;
+export type Bool = And | Or | Cmp | Not;
 
 export type And = ExprInsTy<'and'> & Operands;
 export type Or = ExprInsTy<'or'> & Operands;
-export type Gt = ExprInsTy<'gt'> & Operands;
-export type Lt = ExprInsTy<'lt'> & Operands;
-export type Goe = ExprInsTy<'goe'> & Operands;
-export type Loe = ExprInsTy<'loe'> & Operands;
-export type Eq = ExprInsTy<'eq'> & Operands;
-export type NotEq = ExprInsTy<'ne'> & Operands;
+export type Cmp = ExprInsTy<'cmp'> & Operands & {
+  op: '>' | '<' | '>=' | '<=' | '==' | '!='
+};
 export type Not = ExprInsTy<'not'> & Operand;
 
 export type Ref = Const | Index;
