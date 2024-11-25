@@ -15,7 +15,7 @@ export class Compiler {
     
   }
 
-  async compile(f: McsFunction): string {
+  async compile(f: McsFunction): Promise<string> {
     return '';
   }
 }
