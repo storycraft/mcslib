@@ -69,7 +69,7 @@ async function walkExpr(env: Env, ins: ExprIns, writer: FunctionWriter) {
 async function walkEndIns(env: Env, ins: EndIns, writer: FunctionWriter) {
   switch (ins.ins) {
     case 'jmp': {
-      const name = await env.nodeMap.expand(env, ins.next, writer);
+      const name = await env.nodeMap.branch(env, ins.next, writer);
       await writer.write(
         `function ${writer.namespace}:${name}`
       );
@@ -82,7 +82,7 @@ async function walkEndIns(env: Env, ins: EndIns, writer: FunctionWriter) {
       const length = ins.table.length;
       if (length === 1 && ins.table[0]) {
         const target = ins.table[0];
-        const name = await env.nodeMap.expand(env, target, writer);
+        const name = await env.nodeMap.branch(env, target, writer);
         await writer.write(
           `execute if predicate mcs_intrinsic:zero run return run function ${writer.namespace}:${name}`
         );
@@ -93,7 +93,7 @@ async function walkEndIns(env: Env, ins: EndIns, writer: FunctionWriter) {
             continue;
           }
 
-          const name = await env.nodeMap.expand(env, target, writer);
+          const name = await env.nodeMap.branch(env, target, writer);
           await loadConstNumber(i, 2, writer);
           await writer.write(
             `execute if predicate mcs_intrinsic:eq run return run function ${writer.namespace}:${name}`
@@ -101,10 +101,7 @@ async function walkEndIns(env: Env, ins: EndIns, writer: FunctionWriter) {
         }
       }
 
-      const name = await env.nodeMap.expand(env, ins.default, writer);
-      await writer.write(
-        `function ${writer.namespace}:${name}`
-      );
+      await env.nodeMap.expand(env, ins.default, writer);
       break;
     }
 
@@ -127,16 +124,33 @@ export class NodeMap {
     this.map.set(root, name);
   }
 
-  async expand(env: Env, node: Node, writer: FunctionWriter): Promise<string> {
+  async expand(
+    env: Env,
+    node: Node,
+    writer: FunctionWriter
+  ) {
+    if (this.map.has(node)) {
+      return;
+    }
+
+    this.map.set(node, writer.name);
+    await walkNode(env, node, writer);
+  }
+
+  async branch(
+    env: Env,
+    node: Node,
+    parentWriter: FunctionWriter
+  ): Promise<string> {
     const name = this.map.get(node);
     if (name != null) {
       return name;
     }
 
-    const childWriter = await writer.createBranch();
-    this.map.set(node, childWriter.name);
-    await walkNode(env, node, childWriter);
+    const writer = await parentWriter.createBranch();
+    this.map.set(node, writer.name);
+    await walkNode(env, node, writer);
 
-    return childWriter.name;
+    return writer.name;
   }
 }
