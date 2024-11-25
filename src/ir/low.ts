@@ -131,7 +131,7 @@ export class VarMap {
 }
 
 export type Loop = {
-  loopNode: Node,
+  loopStart: Node,
   nextNode: Node,
 }
 
@@ -142,23 +142,19 @@ export class LoopStack {
   private readonly labelToIrNode = new Map<string, Loop>();
   private readonly stack: Loop[] = [];
 
-  enter<T>(
+  enter(
     node: Node,
-    f: (loop: Loop) => T,
+    f: (loop: Loop) => Node,
     label?: Label
-  ): T {
-    const loopNode = emptyNode();
-    loopNode.end = {
-      ins: 'jmp',
-      next: loopNode,
-    };
+  ): Node {
+    const loopStart = emptyNode();
     node.end = {
       ins: 'jmp',
-      next: loopNode,
+      next: loopStart,
     };
 
     const loop: Loop = {
-      loopNode,
+      loopStart,
       nextNode: emptyNode(),
     };
     this.stack.push(loop);
@@ -171,7 +167,12 @@ export class LoopStack {
     }
 
     try {
-      return f(loop);
+      const loopEnd = f(loop);
+      loopEnd.end = {
+        ins: 'jmp',
+        next: loopStart,
+      };
+      return loop.nextNode;
     } finally {
       this.stack.pop();
 

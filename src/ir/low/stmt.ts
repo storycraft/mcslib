@@ -152,8 +152,7 @@ function visitLoop(env: Env, node: Node, stmt: Loop): Node {
   return env.loop.enter(
     node,
     (loop) => {
-      visitBlock(env, loop.loopNode, stmt.block);
-      return loop.nextNode;
+      return visitBlock(env, loop.loopStart, stmt.block);
     },
     stmt.label,
   );
@@ -173,7 +172,7 @@ function visitContinue(env: Env, node: Node, stmt: Continue): Node {
   const loop = env.loop.get(stmt.label);
   node.end = {
     ins: 'jmp',
-    next: loop.loopNode,
+    next: loop.loopStart,
   };
 
   return emptyNode();
