@@ -3,12 +3,14 @@ import { IrType } from './ir/types.js';
 import { Node } from './ir/node.js';
 
 export type IrFunction = {
-  args: number,
   storages: Storage[],
   node: Node,
 }
 
+export type Origin = 'argument' | 'local';
+
 export type Storage = {
+  origin: Origin,
   ty: IrType,
 }
 

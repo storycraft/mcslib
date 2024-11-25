@@ -1,5 +1,5 @@
 import { Fn, FnSig } from '@/ast/fn.js';
-import { IrFunction, Storage, Ref } from '../ir.js';
+import { IrFunction, Storage, Ref, Origin } from '../ir.js';
 import { Expr } from '@/ast/expr.js';
 import { IR_DEFAULT_CONST, IrType } from './types.js';
 import { visitBlock } from './low/stmt.js';
@@ -34,12 +34,11 @@ function initIr(f: Fn): [Env, IrFunction] {
   const length = f.args.length;
   for (let i = 0; i < length; i++) {
     const ty = f.sig.args[i];
-    const index = newStorage(env, ty);
+    const index = newStorage(env, ty, 'argument');
     env.varMap.register(f.args[i], ty, index);
   }
 
   return [env, {
-    args: length,
     storages: env.storages,
     node: emptyNode(),
   }];
@@ -83,9 +82,9 @@ export function refToIndex(env: Env, node: Node, ref: Ref): number {
   }
 }
 
-export function newStorage(env: Env, ty: IrType): number {
+export function newStorage(env: Env, ty: IrType, origin: Origin = 'local'): number {
   const index = env.storages.length;
-  env.storages.push({ ty });
+  env.storages.push({ origin, ty });
   return index;
 }
 
