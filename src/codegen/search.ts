@@ -51,7 +51,7 @@ export function search(index: number, start: Node): SearchResult {
   }
 
   return {
-
+    start: cx.start,
     references,
     assignments,
   };
