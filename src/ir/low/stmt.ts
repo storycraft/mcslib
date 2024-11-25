@@ -6,6 +6,7 @@ import { Break, Continue, Loop } from '@/ast/loop.js';
 import { SwitchInt } from '../end.js';
 import { Expr } from '@/ast/expr.js';
 import { emptyNode, Node } from '../node.js';
+import { IR_DEFAULT_CONST } from '../types.js';
 
 export function visitStmt(env: Env, node: Node, stmt: Stmt): Node {
   switch (stmt.ast) {
@@ -86,12 +87,15 @@ function visitReturn(env: Env, node: Node, ret: Return): Node {
   if (ret.expr) {
     node.end = {
       ins: 'ret',
-      index: newStorageInit(
-        env,
-        node,
-        env.sig.returns ?? 'empty',
-        ret.expr,
-      ),
+      ref: {
+        expr: 'index',
+        index: newStorageInit(
+          env,
+          node,
+          env.sig.returns ?? 'empty',
+          ret.expr,
+        ),
+      },
     };
   } else {
     if (env.sig.returns != null) {
@@ -100,7 +104,7 @@ function visitReturn(env: Env, node: Node, ret: Return): Node {
 
     node.end = {
       ins: 'ret',
-      index: newStorage(env, 'empty'),
+      ref: IR_DEFAULT_CONST.empty,
     };
   }
 

@@ -1,10 +1,10 @@
-import { InsTy } from '../ir.js';
+import { InsTy, Ref } from '../ir.js';
 import { Node } from './node.js';
 
 export type EndIns = Unreachable | SwitchInt | Jmp | Ret;
 
 export type Ret = InsTy<'ret'> & {
-  index: number,
+  ref: Ref,
 };
 
 export type Jmp = InsTy<'jmp'> & {

@@ -1,6 +1,5 @@
 import { McsFunction } from '@/ast/fn.js';
 import { IrType } from './ir/types.js';
-import { VarType } from '@/ast/types.js';
 import { Node } from './ir/node.js';
 
 export type IrFunction = {
@@ -72,9 +71,12 @@ export type Not = ExprInsTy<'not'> & {
 
 export type Ref = Const | Index;
 
-export type Const = ExprInsTy<'const'> & {
-  ty: VarType,
-  value: number,
+export type Const = ExprInsTy<'const'>
+  & (ConstVariant<'number', number> | ConstVariant<'empty', null>);
+
+type ConstVariant<T extends IrType, V> = {
+  ty: T,
+  value: V,
 }
 
 export type Index = ExprInsTy<'index'> & {

@@ -1,7 +1,7 @@
 import { Fn, FnSig } from '@/ast/fn.js';
 import { IrFunction, Storage, Ref } from '../ir.js';
 import { Expr } from '@/ast/expr.js';
-import { IrType } from './types.js';
+import { IR_DEFAULT_CONST, IrType } from './types.js';
 import { visitBlock } from './low/stmt.js';
 import { visitExpr } from './low/expr.js';
 import { Id } from '@/ast.js';
@@ -56,7 +56,7 @@ function checkNode(env: Env, node: Node) {
     if (env.sig.returns == null) {
       node.end = {
         ins: 'ret',
-        index: newStorage(env, 'empty'),
+        ref: IR_DEFAULT_CONST.empty,
       };
     } else {
       throw new Error(`function with return type ${env.sig.returns} ended without returning`);
