@@ -6,7 +6,7 @@ export const tree = defineMcsFunction(['number', 'number'], (a, b) => {
     mcsReturn(mcsExpr`${100}`);
   });
 
-  mcsAssign(c, mcsExpr`${a} + ${b} + -${15}`);
+  mcsAssign(c, mcsExpr`${a} + ${b} * -${15}`);
 
   mcsReturn(c);
 }, 'number');
