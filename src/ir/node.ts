@@ -26,7 +26,6 @@ export function *traverseNode(
   start: Node
 ): Generator<Node, void, void> {
   const set = new Set<Node>();
-  set.add(start);
 
   const stack: Node[] = [start];
   for (let node = stack.pop(); node != null; node = stack.pop()) {
