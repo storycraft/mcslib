@@ -18,6 +18,7 @@
     "fix": "eslint --fix"
   },
   "author": "storycraft <storycraft@pancake.sh>",
+  "repository": "https://github.com/storycraft/mcslib",
   "license": "MIT",
   "devDependencies": {
     "@eslint/js": "9.14.0",
