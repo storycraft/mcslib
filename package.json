@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "description": "Minecraft command script library",
   "type": "module",
-  "main": "build/index.js",
+  "main": "build/mcslib.js",
   "exports": {
-    ".": "./build/index.js",
+    ".": "./build/mcslib.js",
     "./*.js": "./build/*.js"
   },
   "scripts": {

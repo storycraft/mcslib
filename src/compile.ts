@@ -1,5 +1,5 @@
 import { McsFunction } from '@/ast/fn.js';
-import { FunctionDir } from './index.js';
+import { FunctionDir } from './mcslib.js';
 import { VarType } from '@/ast/types.js';
 import { mangle } from './compile/mangle.js';
 
