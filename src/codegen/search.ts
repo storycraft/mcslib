@@ -2,16 +2,29 @@ import { ExprIns, Ref } from '@/ir.js';
 import { Node, traverseNode } from '@/ir/node.js';
 
 /**
- * Calculate reference counts of the index.
- * Assignments are not included.
+ * Serach first usage and reference counts of the index.
+ * @returns [assignments, references]
  */
-export function countReference(index: number, start: Node): number {
-  let count = 0;
+export function search(index: number, start: Node): SearchResult {
+  let assignments = 0;
+  let references = 0;
+  const cx: Cx = {};
   for (const node of traverseNode(start)) {
-    for (const ins of node.ins) {
+    const length = node.ins.length;
+    for (let i = 0; i < length; i++) {
+      const ins = node.ins[i];
       switch (ins.ins) {
         case 'set': {
-          count += visitExpr(index, ins.expr);
+          if (ins.index === index) {
+            if (cx.start == null) {
+              cx.start = {
+                node,
+                index: i,
+              };
+            }
+            assignments++;
+          }
+          references += countReferences(index, ins.expr);
           break;
         }
 
@@ -25,7 +38,7 @@ export function countReference(index: number, start: Node): number {
     switch (end.ins) {
       case 'switch_int': {
         if (end.index === index) {
-          count += 1;
+          references += 1;
         }
 
         break;
@@ -37,29 +50,38 @@ export function countReference(index: number, start: Node): number {
     }
   }
 
-  return count;
+  return {
+
+    references,
+    assignments,
+  };
 }
 
-function visitExpr(index: number, ins: ExprIns): number {
+export type SearchResult = {
+  start?: Start,
+  assignments: number,
+  references: number,
+}
+
+export type Start = {
+  node: Node,
+  index: number,
+}
+
+type Cx = {
+  start?: Start,
+}
+
+export function countReferences(index: number, ins: ExprIns): number {
   switch (ins.expr) {
     case 'neg':
     case 'not': {
       return visitRefs(index, ins.operand);
     }
 
-    case 'and':
-    case 'or':
-    case 'goe':
-    case 'loe':
-    case 'gt':
-    case 'lt':
-    case 'eq':
-    case 'ne':
-    case 'add':
-    case 'sub':
-    case 'mul':
-    case 'div':
-    case 'remi': {
+    case 'arith':
+    case 'cmp':
+    case 'bool': {
       return visitRefs(index, ins.left, ins.right);
     }
 
