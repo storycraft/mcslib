@@ -3,7 +3,7 @@ import { ExprIns, Ins } from '@/ir.js';
 import { EndIns } from '@/ir/end.js';
 import { Node } from '@/ir/node.js';
 import { FunctionWriter } from '@/mcslib.js';
-import { arithmetic, disposeStackFrame, load, loadConstNumber, loadIndex, neg, storeFromR1 } from './intrinsics.js';
+import { arithmetic, call, disposeStackFrame, load, loadConstNumber, loadIndex, neg, storeFromR1 } from './intrinsics.js';
 
 export async function walkNode(env: Env, node: Node, writer: FunctionWriter) {
   for (const ins of node.ins) {
@@ -50,6 +50,16 @@ async function walkExpr(env: Env, ins: ExprIns, writer: FunctionWriter) {
       break;
     }
 
+    case 'call': {
+      const name = env.linkMap.get(ins.f);
+      if (name == null) {
+        throw new Error(`Function ${ins.f.buildFn} cannot be found from the link map`);
+      }
+
+      await call(env, name, ins.args, writer);
+      break;
+    }
+
     default: {
       break;
     }
@@ -59,7 +69,7 @@ async function walkExpr(env: Env, ins: ExprIns, writer: FunctionWriter) {
 async function walkEndIns(env: Env, ins: EndIns, writer: FunctionWriter) {
   switch (ins.ins) {
     case 'jmp': {
-      const name = await env.map.expand(env, ins.next, writer);
+      const name = await env.nodeMap.expand(env, ins.next, writer);
       await writer.write(
         `function ${writer.namespace}:${name}`
       );
@@ -72,7 +82,7 @@ async function walkEndIns(env: Env, ins: EndIns, writer: FunctionWriter) {
       const length = ins.table.length;
       if (length === 1 && ins.table[0]) {
         const target = ins.table[0];
-        const name = await env.map.expand(env, target, writer);
+        const name = await env.nodeMap.expand(env, target, writer);
         await writer.write(
           `execute if predicate mcs_intrinsic:zero run return run function ${writer.namespace}:${name}`
         );
@@ -83,15 +93,15 @@ async function walkEndIns(env: Env, ins: EndIns, writer: FunctionWriter) {
             continue;
           }
 
-          const name = await env.map.expand(env, target, writer);
-          await loadConstNumber(env, i, 2, writer);
+          const name = await env.nodeMap.expand(env, target, writer);
+          await loadConstNumber(i, 2, writer);
           await writer.write(
             `execute if predicate mcs_intrinsic:eq run return run function ${writer.namespace}:${name}`
           );
         }
       }
 
-      const name = await env.map.expand(env, ins.default, writer);
+      const name = await env.nodeMap.expand(env, ins.default, writer);
       await writer.write(
         `function ${writer.namespace}:${name}`
       );

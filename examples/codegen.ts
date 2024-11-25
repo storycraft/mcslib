@@ -1,6 +1,8 @@
 import { gen } from '@/codegen.js';
 import { FunctionDir, FunctionWriter } from '@/mcslib.js';
 import { IR_FN } from './ir.js';
+import { McsFunction } from '@/ast/fn.js';
+import { tree } from './common.js';
 
 const LOGGING_WRITER: FunctionDir = {
   get namespace() {
@@ -17,8 +19,11 @@ const LOGGING_WRITER: FunctionDir = {
   },
 };
 
+const MAP = new Map<McsFunction, string>().set(tree, 'example:example');
+
 await gen(
   IR_FN,
+  MAP,
   await FunctionWriter.create(
     LOGGING_WRITER,
     'example',

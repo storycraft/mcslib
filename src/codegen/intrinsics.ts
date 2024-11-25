@@ -5,19 +5,20 @@ import { Arith, Ref } from '@/ir.js';
 import { IR_DEFAULT_CONST } from '@/ir/types.js';
 
 const NAMESPACE = 'mcs:system';
-const STACK = 'stack';
+const LOCAL = 'locals';
+const ARGUMENTS = 'arguments';
 const REGISTERS = 'registers';
 
 export async function initStackFrame(size: number, writer: FunctionWriter) {
   if (size == 0) {
     return;
   }
-  
+
   const list = new Array<string>(size);
   list.fill(`${IR_DEFAULT_CONST.number.value}d`);
 
   await writer.write(
-    `data modify storage ${NAMESPACE} ${STACK} append value [${list.join(',')}]`
+    `data modify storage ${NAMESPACE} ${LOCAL} append value [${list.join(',')}]`
   );
 }
 
@@ -27,7 +28,7 @@ export async function disposeStackFrame(size: number, writer: FunctionWriter) {
   }
 
   await writer.write(
-    `data remove storage ${NAMESPACE} ${STACK}[-1]`
+    `data remove storage ${NAMESPACE} ${LOCAL}[-1]`
   );
 }
 
@@ -36,21 +37,9 @@ export async function storeFromR1(to: Location, writer: FunctionWriter) {
     return;
   }
 
-  switch (to.at) {
-    case 'argument': {
-      await writer.write(
-        `data modify storage ${NAMESPACE} stack[-2][-${to.index + 1}] set from storage ${NAMESPACE} ${resolveRegister(1)}`
-      );
-      break;
-    }
-
-    case 'frame': {
-      await writer.write(
-        `data modify storage ${NAMESPACE} stack[-1][${to.index}] set from storage ${NAMESPACE} ${resolveRegister(1)}`
-      );
-      break;
-    }
-  }
+  await writer.write(
+    `data modify storage ${NAMESPACE} ${resolveLoc(to)} set from storage ${NAMESPACE} ${resolveRegister(1)}`
+  );
 }
 
 export async function load(env: Env, from: Ref, register: number, writer: FunctionWriter) {
@@ -59,13 +48,13 @@ export async function load(env: Env, from: Ref, register: number, writer: Functi
       return;
     }
 
-    return loadConstNumber(env, from.value, register, writer);
+    return loadConstNumber(from.value, register, writer);
   } else {
     return loadIndex(env, from.index, register, writer);
   }
 }
 
-export async function loadConstNumber(env: Env, value: number, register: number, writer: FunctionWriter) {
+export async function loadConstNumber(value: number, register: number, writer: FunctionWriter) {
   await writer.write(
     `data modify storage ${NAMESPACE} ${resolveRegister(register)} set value ${value}d`
   );
@@ -119,6 +108,30 @@ export async function neg(env: Env, operand: Ref, writer: FunctionWriter) {
   );
 }
 
+export async function call(env: Env, name: string, args: Ref[], writer: FunctionWriter) {
+  const length = args.length;
+  for (let i = 0; i < length; i++) {
+    const arg = args[i];
+
+    if (arg.expr === 'const') {
+      if (arg.ty === 'empty') {
+        throw new Error('Cannot use empty type as a argument');
+      }
+
+      await writer.write(
+        `data modify storage ${NAMESPACE} ${ARGUMENTS}[-1] append value ${arg.value}d`
+      );
+    } else {
+      await writer.write(
+        `data modify storage ${NAMESPACE} ${ARGUMENTS}[-1] append from storage ${NAMESPACE} ${resolveLoc(env.storages[arg.index])}`
+      );
+    }
+  }
+
+  await writer.write(`function ${name}`);
+  await writer.write(`data remove storage ${NAMESPACE} ${ARGUMENTS}[-1]`);
+}
+
 function resolveLoc(loc: Location): string {
   switch (loc.at) {
     case 'none': {
@@ -130,11 +143,11 @@ function resolveLoc(loc: Location): string {
     }
 
     case 'argument': {
-      return `${STACK}[-2][-${loc.index + 1}]`;
+      return `${ARGUMENTS}[-1][${loc.index}]`;
     }
 
     case 'frame': {
-      return `${STACK}[-1][${loc.index}]`;
+      return `${LOCAL}[-1][${loc.index}]`;
     }
   }
 }
