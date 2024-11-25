@@ -1,18 +1,52 @@
-import { IrType } from '@/ir/types.js';
-import { Storage } from '@/ir.js';
+import { IrFunction, Storage } from '@/ir.js';
+import { countReference } from './count.js';
 
-export type Placement = {
-  location: Location,
-  ty: IrType,
+export type Location = None | R1 | Argument | Frame;
+
+type LocVariant<At extends string> = {
+  at: At,
 }
 
-export type At = 'argument' | 'frame' | 'register';
-
-export type Location = {
-  at: At,
+type None = LocVariant<'none'>;
+type R1 = LocVariant<'r1'>;
+type Argument = LocVariant<'argument'> & {
   index: number,
-};
+}
+type Frame = LocVariant<'frame'> & {
+  index: number,
+}
 
 export interface Alloc {
-  alloc(storage: Storage): Placement;
+  get stackSize(): number,
+  alloc(index: number, storage: Storage): Location;
+}
+
+export function allocator(ir: IrFunction): Alloc {
+  const set = new Set<number>();
+
+  let nextStackIndex = 0;
+  let nextArgsIndex = 0;
+  return {
+    get stackSize() {
+      return nextStackIndex;
+    },
+
+    alloc(index, storage) {
+      if (set.has(index)) {
+        throw new Error(`tried to allocate index: ${index} twice`);
+      }
+      set.add(index);
+
+      const count = countReference(index, ir.node);
+      if (count === 0) {
+        return { at: 'none', index: 0 };
+      }
+
+      if (storage.origin === 'argument') {
+        return { at: 'argument', index: nextArgsIndex++ };
+      }
+      
+      return { at: 'frame', index: nextStackIndex++ };
+    },
+  };
 }

@@ -14,5 +14,5 @@ export function mangle<
   const args = sig.args.map(ty => MANGLE_MAP[ty]);
   const ret = MANGLE_MAP[sig.returns ?? 'empty'];
 
-  return `_mcslib@${args}@${id}@${ret}`;
+  return `_mcslib@${args}@fn${id}@${ret}`;
 }

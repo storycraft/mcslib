@@ -1,6 +1,5 @@
 import { McsFunction } from '@/ast/fn.js';
 import { FunctionDir } from './mcslib.js';
-import { VarType } from '@/ast/types.js';
 import { mangle } from './compile/mangle.js';
 
 export class Compiler {
@@ -12,11 +11,12 @@ export class Compiler {
     
   }
 
-  export<
-    const Args extends VarType[],
-    const Ret extends VarType,
-  >(name: string, f: McsFunction<Args, Ret>) {
+  async export(name: string, f: McsFunction) {
     
+  }
+
+  async compile(f: McsFunction): string {
+    return '';
   }
 }
 

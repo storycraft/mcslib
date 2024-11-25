@@ -41,7 +41,7 @@ export class FunctionWriter {
    * @returns a writer to branch
    */
   async createBranch(): Promise<FunctionWriter> {
-    const name = `__${this.fnName}b${this.branchId + 1}`;
+    const name = `__${this.fnName}_b${this.branchId + 1}`;
 
     return new FunctionWriter(
       this.dir,

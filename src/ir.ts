@@ -48,9 +48,11 @@ export type Mul = ExprInsTy<'mul'> & Operands;
 export type Div = ExprInsTy<'div'> & Operands;
 export type Remi = ExprInsTy<'remi'> & Operands;
 
-export type Neg = ExprInsTy<'neg'> & {
+type Operand = {
   operand: Ref,
 };
+
+export type Neg = ExprInsTy<'neg'> & Operand;
 
 export type Call = ExprInsTy<'call'> & {
   args: Ref[],
@@ -67,9 +69,7 @@ export type Goe = ExprInsTy<'goe'> & Operands;
 export type Loe = ExprInsTy<'loe'> & Operands;
 export type Eq = ExprInsTy<'eq'> & Operands;
 export type NotEq = ExprInsTy<'ne'> & Operands;
-export type Not = ExprInsTy<'not'> & {
-  operand: Ref,
-};
+export type Not = ExprInsTy<'not'> & Operand;
 
 export type Ref = Const | Index;
 
