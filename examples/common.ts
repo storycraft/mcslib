@@ -10,7 +10,7 @@ export const index4 = defineMcsFunction(
         }
       );
 
-      mcsAssign(n, mcsExpr`${n} / 3`);
+      mcsAssign(n, mcsExpr`${n} / ${3}`);
     });
 
     mcsReturn(mcsExpr`${0}`);
