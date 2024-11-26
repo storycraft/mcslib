@@ -32,7 +32,7 @@ export const draw_star = defineMcsFunction(['number'], (n) => {
           mcsCmd('data modify storage example:storage buffer append value "§00"');
         },
         () => {
-          mcsCmd('data modify storage example:storage buffer[-1] set value "§d#"');
+          mcsCmd('data modify storage example:storage buffer append value "§d#"');
         }
       )
 
