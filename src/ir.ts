@@ -19,7 +19,9 @@ export type InsTy<T extends string> = {
   ins: T,
 }
 
-export type Ins = RunCmd | Assign;
+export type Ins = StartMarker | RunCmd | Assign;
+
+export type StartMarker = InsTy<'start'>;
 
 export type Assign = InsTy<'assign'> & {
   index: number,

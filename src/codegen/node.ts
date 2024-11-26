@@ -25,6 +25,10 @@ async function walkIns(env: Env, ins: Ins, writer: FunctionWriter) {
       await writer.write(ins.command);
       break;
     }
+
+    case 'start': {
+      break;
+    }
   }
 }
 
