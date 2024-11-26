@@ -4,9 +4,12 @@ This project is WIP and may contains a lot of unreported bugs.
 `mcslib` is structural programming language coded using javascript, compiles into minecraft datapack.
 
 ## Example
-Hand ported solution of [baekjoon #2447](https://www.acmicpc.net/problem/2447) from the c language code.
+Compiled solution of [baekjoon #2447](https://www.acmicpc.net/problem/2447).
+Ported from the c language code.
 
 https://github.com/user-attachments/assets/2acdf2be-6b0c-423d-bba6-ecfe8ab5c7f9
+
+See script code from `examples/compile.ts`
 
 Run example files using
 ```bash
