@@ -40,12 +40,13 @@ export class Compiler {
   }
 
   async compile(f: McsFunction): Promise<string> {
-    const name = this.compileMap.get(f);
-    if (name != null) {
-      return name;
+    const cached = this.compileMap.get(f);
+    if (cached != null) {
+      return cached;
     }
     const id = mangle(f.sig, `fn${this.compileMap.size}`);
-    this.compileMap.set(f, id);
+    const fullName = `${this.dir.namespace}:${id}`;
+    this.compileMap.set(f, fullName);
 
     const ir = low(build(f));
 
@@ -61,6 +62,6 @@ export class Compiler {
       await FunctionWriter.create(this.dir, id)
     );
 
-    return id;
+    return fullName;
   }
 }
