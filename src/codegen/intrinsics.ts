@@ -4,10 +4,10 @@ import { Env } from '@/codegen.js';
 import { Arith, Bool, Cmp, Ref } from '@/ir.js';
 import { IR_DEFAULT_CONST } from '@/ir/types.js';
 
-const NAMESPACE = 'mcs:system';
-const LOCAL = 'locals';
-const ARGUMENTS = 'arguments';
-const REGISTERS = 'registers';
+export const NAMESPACE = 'mcs:system';
+export const LOCAL = 'locals';
+export const ARGUMENTS = 'arguments';
+export const REGISTERS = 'registers';
 
 export async function initStackFrame(size: number, writer: FunctionWriter) {
   if (size == 0) {
@@ -170,6 +170,8 @@ export async function neg(env: Env, operand: Ref, writer: FunctionWriter) {
 }
 
 export async function call(env: Env, name: string, args: Ref[], writer: FunctionWriter) {
+  await writer.write(`data modify storage ${NAMESPACE} ${ARGUMENTS} append value []`);
+
   const length = args.length;
   for (let i = 0; i < length; i++) {
     const arg = args[i];
@@ -370,7 +372,7 @@ export async function not(env: Env, operand: Ref, writer: FunctionWriter) {
   );
 }
 
-function resolveLoc(loc: Location): string {
+export function resolveLoc(loc: Location): string {
   switch (loc.at) {
     case 'none': {
       throw new Error('Trying to get location of non existent locations');
@@ -390,6 +392,6 @@ function resolveLoc(loc: Location): string {
   }
 }
 
-function resolveRegister(register: number): string {
+export function resolveRegister(register: number): string {
   return `${REGISTERS}.r${register}`;
 }

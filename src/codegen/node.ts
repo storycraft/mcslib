@@ -15,7 +15,7 @@ export async function walkNode(env: Env, node: Node, writer: FunctionWriter) {
 
 async function walkIns(env: Env, ins: Ins, writer: FunctionWriter) {
   switch (ins.ins) {
-    case 'set': {
+    case 'assign': {
       await walkExpr(env, ins.expr, writer);
       await storeFromR1(env.storages[ins.index], writer);
       break;

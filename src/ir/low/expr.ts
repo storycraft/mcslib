@@ -55,7 +55,7 @@ function visitCmp(env: Env, node: Node, comp: Comparison): TypedRef {
 
   const index = newStorage(env, leftTy);
   node.ins.push({
-    ins: 'set',
+    ins: 'assign',
     index,
     expr: { expr: 'cmp', op: comp.op, left, right },
   });
@@ -73,7 +73,7 @@ function visitBool(env: Env, node: Node, bool: BoolOperator): TypedRef {
 
   const index = newStorage(env, leftTy);
   node.ins.push({
-    ins: 'set',
+    ins: 'assign',
     index,
     expr: { expr: 'bool', op: bool.op, left, right },
   });
@@ -89,7 +89,7 @@ function visitNot(env: Env, node: Node, not: Not): TypedRef {
 
   const index = newStorage(env, ty);
   node.ins.push({
-    ins: 'set',
+    ins: 'assign',
     index,
     expr: { expr: 'not', operand: ref },
   })
@@ -114,10 +114,11 @@ function visitCall(env: Env, node: Node, call: Call): TypedRef {
 
   const index = newStorage(env, returnTy);
   node.ins.push({
-    ins: 'set',
+    ins: 'assign',
     index,
     expr: { expr: 'call', args, f: call.fn },
   });
+  env.dependencies.add(call.fn);
 
   return [returnTy, { expr: 'index', index }];
 }
@@ -132,7 +133,7 @@ function visitArith(env: Env, node: Node, arith: Arithmetic): TypedRef {
 
   const index = newStorage(env, leftTy);
   node.ins.push({
-    ins: 'set',
+    ins: 'assign',
     index,
     expr: { expr: 'arith', op: arith.op, left, right },
   });
@@ -148,7 +149,7 @@ function visitNeg(env: Env, node: Node, neg: Neg): TypedRef {
 
   const index = newStorage(env, ty);
   node.ins.push({
-    ins: 'set',
+    ins: 'assign',
     index,
     expr: {
       expr: 'neg',

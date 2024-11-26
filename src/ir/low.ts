@@ -1,4 +1,4 @@
-import { Fn, FnSig } from '@/ast/fn.js';
+import { Fn, FnSig, McsFunction } from '@/ast/fn.js';
 import { IrFunction, Storage, Ref, Origin } from '../ir.js';
 import { Expr } from '@/ast/expr.js';
 import { IR_DEFAULT_CONST, IrType } from './types.js';
@@ -29,6 +29,7 @@ function initIr(f: Fn): [Env, IrFunction] {
     varMap: new VarMap(),
     loop: new LoopStack(),
     storages: [],
+    dependencies: new Set<McsFunction>(),
   };
 
   const length = f.args.length;
@@ -41,6 +42,7 @@ function initIr(f: Fn): [Env, IrFunction] {
   return [env, {
     storages: env.storages,
     node: emptyNode(),
+    dependencies: env.dependencies,
   }];
 }
 
@@ -66,13 +68,14 @@ export type Env = {
   varMap: VarMap,
   loop: LoopStack,
   storages: Storage[],
+  dependencies: Set<McsFunction>,
 }
 
 export function refToIndex(env: Env, node: Node, ref: Ref): number {
   if (ref.expr === 'const') {
     const index = newStorage(env, ref.ty);
     node.ins.push({
-      ins: 'set',
+      ins: 'assign',
       index,
       expr: ref,
     });

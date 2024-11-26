@@ -10,9 +10,9 @@ const MANGLE_MAP: Record<IrType, string> = {
 export function mangle<
   Args extends VarType[],
   Ret extends VarType,
->(sig: FnSig<Args, Ret>, id: number): string {
-  const args = sig.args.map(ty => MANGLE_MAP[ty]);
+>(sig: FnSig<Args, Ret>, name: string): string {
+  const args = sig.args.map(ty => MANGLE_MAP[ty]).join('');
   const ret = MANGLE_MAP[sig.returns ?? 'empty'];
 
-  return `_mcslib@${args}@fn${id}@${ret}`;
+  return `mcslib@${args}@${name}@${ret}`;
 }

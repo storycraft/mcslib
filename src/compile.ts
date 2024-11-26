@@ -1,9 +1,14 @@
 import { McsFunction } from '@/ast/fn.js';
-import { FunctionDir } from './mcslib.js';
+import { FunctionDir, FunctionWriter } from './mcslib.js';
+import { gen } from './codegen.js';
+import { build } from './builder.js';
+import { low } from './ir/low.js';
+import { ARGUMENTS, NAMESPACE, resolveRegister } from './codegen/intrinsics.js';
 import { mangle } from './compile/mangle.js';
 
 export class Compiler {
-  private functionMap: FunctionMap = new FunctionMap();
+  private exportMap = new Set<string>();
+  private compileMap = new Map<McsFunction, string>();
 
   constructor(
     private dir: FunctionDir,
@@ -12,39 +17,49 @@ export class Compiler {
   }
 
   async export(name: string, f: McsFunction) {
-    
+    if (this.exportMap.has(name)) {
+      throw new Error(`Function named '${name}' already exists`);
+    }
+    const innerName = await this.compile(f);
+    const writer = await FunctionWriter.create(this.dir, name);
+
+    await writer.write(
+      `$data modify storage ${NAMESPACE} ${ARGUMENTS} append value [${
+        f.sig.args.map((_, index) => `$(arg${index})d`).join(',')
+      }]`
+    );
+    await writer.write(
+      `function ${writer.namespace}:${innerName}`
+    );
+    if (f.sig.returns != null) {
+      await writer.write(
+        `return run data get storage ${NAMESPACE} ${resolveRegister(1)}`
+      );
+    }
   }
 
   async compile(f: McsFunction): Promise<string> {
-    return '';
-  }
-}
-
-type FnItem = {
-  id: number,
-  name: string,
-}
-
-class FunctionMap {
-  private nextId = 0;
-  private functionMap = new Map<McsFunction, FnItem>();
-
-  get(f: McsFunction): FnItem {
-    const get = this.functionMap.get(f);
-    if (get) {
-      return get;
+    const name = this.compileMap.get(f);
+    if (name != null) {
+      return name;
     }
+    const id = mangle(f.sig, `fn${this.compileMap.size}`);
+    this.compileMap.set(f, id);
 
-    const id = this.nextId++;
-    const item = {
-      id,
-      name: mangle(f.sig, id),
-    };
-    this.functionMap.set(f, item);
-    return item;
-  }
+    const ir = low(build(f));
 
-  entries(): Iterator<[McsFunction, FnItem]> {
-    return this.functionMap.entries();
+    const tasks: Promise<unknown>[] = [];
+    for (const depFn of ir.dependencies) {
+      tasks.push(this.compile(depFn));
+    }
+    await Promise.all(tasks);
+
+    await gen(
+      ir,
+      this.compileMap,
+      await FunctionWriter.create(this.dir, id)
+    );
+
+    return id;
   }
 }

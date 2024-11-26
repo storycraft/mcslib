@@ -5,6 +5,7 @@ import { Node } from './ir/node.js';
 export type IrFunction = {
   storages: Storage[],
   node: Node,
+  dependencies: Set<McsFunction>,
 }
 
 export type Origin = 'argument' | 'local';
@@ -18,9 +19,9 @@ export type InsTy<T extends string> = {
   ins: T,
 }
 
-export type Ins = RunCmd | Set;
+export type Ins = RunCmd | Assign;
 
-export type Set = InsTy<'set'> & {
+export type Assign = InsTy<'assign'> & {
   index: number,
   expr: ExprIns,
 }

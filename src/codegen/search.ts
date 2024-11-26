@@ -14,7 +14,7 @@ export function search(index: number, start: Node): SearchResult {
     for (let i = 0; i < length; i++) {
       const ins = node.ins[i];
       switch (ins.ins) {
-        case 'set': {
+        case 'assign': {
           if (ins.index === index) {
             if (cx.start == null) {
               cx.start = {
