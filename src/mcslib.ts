@@ -13,6 +13,7 @@ export interface FunctionDir {
 
 export interface Writer {
   write(command: string): Promise<void>;
+  close(): Promise<void>;
 }
 
 export class FunctionWriter {
@@ -66,6 +67,10 @@ export class FunctionWriter {
    */
   async write(command: string) {
     return this.writer.write(command);
+  }
+
+  async close() {
+    await this.writer.close();
   }
 }
 

@@ -164,7 +164,11 @@ export class NodeMap {
 
     const writer = await parentWriter.createBranch();
     this.map.set(node, writer.name);
-    await walkNode(env, node, writer);
+    try {
+      await walkNode(env, node, writer);
+    } finally {
+      await writer.close();
+    }
 
     return writer.name;
   }

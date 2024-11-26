@@ -16,27 +16,35 @@ export class Compiler {
 
   }
 
-  async export(name: string, f: McsFunction) {
-    if (this.exportMap.has(name)) {
+  async export(name: string, f: McsFunction): Promise<string> {
+    const fullName = `${this.dir.namespace}:${name}`;
+    if (this.exportMap.has(fullName)) {
       throw new Error(`Function named '${name}' already exists`);
     }
-    const fullName = await this.compile(f);
-    const writer = await FunctionWriter.create(this.dir, name);
+    this.exportMap.add(fullName);
 
-    await writer.write(
-      `$data modify storage ${NAMESPACE} ${ARGUMENTS} append value [${f.sig.args.map((_, index) => `$(arg${index})d`).join(',')}]`
-    );
-    await writer.write(
-      `function ${fullName}`
-    );
-    await writer.write(
-      `data remove storage ${NAMESPACE} ${ARGUMENTS}[-1]`
-    );
-    if (f.sig.returns != null) {
+    const inner = await this.compile(f);
+    const writer = await FunctionWriter.create(this.dir, name);
+    try {
       await writer.write(
-        `return run data get storage ${NAMESPACE} ${resolveRegister(1)}`
+        `$data modify storage ${NAMESPACE} ${ARGUMENTS} append value [${f.sig.args.map((_, index) => `$(arg${index})d`).join(',')}]`
       );
+      await writer.write(
+        `function ${inner}`
+      );
+      await writer.write(
+        `data remove storage ${NAMESPACE} ${ARGUMENTS}[-1]`
+      );
+      if (f.sig.returns != null) {
+        await writer.write(
+          `return run data get storage ${NAMESPACE} ${resolveRegister(1)}`
+        );
+      }
+    } finally {
+      await writer.close();
     }
+
+    return fullName;
   }
 
   async compile(f: McsFunction): Promise<string> {
@@ -56,11 +64,16 @@ export class Compiler {
     }
     await Promise.all(tasks);
 
-    await gen(
-      ir,
-      this.compileMap,
-      await FunctionWriter.create(this.dir, id)
-    );
+    const writer = await FunctionWriter.create(this.dir, id);
+    try {
+      await gen(
+        ir,
+        this.compileMap,
+        writer,
+      );
+    } finally {
+      await writer.close();
+    }
 
     return fullName;
   }
