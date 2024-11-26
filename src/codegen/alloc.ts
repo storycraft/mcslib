@@ -38,8 +38,7 @@ export function allocator(ir: IrFunction): Alloc {
       set.add(index);
 
       const result = search(index, ir.node);
-      const start = result.start;
-      if (start == null || result.references === 0) {
+      if (result.references === 0) {
         return { at: 'none', index: 0 };
       }
 
