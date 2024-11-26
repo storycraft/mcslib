@@ -3,8 +3,8 @@ import { VarType } from '@/ast/types.js';
 import { IrType } from '@/ir/types.js';
 
 const MANGLE_MAP: Record<IrType, string> = {
-  'number': 'N',
-  'empty': 'V',
+  'number': 'n',
+  'empty': 'v',
 }
 
 export function mangle<
