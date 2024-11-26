@@ -20,14 +20,14 @@ export class Compiler {
     if (this.exportMap.has(name)) {
       throw new Error(`Function named '${name}' already exists`);
     }
-    const innerName = await this.compile(f);
+    const fullName = await this.compile(f);
     const writer = await FunctionWriter.create(this.dir, name);
 
     await writer.write(
       `$data modify storage ${NAMESPACE} ${ARGUMENTS} append value [${f.sig.args.map((_, index) => `$(arg${index})d`).join(',')}]`
     );
     await writer.write(
-      `function ${writer.namespace}:${innerName}`
+      `function ${fullName}`
     );
     await writer.write(
       `data remove storage ${NAMESPACE} ${ARGUMENTS}[-1]`
