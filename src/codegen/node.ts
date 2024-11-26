@@ -51,12 +51,12 @@ async function walkExpr(env: Env, ins: ExprIns, writer: FunctionWriter) {
     }
 
     case 'call': {
-      const name = env.linkMap.get(ins.f);
-      if (name == null) {
+      const fullName = env.linkMap.get(ins.f);
+      if (fullName == null) {
         throw new Error(`Function ${ins.f.buildFn} cannot be found from the link map`);
       }
 
-      await call(env, name, ins.args, writer);
+      await call(env, fullName, ins.args, writer);
       break;
     }
 

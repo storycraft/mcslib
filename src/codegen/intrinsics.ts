@@ -169,29 +169,26 @@ export async function neg(env: Env, operand: Ref, writer: FunctionWriter) {
   );
 }
 
-export async function call(env: Env, name: string, args: Ref[], writer: FunctionWriter) {
-  await writer.write(`data modify storage ${NAMESPACE} ${ARGUMENTS} append value []`);
+export async function call(env: Env, fullName: string, args: Ref[], writer: FunctionWriter) {
+  await writer.write(`data modify storage ${NAMESPACE} tmp set value []`);
 
-  const length = args.length;
-  for (let i = 0; i < length; i++) {
-    const arg = args[i];
-
+  for (const arg of args) {
     if (arg.expr === 'const') {
       if (arg.ty === 'empty') {
         throw new Error('Cannot use empty type as a argument');
       }
 
       await writer.write(
-        `data modify storage ${NAMESPACE} ${ARGUMENTS}[-1] append value ${arg.value}d`
+        `data modify storage ${NAMESPACE} tmp append value ${arg.value}d`
       );
     } else {
       await writer.write(
-        `data modify storage ${NAMESPACE} ${ARGUMENTS}[-1] append from storage ${NAMESPACE} ${resolveLoc(env.storages[arg.index])}`
+        `data modify storage ${NAMESPACE} tmp append from storage ${NAMESPACE} ${resolveLoc(env.storages[arg.index])}`
       );
     }
   }
-
-  await writer.write(`function ${name}`);
+  await writer.write(`data modify storage ${NAMESPACE} ${ARGUMENTS} append from storage ${NAMESPACE} tmp`);
+  await writer.write(`function ${fullName}`);
   await writer.write(`data remove storage ${NAMESPACE} ${ARGUMENTS}[-1]`);
 }
 
