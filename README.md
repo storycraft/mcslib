@@ -1,4 +1,4 @@
-This project is WIP and does not work yet.
+This project is WIP and may contains a lot of unreported bugs.
 
 # `mcslib`: Minecraft command script library
 `mcslib` is structural programming language coded using javascript, compiles into minecraft datapack.
