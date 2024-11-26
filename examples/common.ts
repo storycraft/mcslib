@@ -1,3 +1,5 @@
+// Port of baekjoon #2447 c solution
+
 import { mcsAssign, mcsVar, mcsReturn, mcsWhile, mcsExpr, defineMcsFunction, mcsIf, mcsCmd, mcsCall } from '@/builder.js';
 
 export const index4 = defineMcsFunction(
