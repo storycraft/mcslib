@@ -29,6 +29,9 @@ export class Compiler {
     await writer.write(
       `function ${writer.namespace}:${innerName}`
     );
+    await writer.write(
+      `$data remove storage ${NAMESPACE} ${ARGUMENTS}[-1]`
+    );
     if (f.sig.returns != null) {
       await writer.write(
         `return run data get storage ${NAMESPACE} ${resolveRegister(1)}`
