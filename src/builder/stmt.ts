@@ -45,7 +45,7 @@ export function mcsIf(condition: Expr, f: () => void, elseF?: () => void) {
       ast: 'block',
       stmts: [],
     };
-    blockScope.with({ stmts: stmt.else.stmts }, f);
+    blockScope.with({ stmts: stmt.else.stmts }, elseF);
   }
 }
 
