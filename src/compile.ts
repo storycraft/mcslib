@@ -30,7 +30,7 @@ export class Compiler {
       `function ${writer.namespace}:${innerName}`
     );
     await writer.write(
-      `$data remove storage ${NAMESPACE} ${ARGUMENTS}[-1]`
+      `data remove storage ${NAMESPACE} ${ARGUMENTS}[-1]`
     );
     if (f.sig.returns != null) {
       await writer.write(
