@@ -96,8 +96,7 @@ async function walkEndIns(env: Env, ins: EndIns, writer: FunctionWriter) {
 
       const length = ins.table.length;
       if (length === 1 && ins.table[0]) {
-        const target = ins.table[0];
-        const name = await env.nodeMap.branch(env, target, writer);
+        const name = await env.nodeMap.branch(env, ins.table[0], writer);
         await writer.write(
           `execute if predicate mcs_intrinsic:zero run return run function ${writer.namespace}:${name}`
         );

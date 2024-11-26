@@ -7,7 +7,7 @@ import { visitExpr } from './low/expr.js';
 import { Id } from '@/ast.js';
 import { Label } from '@/ast/loop.js';
 import { VarType } from '@/ast/types.js';
-import { emptyNode, Node, traverseNode } from './node.js';
+import { emptyNode, Node } from './node.js';
 
 /**
  * create intermediate representation of a function
@@ -19,9 +19,8 @@ export function low(f: Fn): IrFunction {
   ir.node.ins.push({
     ins: 'start',
   });
-  visitBlock(env, ir.node, f.block);
 
-  finish(env, ir.node);
+  finish(env, visitBlock(env, ir.node, f.block));
 
   return ir;
 }
@@ -49,20 +48,16 @@ function initIr(f: Fn): [Env, IrFunction] {
   }];
 }
 
-function finish(env: Env, start: Node) {
-  for (const node of traverseNode(start)) {
-    if (node.end.ins !== 'unreachable') {
-      continue;
-    }
+function finish(env: Env, last: Node) {
+  if (last.end.ins !== 'unreachable') {
+    return;
+  }
 
-    if (env.sig.returns == null) {
-      node.end = {
-        ins: 'ret',
-        ref: IR_DEFAULT_CONST.empty,
-      };
-    } else {
-      throw new Error(`function with return type ${env.sig.returns} ended without returning`);
-    }
+  if (env.sig.returns == null) {
+    last.end = {
+      ins: 'ret',
+      ref: IR_DEFAULT_CONST.empty,
+    };
   }
 }
 
@@ -178,8 +173,7 @@ export class LoopStack {
     }
 
     try {
-      const loopEnd = f(loop);
-      loopEnd.end = {
+      f(loop).end = {
         ins: 'jmp',
         next: loopStart,
       };
