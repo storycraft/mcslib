@@ -9,7 +9,7 @@ Ported from the c language code.
 
 https://github.com/user-attachments/assets/2acdf2be-6b0c-423d-bba6-ecfe8ab5c7f9
 
-See script code from `examples/compile.ts`
+See script code from `examples/common.ts`
 
 Run example files using
 ```bash
