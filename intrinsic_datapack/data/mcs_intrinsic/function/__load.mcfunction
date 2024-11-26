@@ -5,4 +5,4 @@ execute unless entity d1f136b6-da69-4a75-a602-3f9308ecfbda run summon minecraft:
 scoreboard objectives add __mcs_scoreboard dummy
 execute unless data storage mcs:system locals run data modify storage mcs:system locals set value []
 execute unless data storage mcs:system arguments run data modify storage mcs:system arguments set value []
-execute unless data storage mcs:system registers run data modify storage mcs:system arguments set value { r1: 0.0d, r2: 0.0d }
+execute unless data storage mcs:system registers run data modify storage mcs:system registers set value { r1: 0.0d, r2: 0.0d }
