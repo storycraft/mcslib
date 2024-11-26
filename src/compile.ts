@@ -13,7 +13,7 @@ export class Compiler {
   constructor(
     private dir: FunctionDir,
   ) {
-    
+
   }
 
   async export(name: string, f: McsFunction) {
@@ -24,9 +24,7 @@ export class Compiler {
     const writer = await FunctionWriter.create(this.dir, name);
 
     await writer.write(
-      `$data modify storage ${NAMESPACE} ${ARGUMENTS} append value [${
-        f.sig.args.map((_, index) => `$(arg${index})d`).join(',')
-      }]`
+      `$data modify storage ${NAMESPACE} ${ARGUMENTS} append value [${f.sig.args.map((_, index) => `$(arg${index})d`).join(',')}]`
     );
     await writer.write(
       `function ${writer.namespace}:${innerName}`

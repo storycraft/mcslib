@@ -1,6 +1,6 @@
 import { FunctionDir } from '@/mcslib.js';
 import { Compiler } from '@/compile.js';
-import { tree } from './common.js';
+import { draw_star } from './common.js';
 
 const LOGGING_DIR: FunctionDir = {
   get namespace() {
@@ -18,4 +18,4 @@ const LOGGING_DIR: FunctionDir = {
 };
 
 const compiler = new Compiler(LOGGING_DIR);
-await compiler.export('example', tree);
+await compiler.export('example', draw_star);
