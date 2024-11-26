@@ -26,9 +26,11 @@ export class Compiler {
     const inner = await this.compile(f);
     const writer = await FunctionWriter.create(this.dir, name);
     try {
-      await writer.write(
-        `$data modify storage ${NAMESPACE} ${ARGUMENTS} append value [${f.sig.args.map((_, index) => `$(arg${index})d`).join(',')}]`
-      );
+      if (f.sig.args.length > 0) {
+        await writer.write(
+          `$data modify storage ${NAMESPACE} ${ARGUMENTS} append value [${f.sig.args.map((_, index) => `$(arg${index})d`).join(',')}]`
+        );
+      }
       await writer.write(
         `function ${inner}`
       );
