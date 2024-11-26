@@ -18,7 +18,7 @@ export function low(f: Fn): IrFunction {
   const [env, ir] = initIr(f);
   visitBlock(env, ir.node, f.block);
 
-  checkNode(env, ir.node);
+  finish(env, ir.node);
 
   return ir;
 }
@@ -46,10 +46,10 @@ function initIr(f: Fn): [Env, IrFunction] {
   }];
 }
 
-function checkNode(env: Env, start: Node) {
+function finish(env: Env, start: Node) {
   for (const node of traverseNode(start)) {
     if (node.end.ins !== 'unreachable') {
-      return;
+      continue;
     }
 
     if (env.sig.returns == null) {

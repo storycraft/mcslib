@@ -26,16 +26,14 @@ export function *traverseNode(
   start: Node
 ): Generator<Node, void, void> {
   const set = new Set<Node>();
-
-  const stack: Node[] = [start];
-  for (let node = stack.pop(); node != null; node = stack.pop()) {
+  const stack: Node[] = [];
+  for (let node: Node | undefined = start; node != null; node = stack.pop()) {
     if (set.has(node)) {
       continue;
     }
     set.add(node);
-    yield node;
-
     stack.push(...childrenNodes(node));
+    yield node;
   }
 }
 
@@ -53,7 +51,7 @@ export function childrenNodes(
     }
 
     case 'switch_int': {
-      return [...end.table.filter(node => node != null), end.default];
+      return [...end.table.filter(jmp => jmp != null), end.default];
     }
 
     default: {
