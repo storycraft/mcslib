@@ -2,16 +2,15 @@ import { mcsAssign, mcsVar, mcsReturn, mcsWhile, mcsExpr, defineMcsFunction, mcs
 
 export const index4 = defineMcsFunction(
   ['number', 'number', 'number'], (n, x, y) => {
-    const m = mcsVar('number', n);
-    mcsWhile(mcsExpr`${m} >= ${1}`, () => {
+    mcsWhile(mcsExpr`${n} >= ${1}`, () => {
       mcsIf(
-        mcsExpr`(${x} / ${m}) % ${3} == ${1} && (${y} / ${m}) % ${3} == ${1}`,
+        mcsExpr`(${x} / ${n}) % ${3} == ${1} && (${y} / ${n}) % ${3} == ${1}`,
         () => {
           mcsReturn(mcsExpr`${1}`);
         }
       );
 
-      mcsAssign(m, mcsExpr`${m} / 3`);
+      mcsAssign(n, mcsExpr`${n} / 3`);
     });
 
     mcsReturn(mcsExpr`${0}`);
