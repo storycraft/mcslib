@@ -129,7 +129,10 @@ function visitIf(env: Env, node: Node, stmt: If): Node {
   const next = emptyNode();
 
   const ifNode = emptyNode({ ins: 'jmp', next });
-  visitBlock(env, ifNode, stmt.block);
+  visitBlock(env, ifNode, stmt.block).end = {
+    'ins': 'jmp',
+    next,
+  };
 
   const switchIns: SwitchInt = {
     ins: 'switch_int',
@@ -142,7 +145,10 @@ function visitIf(env: Env, node: Node, stmt: If): Node {
   if (stmt.else) {
     const elseNode = emptyNode({ ins: 'jmp', next });
     switchIns.table[0] = elseNode;
-    visitBlock(env, elseNode, stmt.else);
+    visitBlock(env, elseNode, stmt.else).end = {
+      'ins': 'jmp',
+      next,
+    };
   }
 
   return next;
