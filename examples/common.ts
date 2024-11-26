@@ -26,7 +26,7 @@ export const draw_star = defineMcsFunction(['number'], (n) => {
     const x = mcsVar('number', mcsExpr`${0}`);
     mcsWhile(mcsExpr`${x} < ${n}`, () => {
       mcsIf(
-        mcsExpr`${mcsCall(index4, [n, x, y])} == 1`,
+        mcsExpr`${mcsCall(index4, [n, x, y])} == ${1}`,
         () => {
           mcsCmd('data modify storage example:storage buffer append value "§00"');
         },

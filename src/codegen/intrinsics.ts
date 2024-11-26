@@ -248,7 +248,6 @@ export async function cmp(env: Env, op: Cmp['op'], left: Ref, right: Ref, writer
 
   await load(env, left, 1, writer);
   await load(env, right, 2, writer);
-
   switch (op) {
     case '==': {
       await writer.write(
