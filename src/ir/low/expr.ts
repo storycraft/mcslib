@@ -40,7 +40,7 @@ export function visitExpr(env: Env, node: Node, expr: Expr): TypedRef {
     }
 
     case 'id': {
-      return visitId(env, node, expr);
+      return visitId(env, expr);
     }
   }
 }
@@ -65,7 +65,7 @@ function visitCmp(env: Env, node: Node, comp: Comparison): TypedRef {
 
 function visitBool(env: Env, node: Node, bool: BoolOperator): TypedRef {
   const [leftTy, left] = visitExpr(env, node, bool.left);
-  const [rightTy, right] = visitExpr(env, node, bool.left);
+  const [rightTy, right] = visitExpr(env, node, bool.right);
 
   if (leftTy !== 'number' || rightTy !== 'number') {
     throw new Error(`cannot apply ${bool.op} on type left: ${leftTy} right: ${rightTy}`);
@@ -170,7 +170,7 @@ function visitLiteral(env: Env, node: Node, lit: Literal): TypedRef {
   ];
 }
 
-function visitId(env: Env, node: Node, id: Id): TypedRef {
+function visitId(env: Env, id: Id): TypedRef {
   const [ty, index] = env.varMap.get(id);
   return [
     ty,

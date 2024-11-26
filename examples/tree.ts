@@ -5,4 +5,4 @@ import { Fn } from '@/ast/fn.js';
 
 export const AST_FN: Fn = build(draw_star);
 
-console.log(inspect(AST_FN, true, 10, true));
+console.log(inspect(AST_FN, true, 20, true));
