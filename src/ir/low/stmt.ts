@@ -80,22 +80,19 @@ function visitLocal(env: Env, node: Node, local: Local) {
     index = newStorage(env, local.ty);
   }
 
-  env.varMap.register(local.id, local.ty, index);
+  env.varResolver.register(local.id, local.ty, index);
 }
 
 function visitReturn(env: Env, node: Node, ret: Return): Node {
   if (ret.expr) {
     node.end = {
       ins: 'ret',
-      ref: {
-        expr: 'index',
-        index: newStorageInit(
-          env,
-          node,
-          env.sig.returns ?? 'empty',
-          ret.expr,
-        ),
-      },
+      ref: newStorageInit(
+        env,
+        node,
+        env.sig.returns ?? 'empty',
+        ret.expr,
+      ),
     };
   } else {
     if (env.sig.returns != null) {
@@ -112,7 +109,7 @@ function visitReturn(env: Env, node: Node, ret: Return): Node {
 }
 
 function visitAssign(env: Env, node: Node, stmt: Assign) {
-  const [varTy, index] = env.varMap.get(stmt.id);
+  const [varTy, index] = env.varResolver.resolve(stmt.id);
   const [exprTy, expr] = visitExpr(env, node, stmt.expr);
   if (exprTy !== varTy) {
     throw new Error(`cannot assign to variable with type: ${varTy} using expression returning ${exprTy}`);

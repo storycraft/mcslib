@@ -1,6 +1,6 @@
 import { IrFunction } from '@/ir.js';
 import { FunctionWriter } from './mcslib.js';
-import { allocator, Location } from './codegen/alloc.js';
+import { Alloc, alloc } from './codegen/alloc.js';
 import { NodeMap, walkNode } from './codegen/node.js';
 import { initStackFrame } from './codegen/intrinsics.js';
 import { McsFunction } from './ast/fn.js';
@@ -16,23 +16,18 @@ export async function gen(
   linkMap: Map<McsFunction, string>,
   writer: FunctionWriter
 ) {
-  const alloc = allocator(ir);
   const env: Env = {
-    storages: ir.storages.map(
-      (storage, index) => alloc.alloc(index, storage),
-    ),
-    stackSize: alloc.stackSize,
+    alloc: alloc(ir),
     nodeMap: new NodeMap(ir.node, writer.name),
     linkMap,
   };
 
-  await initStackFrame(env.stackSize, writer);
+  await initStackFrame(env.alloc.stackSize, writer);
   await walkNode(env, ir.node, writer);
 }
 
 export type Env = {
-  storages: Location[],
-  stackSize: number,
+  alloc: Alloc,
   nodeMap: NodeMap,
   linkMap: Map<McsFunction, string>,
 }

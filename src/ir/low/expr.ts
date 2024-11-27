@@ -1,13 +1,11 @@
 import { Arithmetic, Expr, Neg } from '@/ast/expr.js';
-import { Env, newStorage, newStorageInit } from '../low.js';
-import { Index, Ref } from '../../ir.js';
+import { Env, newStorage, newStorageInit, TypedRef } from '../low.js';
+import { Index } from '../../ir.js';
 import { IrType } from '../types.js';
 import { Id, Literal } from '@/ast.js';
 import { Call } from '@/ast/fn.js';
 import { BoolOperator, Comparison, Not } from '@/ast/expr/condition.js';
 import { Node } from '../node.js';
-
-export type TypedRef = [IrType, Ref];
 
 export function visitExpr(env: Env, node: Node, expr: Expr): TypedRef {
   switch (expr.ast) {
@@ -60,7 +58,7 @@ function visitCmp(env: Env, node: Node, comp: Comparison): TypedRef {
     expr: { expr: 'cmp', op: comp.op, left, right },
   });
 
-  return [leftTy, { expr: 'index', index }];
+  return [leftTy, index];
 }
 
 function visitBool(env: Env, node: Node, bool: BoolOperator): TypedRef {
@@ -78,7 +76,7 @@ function visitBool(env: Env, node: Node, bool: BoolOperator): TypedRef {
     expr: { expr: 'bool', op: bool.op, left, right },
   });
 
-  return [leftTy, { expr: 'index', index }];
+  return [leftTy, index];
 }
 
 function visitNot(env: Env, node: Node, not: Not): TypedRef {
@@ -93,7 +91,7 @@ function visitNot(env: Env, node: Node, not: Not): TypedRef {
     index,
     expr: { expr: 'not', operand: ref },
   })
-  return [ty, { expr: 'index', index }];
+  return [ty, index];
 }
 
 function visitCall(env: Env, node: Node, call: Call): TypedRef {
@@ -105,11 +103,12 @@ function visitCall(env: Env, node: Node, call: Call): TypedRef {
   const args = new Array<Index>(call.args.length);
   const length = call.args.length;
   for (let i = 0; i < length; i++) {
-    const ty = call.fn.sig.args[i];
-    args[i] = {
-      expr: 'index',
-      index: newStorageInit(env, node, ty, call.args[i]),
-    };
+    args[i] = newStorageInit(
+      env,
+      node,
+      call.fn.sig.args[i],
+      call.args[i]
+    );
   }
 
   const index = newStorage(env, returnTy);
@@ -120,7 +119,7 @@ function visitCall(env: Env, node: Node, call: Call): TypedRef {
   });
   env.dependencies.add(call.fn);
 
-  return [returnTy, { expr: 'index', index }];
+  return [returnTy, index];
 }
 
 function visitArith(env: Env, node: Node, arith: Arithmetic): TypedRef {
@@ -138,7 +137,7 @@ function visitArith(env: Env, node: Node, arith: Arithmetic): TypedRef {
     expr: { expr: 'arith', op: arith.op, left, right },
   });
 
-  return [leftTy, { expr: 'index', index }];
+  return [leftTy, index];
 }
 
 function visitNeg(env: Env, node: Node, neg: Neg): TypedRef {
@@ -156,7 +155,7 @@ function visitNeg(env: Env, node: Node, neg: Neg): TypedRef {
       operand,
     },
   });
-  return [ty, { expr: 'index', index }];
+  return [ty, index];
 }
 
 function visitLiteral(env: Env, node: Node, lit: Literal): TypedRef {
@@ -171,12 +170,5 @@ function visitLiteral(env: Env, node: Node, lit: Literal): TypedRef {
 }
 
 function visitId(env: Env, id: Id): TypedRef {
-  const [ty, index] = env.varMap.get(id);
-  return [
-    ty,
-    {
-      expr: 'index',
-      index,
-    },
-  ];
+  return env.varResolver.resolve(id);
 }

@@ -1,7 +1,8 @@
-import { IrFunction, Storage } from '@/ir.js';
-import { count } from './alloc/count.js';
+import { ExprIns, Index, IrFunction, Ref } from '@/ir.js';
+import { Node, traverseNode } from '@/ir/node.js';
+import { IrType } from '@/ir/types.js';
 
-export type Location = None | R1 | Argument | Frame;
+export type Location = None | R1 | R2 | Argument | Frame;
 
 type LocVariant<At extends string> = {
   at: At,
@@ -9,6 +10,7 @@ type LocVariant<At extends string> = {
 
 type None = LocVariant<'none'>;
 type R1 = LocVariant<'r1'>;
+type R2 = LocVariant<'r2'>;
 type Argument = LocVariant<'argument'> & {
   index: number,
 }
@@ -17,36 +19,183 @@ type Frame = LocVariant<'frame'> & {
 }
 
 export interface Alloc {
-  get stackSize(): number,
-  alloc(index: number, storage: Storage): Location;
+  readonly stackSize: number,
+  resolve(index: Index): Location;
 }
 
-export function allocator(ir: IrFunction): Alloc {
-  const set = new Set<number>();
+export function alloc(ir: IrFunction): Alloc {
+  const args = new Map<number, Location>();
+  ir.storage.arguments.forEach((arg, index) => {
+    args.set(index, {
+      at: 'argument',
+      index,
+    });
+  });
 
-  let nextStackIndex = 0;
-  let nextArgsIndex = 0;
+  const [stackSize, locals] = place(ir.storage.locals, ir.node);
   return {
-    get stackSize() {
-      return nextStackIndex;
-    },
-
-    alloc(index, storage) {
-      if (set.has(index)) {
-        throw new Error(`tried to allocate index: ${index} twice`);
-      }
-      set.add(index);
-
-      const result = count(index, ir.node);
-      if (result.references === 0) {
-        return { at: 'none', index: 0 };
+    stackSize,
+    resolve({
+      origin,
+      index
+    }) {
+      let location: Location | undefined;
+      if (origin === 'argument') {
+        location = args.get(index);
+      } else {
+        location = locals.get(index);
       }
 
-      if (storage.origin === 'argument') {
-        return { at: 'argument', index: nextArgsIndex++ };
+      if (location == null) {
+        throw new Error(`tried to resolve invalid index: ${index} origin: ${origin}`);
       }
 
-      return { at: 'frame', index: nextStackIndex++ };
+      return location;
     },
   };
+}
+
+function place(locals: IrType[], start: Node): [number, Map<number, Location>] {
+  const cx: Cx = {
+    locals,
+    map: new Map<number, Location>(),
+    nextLocalId: 0,
+    assignments: [],
+  };
+  locals.forEach((_, index) => {
+    cx.map.set(index, { at: 'none' });
+  });
+
+  for (const node of traverseNode(start)) {
+    const length = node.ins.length;
+    for (let i = 0; i < length; i++) {
+      const ins = node.ins[i];
+      switch (ins.ins) {
+        case 'assign': {
+          visitExpr(cx, ins.expr);
+          cx.assignments.push(ins.index.index);
+          break;
+        }
+      }
+    }
+
+    const end = node.end;
+    switch (end.ins) {
+      case 'switch_int': {
+        visitRefs(cx, end.index);
+        break;
+      }
+
+      default: {
+        break;
+      }
+    }
+
+    cx.assignments = [];
+  }
+
+  return [cx.nextLocalId, cx.map];
+}
+
+type Cx = {
+  locals: IrType[],
+  map: Map<number, Location>,
+  nextLocalId: number,
+  assignments: number[],
+}
+
+export function visitExpr(cx: Cx, ins: ExprIns) {
+  switch (ins.expr) {
+    case 'neg':
+    case 'not': {
+      visitRefs(cx, ins.operand);
+      break;
+    }
+
+    case 'arith':
+    case 'cmp':
+    case 'bool': {
+      visitRefs(cx, ins.left, ins.right);
+      break;
+    }
+
+    case 'call': {
+      visitRefs(cx, ...ins.args);
+      break;
+    }
+
+    case 'index': {
+      visitRefs(cx, ins);
+      break;
+    }
+  }
+}
+
+function visitRefs(cx: Cx, first?: Ref, second?: Ref, ...rest: Ref[]) {
+  const lastAssignIndex = cx.assignments[cx.assignments.length - 1];
+
+  first: if (first && first.expr === 'index') {
+    const item = cx.map.get(first.index);
+    if (!item) {
+      break first;
+    }
+
+    if (item.at === 'none' && lastAssignIndex === first.index) {
+      cx.map.set(
+        first.index,
+        { at: 'r1' },
+      );
+    } else if (item.at !== 'frame') {
+      cx.map.set(
+        first.index,
+        {
+          at: 'frame',
+          index: cx.nextLocalId++,
+        },
+      );
+    }
+  }
+
+  second: if (second && second.expr === 'index') {
+    const item = cx.map.get(second.index);
+    if (!item) {
+      break second;
+    }
+
+    if (item.at === 'none' && lastAssignIndex === second.index) {
+      cx.map.set(
+        second.index,
+        { at: 'r2' },
+      );
+    } else if (item.at !== 'frame') {
+      cx.map.set(
+        second.index,
+        {
+          at: 'frame',
+          index: cx.nextLocalId++,
+        },
+      );
+    }
+  }
+
+  for (const ref of rest) {
+    if (ref.expr !== 'index') {
+      continue;
+    }
+
+    const item = cx.map.get(ref.index);
+    if (!item) {
+      continue;
+    }
+
+    if (item.at === 'none') {
+      cx.map.set(
+        ref.index,
+        {
+          at: 'frame',
+          index: cx.nextLocalId++,
+        },
+      );
+    }
+  }
 }

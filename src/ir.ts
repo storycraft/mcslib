@@ -3,16 +3,14 @@ import { IrType } from './ir/types.js';
 import { Node } from './ir/node.js';
 
 export type IrFunction = {
-  storages: Storage[],
+  storage: Storage,
   node: Node,
   dependencies: Set<McsFunction>,
 }
 
-export type Origin = 'argument' | 'local';
-
 export type Storage = {
-  origin: Origin,
-  ty: IrType,
+  arguments: IrType[],
+  locals: IrType[],
 }
 
 export type InsTy<T extends string> = {
@@ -24,7 +22,7 @@ export type Ins = StartMarker | RunCmd | Assign;
 export type StartMarker = InsTy<'start'>;
 
 export type Assign = InsTy<'assign'> & {
-  index: number,
+  index: Index,
   expr: ExprIns,
 }
 
@@ -77,6 +75,9 @@ type ConstVariant<T extends IrType, V> = {
   value: V,
 }
 
+export type Origin = 'local' | 'argument';
+
 export type Index = ExprInsTy<'index'> & {
+  origin: Origin,
   index: number,
 }

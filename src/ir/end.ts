@@ -1,4 +1,4 @@
-import { InsTy, Ref } from '../ir.js';
+import { Index, InsTy, Ref } from '../ir.js';
 import { Node } from './node.js';
 
 export type EndIns = Unreachable | SwitchInt | Jmp | Ret;
@@ -12,7 +12,7 @@ export type Jmp = InsTy<'jmp'> & {
 };
 
 export type SwitchInt = InsTy<'switch_int'> & {
-  index: number,
+  index: Index,
   table: (Node | null)[],
   default: Node,
 }

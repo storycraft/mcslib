@@ -50,7 +50,7 @@ export async function load(env: Env, from: Ref, register: number, writer: Functi
 
     return loadConstNumber(from.value, register, writer);
   } else {
-    return loadIndex(env, from.index, register, writer);
+    return loadLocation(env.alloc.resolve(from), register, writer);
   }
 }
 
@@ -60,14 +60,17 @@ export async function loadConstNumber(value: number, register: number, writer: F
   );
 }
 
-export async function loadIndex(env: Env, index: number, register: number, writer: FunctionWriter) {
-  const loc = env.storages[index];
-  if (loc.at === 'none' || loc.at === 'r1' && register === 1) {
+export async function loadLocation(location: Location, register: number, writer: FunctionWriter) {
+  if (
+    location.at === 'none'
+    || location.at === 'r1' && register === 1
+    || location.at === 'r2' && register === 2
+  ) {
     return;
   }
 
   await writer.write(
-    `data modify storage ${NAMESPACE} ${resolveRegister(register)} set from storage ${NAMESPACE} ${resolveLoc(loc)}`
+    `data modify storage ${NAMESPACE} ${resolveRegister(register)} set from storage ${NAMESPACE} ${resolveLoc(location)}`
   );
 }
 
@@ -183,7 +186,7 @@ export async function call(env: Env, fullName: string, args: Ref[], writer: Func
       );
     } else {
       await writer.write(
-        `data modify storage ${NAMESPACE} tmp append from storage ${NAMESPACE} ${resolveLoc(env.storages[arg.index])}`
+        `data modify storage ${NAMESPACE} tmp append from storage ${NAMESPACE} ${resolveLoc(env.alloc.resolve(arg))}`
       );
     }
   }
@@ -376,6 +379,10 @@ export function resolveLoc(loc: Location): string {
 
     case 'r1': {
       return resolveRegister(1);
+    }
+
+    case 'r2': {
+      return resolveRegister(2);
     }
 
     case 'argument': {

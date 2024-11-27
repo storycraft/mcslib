@@ -1,5 +1,5 @@
 import { Fn, FnSig, McsFunction } from '@/ast/fn.js';
-import { IrFunction, Storage, Ref, Origin } from '../ir.js';
+import { IrFunction, Storage, Ref, Index } from '../ir.js';
 import { Expr } from '@/ast/expr.js';
 import { IR_DEFAULT_CONST, IrType } from './types.js';
 import { visitBlock } from './low/stmt.js';
@@ -28,21 +28,30 @@ export function low(f: Fn): IrFunction {
 function initIr(f: Fn): [Env, IrFunction] {
   const env: Env = {
     sig: f.sig,
-    varMap: new VarMap(),
+    varResolver: new VarResolver(),
     loop: new LoopStack(),
-    storages: [],
+    storage: {
+      arguments: f.sig.args,
+      locals: [],
+    },
     dependencies: new Set<McsFunction>(),
   };
 
   const length = f.args.length;
   for (let i = 0; i < length; i++) {
-    const ty = f.sig.args[i];
-    const index = newStorage(env, ty, 'argument');
-    env.varMap.register(f.args[i], ty, index);
+    env.varResolver.register(
+      f.args[i],
+      f.sig.args[i],
+      {
+        expr: 'index',
+        origin: 'argument',
+        index: i,
+      }
+    );
   }
 
   return [env, {
-    storages: env.storages,
+    storage: env.storage,
     node: emptyNode(),
     dependencies: env.dependencies,
   }];
@@ -63,13 +72,13 @@ function finish(env: Env, last: Node) {
 
 export type Env = {
   sig: FnSig,
-  varMap: VarMap,
+  varResolver: VarResolver,
   loop: LoopStack,
-  storages: Storage[],
+  storage: Storage,
   dependencies: Set<McsFunction>,
 }
 
-export function refToIndex(env: Env, node: Node, ref: Ref): number {
+export function refToIndex(env: Env, node: Node, ref: Ref): Index {
   if (ref.expr === 'const') {
     const index = newStorage(env, ref.ty);
     node.ins.push({
@@ -79,14 +88,18 @@ export function refToIndex(env: Env, node: Node, ref: Ref): number {
     });
     return index;
   } else {
-    return ref.index;
+    return ref;
   }
 }
 
-export function newStorage(env: Env, ty: IrType, origin: Origin = 'local'): number {
-  const index = env.storages.length;
-  env.storages.push({ origin, ty });
-  return index;
+export function newStorage(env: Env, ty: IrType): Index {
+  const index = env.storage.locals.length;
+  env.storage.locals.push(ty);
+  return {
+    expr: 'index',
+    origin: 'local',
+    index,
+  };
 }
 
 export function newStorageInit(
@@ -94,7 +107,7 @@ export function newStorageInit(
   node: Node,
   ty: IrType,
   expr: Expr,
-): number {
+): Index {
   const [exprTy, ref] = visitExpr(env, node, expr);
 
   if (exprTy !== ty) {
@@ -104,14 +117,16 @@ export function newStorageInit(
   return refToIndex(env, node, ref);
 }
 
+export type TypedRef = [IrType, Ref];
+
 /**
  * Map var id to ir index
  */
-export class VarMap {
-  private readonly varToIr = new Map<number, number>();
+export class VarResolver {
+  private readonly varToIr = new Map<number, Index>();
   private readonly varToTy = new Map<number, VarType>();
 
-  register(id: Id, ty: VarType, index: number) {
+  register(id: Id, ty: VarType, index: Index) {
     if (this.varToIr.has(id.id)) {
       throw new Error(`multiple local variable declaration. id: ${id.id}`);
     }
@@ -120,7 +135,7 @@ export class VarMap {
     this.varToTy.set(id.id, ty);
   }
 
-  get(id: Id): [VarType, number] {
+  resolve(id: Id): [VarType, Index]  {
     const ty = this.varToTy.get(id.id);
     const index = this.varToIr.get(id.id);
     if (index == null || ty == null) {

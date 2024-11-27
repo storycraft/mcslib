@@ -3,7 +3,7 @@ import { ExprIns, Ins } from '@/ir.js';
 import { EndIns } from '@/ir/end.js';
 import { Node } from '@/ir/node.js';
 import { FunctionWriter } from '@/mcslib.js';
-import { arithmetic, bool, call, cmp, disposeStackFrame, load, loadConstNumber, loadIndex, neg, not, storeFromR1 } from './intrinsics.js';
+import { arithmetic, bool, call, cmp, disposeStackFrame, load, loadConstNumber, loadLocation, neg, not, storeFromR1 } from './intrinsics.js';
 
 export async function walkNode(env: Env, node: Node, writer: FunctionWriter) {
   for (const ins of node.ins) {
@@ -17,7 +17,7 @@ async function walkIns(env: Env, ins: Ins, writer: FunctionWriter) {
   switch (ins.ins) {
     case 'assign': {
       await walkExpr(env, ins.expr, writer);
-      await storeFromR1(env.storages[ins.index], writer);
+      await storeFromR1(env.alloc.resolve(ins.index), writer);
       break;
     }
 
@@ -92,7 +92,7 @@ async function walkEndIns(env: Env, ins: EndIns, writer: FunctionWriter) {
     }
 
     case 'switch_int': {
-      await loadIndex(env, ins.index, 1, writer);
+      await loadLocation(env.alloc.resolve(ins.index), 1, writer);
 
       const length = ins.table.length;
       if (length === 1 && ins.table[0]) {
@@ -121,7 +121,7 @@ async function walkEndIns(env: Env, ins: EndIns, writer: FunctionWriter) {
 
     case 'ret': {
       await load(env, ins.ref, 1, writer);
-      await disposeStackFrame(env.stackSize, writer);
+      await disposeStackFrame(env.alloc.stackSize, writer);
       break;
     }
 
