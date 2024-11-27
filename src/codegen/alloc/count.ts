@@ -2,13 +2,12 @@ import { ExprIns, Ref } from '@/ir.js';
 import { Node, traverseNode } from '@/ir/node.js';
 
 /**
- * Serach first usage and reference counts of the index.
+ * Count reference counts of the index.
  * @returns [assignments, references]
  */
-export function search(index: number, start: Node): SearchResult {
+export function count(index: number, start: Node): CountResult {
   let assignments = 0;
   let references = 0;
-  const cx: Cx = {};
   for (const node of traverseNode(start)) {
     const length = node.ins.length;
     for (let i = 0; i < length; i++) {
@@ -16,12 +15,6 @@ export function search(index: number, start: Node): SearchResult {
       switch (ins.ins) {
         case 'assign': {
           if (ins.index === index) {
-            if (cx.start == null) {
-              cx.start = {
-                node,
-                index: i,
-              };
-            }
             assignments++;
           }
           references += countReferences(index, ins.expr);
@@ -51,14 +44,12 @@ export function search(index: number, start: Node): SearchResult {
   }
 
   return {
-    start: cx.start,
     references,
     assignments,
   };
 }
 
-export type SearchResult = {
-  start?: Start,
+export type CountResult = {
   assignments: number,
   references: number,
 }
@@ -66,10 +57,6 @@ export type SearchResult = {
 export type Start = {
   node: Node,
   index: number,
-}
-
-type Cx = {
-  start?: Start,
 }
 
 export function countReferences(index: number, ins: ExprIns): number {

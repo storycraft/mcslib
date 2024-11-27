@@ -1,5 +1,5 @@
 import { IrFunction, Storage } from '@/ir.js';
-import { search } from './search.js';
+import { count } from './alloc/count.js';
 
 export type Location = None | R1 | Argument | Frame;
 
@@ -37,7 +37,7 @@ export function allocator(ir: IrFunction): Alloc {
       }
       set.add(index);
 
-      const result = search(index, ir.node);
+      const result = count(index, ir.node);
       if (result.references === 0) {
         return { at: 'none', index: 0 };
       }
