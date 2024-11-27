@@ -73,7 +73,9 @@ function place(locals: IrType[], start: Node): [number, Map<number, Location>] {
       switch (ins.ins) {
         case 'assign': {
           visitExpr(cx, ins.expr);
-          cx.assignments.push(ins.index.index);
+          if (ins.index.origin === 'local') {
+            cx.assignments.push(ins.index.index);
+          }
           break;
         }
       }
@@ -134,7 +136,7 @@ export function visitExpr(cx: Cx, ins: ExprIns) {
 function visitRefs(cx: Cx, first?: Ref, second?: Ref, ...rest: Ref[]) {
   const lastAssignIndex = cx.assignments[cx.assignments.length - 1];
 
-  first: if (first && first.expr === 'index') {
+  first: if (first && first.expr === 'index' && first.origin === 'local') {
     const item = cx.map.get(first.index);
     if (!item) {
       break first;
@@ -156,7 +158,7 @@ function visitRefs(cx: Cx, first?: Ref, second?: Ref, ...rest: Ref[]) {
     }
   }
 
-  second: if (second && second.expr === 'index') {
+  second: if (second && second.expr === 'index' && second.origin === 'local') {
     const item = cx.map.get(second.index);
     if (!item) {
       break second;
@@ -179,7 +181,7 @@ function visitRefs(cx: Cx, first?: Ref, second?: Ref, ...rest: Ref[]) {
   }
 
   for (const ref of rest) {
-    if (ref.expr !== 'index') {
+    if (ref.expr !== 'index' || ref.origin !== 'local') {
       continue;
     }
 
