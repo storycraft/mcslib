@@ -46,8 +46,8 @@ export function visitExpr(env: Env, node: Node, expr: Expr): TypedRef {
 }
 
 function visitCmp(env: Env, node: Node, comp: Comparison): TypedRef {
-  const [leftTy, left] = visitExpr(env, node, comp.left);
   const [rightTy, right] = visitExpr(env, node, comp.right);
+  const [leftTy, left] = visitExpr(env, node, comp.left);
 
   if (leftTy !== 'number' || rightTy !== 'number') {
     throw new Error(`cannot compare using ${comp.op} on type left: ${leftTy} right: ${rightTy}`);
@@ -64,8 +64,8 @@ function visitCmp(env: Env, node: Node, comp: Comparison): TypedRef {
 }
 
 function visitBool(env: Env, node: Node, bool: BoolOperator): TypedRef {
-  const [leftTy, left] = visitExpr(env, node, bool.left);
   const [rightTy, right] = visitExpr(env, node, bool.right);
+  const [leftTy, left] = visitExpr(env, node, bool.left);
 
   if (leftTy !== 'number' || rightTy !== 'number') {
     throw new Error(`cannot apply ${bool.op} on type left: ${leftTy} right: ${rightTy}`);
@@ -124,8 +124,8 @@ function visitCall(env: Env, node: Node, call: Call): TypedRef {
 }
 
 function visitArith(env: Env, node: Node, arith: Arithmetic): TypedRef {
-  const [leftTy, left] = visitExpr(env, node, arith.left);
   const [rightTy, right] = visitExpr(env, node, arith.right);
+  const [leftTy, left] = visitExpr(env, node, arith.left);
 
   if (leftTy !== rightTy) {
     throw new Error(`incompatible type for arithmetic. left: ${leftTy} right: ${rightTy}`);
