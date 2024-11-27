@@ -85,14 +85,14 @@ function visitLocal(env: Env, node: Node, local: Local) {
 
 function visitReturn(env: Env, node: Node, ret: Return): Node {
   if (ret.expr) {
+    const [ty, ref] = visitExpr(env, node, ret.expr);
+    if (ty !== env.sig.returns) {
+      throw new Error(`invalid return value expected: ${env.sig.returns ?? 'empty'} got: ${ty}`);
+    }
+
     node.end = {
       ins: 'ret',
-      ref: newStorageInit(
-        env,
-        node,
-        env.sig.returns ?? 'empty',
-        ret.expr,
-      ),
+      ref,
     };
   } else {
     if (env.sig.returns != null) {
@@ -114,7 +114,7 @@ function visitAssign(env: Env, node: Node, stmt: Assign) {
   if (exprTy !== varTy) {
     throw new Error(`cannot assign to variable with type: ${varTy} using expression returning ${exprTy}`);
   }
-  
+
   node.ins.push({
     ins: 'assign',
     index,

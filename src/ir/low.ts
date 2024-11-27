@@ -109,7 +109,6 @@ export function newStorageInit(
   expr: Expr,
 ): Index {
   const [exprTy, ref] = visitExpr(env, node, expr);
-
   if (exprTy !== ty) {
     throw new Error(`expected type: ${exprTy} got: ${ty}`);
   }
