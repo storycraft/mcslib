@@ -1,6 +1,5 @@
 import { ExprIns, Index, IrFunction, Ref } from '@/ir.js';
 import { Node, traverseNode } from '@/ir/node.js';
-import { IrType } from '@/ir/types.js';
 
 export type Location = None | R1 | R2 | Argument | Frame;
 
@@ -24,15 +23,14 @@ export interface Alloc {
 }
 
 export function alloc(ir: IrFunction): Alloc {
-  const args = new Map<number, Location>();
-  ir.storage.arguments.forEach((arg, index) => {
-    args.set(index, {
+  const args: Location[] = ir.storage.arguments.map((arg, index) => {
+    return {
       at: 'argument',
       index,
-    });
+    };
   });
 
-  const [stackSize, locals] = place(ir.storage.locals, ir.node);
+  const [stackSize, locals] = place(ir.storage.locals.length, ir.node);
   return {
     stackSize,
     resolve({
@@ -41,9 +39,9 @@ export function alloc(ir: IrFunction): Alloc {
     }) {
       let location: Location | undefined;
       if (origin === 'argument') {
-        location = args.get(index);
+        location = args.at(index);
       } else {
-        location = locals.get(index);
+        location = locals.at(index);
       }
 
       if (location == null) {
@@ -55,16 +53,15 @@ export function alloc(ir: IrFunction): Alloc {
   };
 }
 
-function place(locals: IrType[], start: Node): [number, Map<number, Location>] {
+function place(
+  locals: number,
+  start: Node
+): [number, Location[]] {
   const cx: Cx = {
-    locals,
-    map: new Map<number, Location>(),
+    locs: new Array<Location>(locals).fill({ at: 'none' }),
     nextLocalId: 0,
     assignments: [],
   };
-  locals.forEach((_, index) => {
-    cx.map.set(index, { at: 'none' });
-  });
 
   for (const node of traverseNode(start)) {
     const length = node.ins.length;
@@ -96,12 +93,11 @@ function place(locals: IrType[], start: Node): [number, Map<number, Location>] {
     cx.assignments = [];
   }
 
-  return [cx.nextLocalId, cx.map];
+  return [cx.nextLocalId, cx.locs];
 }
 
 type Cx = {
-  locals: IrType[],
-  map: Map<number, Location>,
+  locs: Location[],
   nextLocalId: number,
   assignments: number[],
 }
@@ -137,46 +133,34 @@ function visitRefs(cx: Cx, first?: Ref, second?: Ref, ...rest: Ref[]) {
   const lastAssignIndex = cx.assignments[cx.assignments.length - 1];
 
   first: if (first && first.expr === 'index' && first.origin === 'local') {
-    const item = cx.map.get(first.index);
+    const item = cx.locs.at(first.index);
     if (!item) {
       break first;
     }
 
     if (item.at === 'none' && lastAssignIndex === first.index) {
-      cx.map.set(
-        first.index,
-        { at: 'r1' },
-      );
+      cx.locs[first.index] = { at: 'r1' };
     } else if (item.at !== 'frame') {
-      cx.map.set(
-        first.index,
-        {
-          at: 'frame',
-          index: cx.nextLocalId++,
-        },
-      );
+      cx.locs[first.index] = {
+        at: 'frame',
+        index: cx.nextLocalId++,
+      };
     }
   }
 
   second: if (second && second.expr === 'index' && second.origin === 'local') {
-    const item = cx.map.get(second.index);
+    const item = cx.locs.at(second.index);
     if (!item) {
       break second;
     }
 
     if (item.at === 'none' && lastAssignIndex === second.index) {
-      cx.map.set(
-        second.index,
-        { at: 'r2' },
-      );
+      cx.locs[second.index] = { at: 'r2' };
     } else if (item.at !== 'frame') {
-      cx.map.set(
-        second.index,
-        {
-          at: 'frame',
-          index: cx.nextLocalId++,
-        },
-      );
+      cx.locs[second.index] = {
+        at: 'frame',
+        index: cx.nextLocalId++,
+      };
     }
   }
 
@@ -185,19 +169,16 @@ function visitRefs(cx: Cx, first?: Ref, second?: Ref, ...rest: Ref[]) {
       continue;
     }
 
-    const item = cx.map.get(ref.index);
+    const item = cx.locs.at(ref.index);
     if (!item) {
       continue;
     }
 
     if (item.at === 'none') {
-      cx.map.set(
-        ref.index,
-        {
-          at: 'frame',
-          index: cx.nextLocalId++,
-        },
-      );
+      cx.locs[ref.index] = {
+        at: 'frame',
+        index: cx.nextLocalId++,
+      };
     }
   }
 }

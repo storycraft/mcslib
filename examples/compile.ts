@@ -3,7 +3,7 @@ import { Compiler } from '@/compile.js';
 import { draw_star } from './common.js';
 import { open, writeFile } from 'fs/promises';
 
-const LOGGING_DIR: FunctionDir = {
+const EXAMPLE_DIR: FunctionDir = {
   get namespace() {
     return 'example';
   },
@@ -26,5 +26,5 @@ const LOGGING_DIR: FunctionDir = {
   },
 };
 
-const compiler = new Compiler(LOGGING_DIR);
+const compiler = new Compiler(EXAMPLE_DIR);
 console.log(`exported ${await compiler.export('example', draw_star)} function`);

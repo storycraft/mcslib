@@ -122,26 +122,23 @@ export type TypedRef = [IrType, Ref];
  * Map var id to ir index
  */
 export class VarResolver {
-  private readonly varToIr = new Map<number, Index>();
-  private readonly varToTy = new Map<number, VarType>();
+  private readonly map = new Map<number, [VarType, Index]>();
 
   register(id: Id, ty: VarType, index: Index) {
-    if (this.varToIr.has(id.id)) {
+    if (this.map.has(id.id)) {
       throw new Error(`multiple local variable declaration. id: ${id.id}`);
     }
 
-    this.varToIr.set(id.id, index);
-    this.varToTy.set(id.id, ty);
+    this.map.set(id.id, [ty, index]);
   }
 
   resolve(id: Id): [VarType, Index]  {
-    const ty = this.varToTy.get(id.id);
-    const index = this.varToIr.get(id.id);
-    if (index == null || ty == null) {
+    const item = this.map.get(id.id);
+    if (item == null) {
       throw new Error(`local variable id: ${id.id} is not defined`);
     }
 
-    return [ty, index];
+    return item;
   }
 }
 
