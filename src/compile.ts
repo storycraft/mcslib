@@ -1,10 +1,17 @@
-import { McsFunction } from '@/ast/fn.js';
+import { FnSig, McsFunction } from '@/ast/fn.js';
 import { FunctionDir, FunctionWriter } from './mcslib.js';
 import { gen } from './codegen.js';
 import { build } from './builder.js';
 import { low } from './ir/low.js';
 import { NAMESPACE, resolveRegister, STACK } from './codegen/intrinsics.js';
 import { mangle } from './compile/mangle.js';
+import { VarType } from './ast/types.js';
+
+export type Export<Args extends VarType[]> = {
+  name: string,
+  fn: McsFunction<FnSig<Args>>,
+  args: [...{ [T in keyof Args]: string }],
+}
 
 export class Compiler {
   private exportMap = new Set<string>();
@@ -16,19 +23,26 @@ export class Compiler {
 
   }
 
-  async export(name: string, f: McsFunction): Promise<string> {
+  async export<const Args extends VarType[]>(
+    {
+      name,
+      fn,
+      args,
+    }: Export<Args>
+  ) {
     const fullName = `${this.dir.namespace}:${name}`;
     if (this.exportMap.has(fullName)) {
       throw new Error(`Function named '${name}' already exists`);
     }
     this.exportMap.add(fullName);
 
-    const inner = await this.compile(f);
+    const inner = await this.compile(fn);
     const writer = await FunctionWriter.create(this.dir, name);
     try {
-      if (f.sig.args.length > 0) {
+      if (fn.sig.args.length > 0) {
+        const obj = fn.sig.args.map((_, i) => `a${i}:$(${args[i]})d`).join(',');
         await writer.write(
-          `$data modify storage ${NAMESPACE} ${STACK} append value {${f.sig.args.map((_, index) => `a${index}:$(arg${index})d`).join(',')}}`
+          `$data modify storage ${NAMESPACE} ${STACK} append value {${obj}}`
         );
       } else {
         await writer.write(
@@ -38,7 +52,7 @@ export class Compiler {
       await writer.write(
         `function ${inner}`
       );
-      if (f.sig.returns != null) {
+      if (fn.sig.returns != null) {
         await writer.write(
           `return run data get storage ${NAMESPACE} ${resolveRegister(1)}`
         );
@@ -46,11 +60,11 @@ export class Compiler {
     } finally {
       await writer.close();
     }
-
-    return fullName;
   }
 
-  async compile(f: McsFunction): Promise<string> {
+  async compile<
+    const Sig extends FnSig
+  >(f: McsFunction<Sig>): Promise<string> {
     const cached = this.compileMap.get(f);
     if (cached != null) {
       return cached;

@@ -1,7 +1,6 @@
-import { Call, McsFunction } from '@/ast/fn.js';
+import { Call, FnSig, McsFunction } from '@/ast/fn.js';
 import { Expr } from '@/ast/expr.js';
 import { parseExpr, Term } from './expr/parse.js';
-import { VarType } from '@/ast/types.js';
 import { lex } from './expr/lex.js';
 
 export function mcsExpr(
@@ -34,13 +33,10 @@ export function mcsExpr(
   });
 }
 
-export function mcsCall<
-  const Args extends VarType[],
-  const Ret extends VarType,
->(
-  fn: McsFunction<Args, Ret>,
+export function mcsCall<const Sig extends FnSig>(
+  fn: McsFunction<Sig>,
   args: Expr[],
-): Call<Args, Ret> {
+): Call<Sig> {
   return {
     ast: 'call',
     fn,

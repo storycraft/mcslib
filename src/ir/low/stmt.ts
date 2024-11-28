@@ -1,6 +1,6 @@
 import { If } from '@/ast/expr/condition.js';
 import { Stmt, Local, Return, Block, Assign, Command } from '@/ast/stmt.js';
-import { Env, newStorage, newStorageInit } from '../low.js';
+import { Env, newStorageInit } from '../low.js';
 import { visitExpr } from './expr.js';
 import { Break, Continue, Loop } from '@/ast/loop.js';
 import { SwitchInt } from '../end.js';
@@ -73,14 +73,11 @@ export function visitBlock(env: Env, node: Node, block: Block): Node {
 }
 
 function visitLocal(env: Env, node: Node, local: Local) {
-  let index;
-  if (local.init) {
-    index = newStorageInit(env, node, local.ty, local.init);
-  } else {
-    index = newStorage(env, local.ty);
-  }
-
-  env.varResolver.register(local.id, local.ty, index);
+  env.varResolver.register(
+    local.id,
+    local.ty,
+    newStorageInit(env, node, local.ty, local.init)
+  );
 }
 
 function visitReturn(env: Env, node: Node, ret: Return): Node {

@@ -3,26 +3,20 @@ import { Expr } from './expr.js';
 import { Block } from './stmt.js';
 import { VarType } from './types.js';
 
-export type Fn<
-  Args extends unknown[] = VarType[],
-  Ret = VarType,
-> = AstTy<'fn'> & {
+export type Fn<Sig extends FnSig = FnSig> = AstTy<'fn'> & {
   args: Id[],
-  sig: FnSig<Args, Ret>,
+  sig: Sig,
   block: Block,
 }
 
-export type Call<
-  Args extends unknown[] = VarType[],
-  Ret = VarType,
-> = AstTy<'call'> & {
-  fn: McsFunction<Args, Ret>,
+export type Call<Sig extends FnSig = FnSig> = AstTy<'call'> & {
+  fn: McsFunction<Sig>,
   args: Expr[],
 }
 
 export type FnSig<
-  Args = VarType[],
-  Ret = VarType,
+  Args extends VarType[] = VarType[],
+  Ret extends VarType = VarType,
 > = {
   args: Args,
   returns?: Ret,
@@ -31,10 +25,10 @@ export type FnSig<
 /**
  * Unique identifier for a function
  */
-export type McsFunction<
-  Args extends unknown[] = VarType[],
-  Ret = VarType,
-> = {
-  sig: FnSig<Args, Ret>,
-  buildFn: (...args: [...{[I in keyof Args]: Id<Args[I]>}]) => void,
-}
+export type McsFunction<Sig extends FnSig = FnSig> = {
+  sig: Sig,
+  buildFn: McsBuildFn<Sig>,
+};
+
+export type McsBuildFn<Sig extends FnSig>
+  = Sig extends FnSig<infer Args> ? (...args: [...{ [I in keyof Args]: Id<Args[I]> }]) => void : never;

@@ -27,4 +27,9 @@ const EXAMPLE_DIR: FunctionDir = {
 };
 
 const compiler = new Compiler(EXAMPLE_DIR);
-console.log(`exported ${await compiler.export('example', draw_star)} function`);
+await compiler.export({
+  name: 'example',
+  fn: draw_star,
+  args: ['size'],
+});
+console.log(`exported example function`);
