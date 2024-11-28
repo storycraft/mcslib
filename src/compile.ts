@@ -3,7 +3,7 @@ import { FunctionDir, FunctionWriter } from './mcslib.js';
 import { gen } from './codegen.js';
 import { build } from './builder.js';
 import { low } from './ir/low.js';
-import { ARGUMENTS, NAMESPACE, resolveRegister } from './codegen/intrinsics.js';
+import { NAMESPACE, resolveRegister, STACK } from './codegen/intrinsics.js';
 import { mangle } from './compile/mangle.js';
 
 export class Compiler {
@@ -28,14 +28,15 @@ export class Compiler {
     try {
       if (f.sig.args.length > 0) {
         await writer.write(
-          `$data modify storage ${NAMESPACE} ${ARGUMENTS} append value [${f.sig.args.map((_, index) => `$(arg${index})d`).join(',')}]`
+          `$data modify storage ${NAMESPACE} ${STACK} append value {${f.sig.args.map((_, index) => `a${index}:$(arg${index})d`).join(',')}}`
+        );
+      } else {
+        await writer.write(
+          `data modify storage ${NAMESPACE} ${STACK} append value {}`
         );
       }
       await writer.write(
         `function ${inner}`
-      );
-      await writer.write(
-        `data remove storage ${NAMESPACE} ${ARGUMENTS}[-1]`
       );
       if (f.sig.returns != null) {
         await writer.write(

@@ -13,7 +13,7 @@ export type Block = AstTy<'block'> & {
 export type Local = AstTy<'local'> & {
   id: Id,
   ty: VarType,
-  init?: Expr,
+  init: Expr,
 }
 
 export type Assign = AstTy<'assign'> & {

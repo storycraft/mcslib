@@ -2,25 +2,10 @@ import { FunctionWriter } from '@/mcslib.js';
 import { Location } from './alloc.js';
 import { Env } from '@/codegen.js';
 import { Arith, Bool, Cmp, Ref } from '@/ir.js';
-import { IR_DEFAULT_CONST } from '@/ir/types.js';
 
 export const NAMESPACE = 'mcs:system';
-export const LOCAL = 'locals';
-export const ARGUMENTS = 'arguments';
 export const REGISTERS = 'registers';
-
-export async function initStackFrame(size: number, writer: FunctionWriter) {
-  if (size == 0) {
-    return;
-  }
-
-  const list = new Array<string>(size);
-  list.fill(`${IR_DEFAULT_CONST.number.value}d`);
-
-  await writer.write(
-    `data modify storage ${NAMESPACE} ${LOCAL} append value [${list.join(',')}]`
-  );
-}
+export const STACK = 'stack';
 
 export async function disposeStackFrame(size: number, writer: FunctionWriter) {
   if (size == 0) {
@@ -28,7 +13,7 @@ export async function disposeStackFrame(size: number, writer: FunctionWriter) {
   }
 
   await writer.write(
-    `data remove storage ${NAMESPACE} ${LOCAL}[-1]`
+    `data remove storage ${NAMESPACE} ${STACK}[-1]`
   );
 }
 
@@ -173,26 +158,27 @@ export async function neg(env: Env, operand: Ref, writer: FunctionWriter) {
 }
 
 export async function call(env: Env, fullName: string, args: Ref[], writer: FunctionWriter) {
-  await writer.write(`data modify storage ${NAMESPACE} tmp set value []`);
+  await writer.write(`data modify storage ${NAMESPACE} tmp set value {}`);
 
-  for (const arg of args) {
+  const length = args.length;
+  for (let i = 0; i < length; i++) {
+    const arg = args[i];
     if (arg.expr === 'const') {
       if (arg.ty === 'empty') {
         throw new Error('Cannot use empty type as a argument');
       }
 
       await writer.write(
-        `data modify storage ${NAMESPACE} tmp append value ${arg.value}d`
+        `data modify storage ${NAMESPACE} tmp.a${i} set value ${arg.value}d`
       );
     } else {
       await writer.write(
-        `data modify storage ${NAMESPACE} tmp append from storage ${NAMESPACE} ${resolveLoc(env.alloc.resolve(arg))}`
+        `data modify storage ${NAMESPACE} tmp.a${i} set from storage ${NAMESPACE} ${resolveLoc(env.alloc.resolve(arg))}`
       );
     }
   }
-  await writer.write(`data modify storage ${NAMESPACE} ${ARGUMENTS} append from storage ${NAMESPACE} tmp`);
+  await writer.write(`data modify storage ${NAMESPACE} ${STACK} append from storage ${NAMESPACE} tmp`);
   await writer.write(`function ${fullName}`);
-  await writer.write(`data remove storage ${NAMESPACE} ${ARGUMENTS}[-1]`);
 }
 
 export async function cmp(env: Env, op: Cmp['op'], left: Ref, right: Ref, writer: FunctionWriter) {
@@ -386,11 +372,11 @@ export function resolveLoc(loc: Location): string {
     }
 
     case 'argument': {
-      return `${ARGUMENTS}[-1][${loc.index}]`;
+      return `${STACK}[-1].a${loc.index}`;
     }
 
-    case 'frame': {
-      return `${LOCAL}[-1][${loc.index}]`;
+    case 'local': {
+      return `${STACK}[-1].l${loc.index}`;
     }
   }
 }

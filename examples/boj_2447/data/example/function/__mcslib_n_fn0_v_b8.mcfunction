@@ -1,1 +1,1 @@
-data remove storage mcs:system locals[-1]
+data remove storage mcs:system stack[-1]

@@ -16,10 +16,6 @@ import { emptyNode, Node } from './node.js';
  */
 export function low(f: Fn): IrFunction {
   const [env, ir] = initIr(f);
-  ir.node.ins.push({
-    ins: 'start',
-  });
-
   finish(env, visitBlock(env, ir.node, f.block));
 
   return ir;

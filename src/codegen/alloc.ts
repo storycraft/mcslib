@@ -1,7 +1,7 @@
 import { ExprIns, Index, IrFunction, Ref } from '@/ir.js';
 import { Node, traverseNode } from '@/ir/node.js';
 
-export type Location = None | R1 | R2 | Argument | Frame;
+export type Location = None | R1 | R2 | Argument | Local;
 
 type LocVariant<At extends string> = {
   at: At,
@@ -13,7 +13,7 @@ type R2 = LocVariant<'r2'>;
 type Argument = LocVariant<'argument'> & {
   index: number,
 }
-type Frame = LocVariant<'frame'> & {
+type Local = LocVariant<'local'> & {
   index: number,
 }
 
@@ -140,9 +140,9 @@ function visitRefs(cx: Cx, first?: Ref, second?: Ref, ...rest: Ref[]) {
 
     if (item.at === 'none' && lastAssignIndex === first.index) {
       cx.locs[first.index] = { at: 'r1' };
-    } else if (item.at !== 'frame') {
+    } else if (item.at !== 'local') {
       cx.locs[first.index] = {
-        at: 'frame',
+        at: 'local',
         index: cx.nextLocalId++,
       };
     }
@@ -156,9 +156,9 @@ function visitRefs(cx: Cx, first?: Ref, second?: Ref, ...rest: Ref[]) {
 
     if (item.at === 'none' && lastAssignIndex === second.index) {
       cx.locs[second.index] = { at: 'r2' };
-    } else if (item.at !== 'frame') {
+    } else if (item.at !== 'local') {
       cx.locs[second.index] = {
-        at: 'frame',
+        at: 'local',
         index: cx.nextLocalId++,
       };
     }
@@ -176,7 +176,7 @@ function visitRefs(cx: Cx, first?: Ref, second?: Ref, ...rest: Ref[]) {
 
     if (item.at === 'none') {
       cx.locs[ref.index] = {
-        at: 'frame',
+        at: 'local',
         index: cx.nextLocalId++,
       };
     }

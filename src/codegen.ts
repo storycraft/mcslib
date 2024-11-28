@@ -2,7 +2,6 @@ import { IrFunction } from '@/ir.js';
 import { FunctionWriter } from './mcslib.js';
 import { Alloc, alloc } from './codegen/alloc.js';
 import { NodeMap, walkNode } from './codegen/node.js';
-import { initStackFrame } from './codegen/intrinsics.js';
 import { McsFunction } from './ast/fn.js';
 
 /**
@@ -22,7 +21,6 @@ export async function gen(
     linkMap,
   };
 
-  await initStackFrame(env.alloc.stackSize, writer);
   await walkNode(env, ir.node, writer);
 }
 

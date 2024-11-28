@@ -5,7 +5,7 @@ import { If } from '@/ast/expr/condition.js';
 import { Break, Continue, Loop } from '@/ast/loop.js';
 import { VarType } from '@/ast/types.js';
 
-export function mcsVar<const T extends VarType>(ty: T, init?: Expr): Id<T> {
+export function mcsVar<const T extends VarType>(ty: T, init: Expr): Id<T> {
   const id: Id<T> = {
     ast: 'id',
     id: fnScope.get().varCounter++,
