@@ -1,12 +1,13 @@
 import { Expr, Neg } from '@/ast/expr.js';
 import { Not } from '@/ast/expr/condition.js';
+import { Token } from './lex.js';
 
-export type Variant<T, V> = {
+type Variant<T, V> = {
   ty: T,
   value: V,
 }
 
-export type Term = Variant<'expr', Expr> | Variant<'token', string>;
+export type Term = Variant<'expr', Expr> | Variant<'token', Token>;
 
 export type ParseCx = {
   terms: Term[],
@@ -17,13 +18,18 @@ export function parseExpr(cx: ParseCx): Expr {
   return parseCondition(cx);
 }
 
-function expectTokenVal(cx: ParseCx, literal: string) {
-  if (expectToken(cx) !== literal) {
-    throw new Error(`expected token '${literal}', got '${cx.terms[cx.index].ty}'.  index: ${cx.index}`);
+function expectStringTokenVal(cx: ParseCx, val: string) {
+  const token = expectToken(cx);
+  if (token.kind !== 'string') {
+    throw new Error(`expected string token '${val}', got ${token.kind} kind at index: ${cx.index}`);
+  }
+
+  if (token.value !== val) {
+    throw new Error(`expected string token ${val}, got value '${token.value}' at index: ${cx.index}`);
   }
 }
 
-function expectToken(cx: ParseCx): string {
+function expectToken(cx: ParseCx): Token {
   const term = cx.terms.at(cx.index);
   if (term == null) {
     throw new Error(`unexpected end of parse buffer. expected a token`);
@@ -37,20 +43,34 @@ function expectToken(cx: ParseCx): string {
   return term.value;
 }
 
-function peekToken(cx: ParseCx): string | null {
+function peekToken(cx: ParseCx): Token | null {
   const term = cx.terms.at(cx.index);
-  if (!term || term.ty !== 'token') {
+  if (term?.ty !== 'token') {
     return null;
   }
 
   return term.value;
 }
 
+function peekStringToken(cx: ParseCx): string | null {
+  const token = peekToken(cx);
+  if (token?.kind !== 'string') {
+    return null;
+  }
+
+  return token.value;
+}
+
 function parseCondition(cx: ParseCx): Expr {
   const left = parseEquation(cx);
 
   const term = cx.terms.at(cx.index);
-  if (term == null || term.ty !== 'token' || term.value !== '&&' && term.value !== '||') {
+  if (term?.ty !== 'token') {
+    return left;
+  }
+
+  const op = term.value.value;
+  if (op !== '&&' && op !== '||') {
     return left;
   }
   cx.index++;
@@ -58,46 +78,40 @@ function parseCondition(cx: ParseCx): Expr {
   return {
     ast: 'bool',
     left,
-    op: term.value,
-    right: parseEquation(cx),
+    op,
+    right: parseCondition(cx),
   };
 }
 
 function parseEquation(cx: ParseCx): Expr {
   const left = parsePolynomial(cx);
 
-  const op = peekToken(cx);
+  const op = peekStringToken(cx);
   if (
-    !op
-    || !(
-      op === '=='
-      || op === '!='
-      || op === '>='
-      || op === '<='
-      || op === '>'
-      || op === '<'
-    )
+    op === '=='
+    || op === '!='
+    || op === '>='
+    || op === '<='
+    || op === '>'
+    || op === '<'
   ) {
+    cx.index++;
+    return {
+      ast: 'comparison',
+      left,
+      op,
+      right: parseEquation(cx),
+    };
+  } else {
     return left;
   }
-  cx.index++;
-
-  return {
-    ast: 'comparison',
-    left,
-    op,
-    right: parseEquation(cx),
-  };
 }
 
 function parsePolynomial(cx: ParseCx): Expr {
   const left = parseMonomial(cx);
 
-  const op = peekToken(cx);
-  if (
-    !op
-    || op !== '+' && op !== '-'
-  ) {
+  const op = peekStringToken(cx);
+  if (op !== '+' && op !== '-') {
     return left;
   }
   cx.index++;
@@ -113,11 +127,8 @@ function parsePolynomial(cx: ParseCx): Expr {
 function parseMonomial(cx: ParseCx): Expr {
   const left = parseFactor(cx);
 
-  const op = peekToken(cx);
-  if (
-    !op
-    || op !== '*' && op !== '/' && op !== '%'
-  ) {
+  const op = peekStringToken(cx);
+  if (op !== '*' && op !== '/' && op !== '%') {
     return left;
   }
   cx.index++;
@@ -131,12 +142,12 @@ function parseMonomial(cx: ParseCx): Expr {
 }
 
 function parseFactor(cx: ParseCx): Expr {
-  const token = peekToken(cx);
-  if (token === '(') {
+  const str = peekStringToken(cx);
+  if (str === '(') {
     return parseParen(cx);
-  } else if (token === '!') {
+  } else if (str === '!') {
     return parseNot(cx);
-  } else if (token === '-') {
+  } else if (str === '-') {
     return parseNeg(cx);
   }
 
@@ -144,12 +155,13 @@ function parseFactor(cx: ParseCx): Expr {
 }
 
 function parseParen(cx: ParseCx): Expr {
-  expectTokenVal(cx, '(');
+  expectStringTokenVal(cx, '(');
   const terms = [];
 
   const length = cx.terms.length;
   for (; cx.index < length; cx.index++) {
-    if (peekToken(cx) == ')') {
+    const str = peekStringToken(cx);
+    if (str == ')') {
       cx.index++;
       return parseExpr({
         terms,
@@ -159,12 +171,12 @@ function parseParen(cx: ParseCx): Expr {
 
     terms.push(cx.terms[cx.index]);
   }
-  
+
   throw new Error(`unclosed paren at: ${cx.index}`);
 }
 
 function parseNot(cx: ParseCx): Not {
-  expectTokenVal(cx, '!');
+  expectStringTokenVal(cx, '!');
   return {
     ast: 'not',
     expr: parseExpr(cx),
@@ -172,7 +184,7 @@ function parseNot(cx: ParseCx): Not {
 }
 
 function parseNeg(cx: ParseCx): Neg {
-  expectTokenVal(cx, '-');
+  expectStringTokenVal(cx, '-');
   return {
     ast: 'neg',
     expr: parseFactor(cx),
@@ -183,13 +195,20 @@ function parseTerm(cx: ParseCx): Expr {
   const term = cx.terms.at(cx.index);
 
   if (!term) {
-    throw new Error('unexpected end of a parse buffer. expected an expression');
+    throw new Error('unexpected end of a parse buffer');
   }
 
   if (term.ty === 'expr') {
     cx.index++;
     return term.value;
+  } else if (term.value.kind === 'number') {
+    cx.index++;
+    return {
+      ast: 'literal',
+      value: term.value.value,
+    };
   }
 
-  throw new Error(`expected an expression, found ${term.ty} ${term.value}. index: ${cx.index}`);
+  const token = term.value;
+  throw new Error(`expected an expression, found ${term.ty} ${token.value}. index: ${cx.index}`);
 }

@@ -2,43 +2,29 @@ import { Call, McsFunction } from '@/ast/fn.js';
 import { Expr } from '@/ast/expr.js';
 import { parseExpr, Term } from './expr/parse.js';
 import { VarType } from '@/ast/types.js';
-
-type ExprArg = number | Expr;
+import { lex } from './expr/lex.js';
 
 export function mcsExpr(
   arr: TemplateStringsArray,
-  ...args: [ExprArg, ...ExprArg[]]
+  ...args: Expr[]
 ): Expr {
   const terms: Term[] = [];
+  for (const value of lex(arr[0])) {
+    terms.push({ ty: 'token', value });
+  }
+
   const length = args.length;
-  for (let i = 0; i < length; i++) {
-    if (arr[i] !== '') {
-      for (const value of arr[i].split(' ')) {
-        if (value === '') {
-          continue;
-        }
+  if (length > 0) {
+    for (let i = 0; i < length; i++) {
+      terms.push({
+        ty: 'expr',
+        value: args[i],
+      });
 
-        terms.push({
-          ty: 'token',
-          value,
-        });
+      const str = arr[i + 1];
+      for (const value of lex(str)) {
+        terms.push({ ty: 'token', value });
       }
-    }
-
-    const arg = args[i];
-    if (typeof arg === 'number') {
-      terms.push({
-        ty: 'expr',
-        value: {
-          ast: 'literal',
-          value: arg,
-        },
-      });
-    } else {
-      terms.push({
-        ty: 'expr',
-        value: arg,
-      });
     }
   }
 
