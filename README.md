@@ -1,4 +1,4 @@
-![NPM Version (with dist tag)](https://img.shields.io/npm/v/mcslib/latest)
+[![NPM Version (with dist tag)](https://img.shields.io/npm/v/mcslib/latest)](https://www.npmjs.com/package/mcslib)
 # `mcslib`: Minecraft command script library
 `mcslib` is structural programming language coded using javascript, compiles into minecraft datapack.
 
