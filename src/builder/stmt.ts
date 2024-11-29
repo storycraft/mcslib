@@ -3,6 +3,7 @@ import { Id } from '@/ast.js';
 import { Expr } from '@/ast/expr.js';
 import { If } from '@/ast/expr/condition.js';
 import { Break, Continue, Loop } from '@/ast/loop.js';
+import { CommandTemplate } from '@/ast/stmt.js';
 import { VarType } from '@/ast/types.js';
 
 export function mcsVar<const T extends VarType>(ty: T, init: Expr): Id<T> {
@@ -112,9 +113,37 @@ export function mcsStmt(expr: Expr) {
   blockScope.get().stmts.push(expr);
 }
 
-export function mcsCmd(command: string) {
+export function mcsExecute(...templates: CommandTemplate[]) {
   blockScope.get().stmts.push({
-    ast: 'command',
-    command,
+    ast: 'execute',
+    templates,
   });
+}
+
+export function mcsCmd(arr: TemplateStringsArray, ...exprs: Expr[]): CommandTemplate {
+  const template: CommandTemplate = [
+    {
+      ty: 'text',
+      text: arr[0],
+    },
+  ];
+
+  const length = exprs.length;
+  if (length > 0) {
+    for (let i = 0; i < length; i++) {
+      template.push({
+        ty: 'expr',
+        expr: exprs[i],
+      });
+
+      if (arr[i + 1] !== '') {
+        template.push({
+          ty: 'text',
+          text: arr[i + 1],
+        });
+      }
+    }
+  }
+
+  return template;
 }

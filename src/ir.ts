@@ -1,6 +1,7 @@
 import { McsFunction } from '@/ast/fn.js';
 import { IrType } from './ir/types.js';
 import { Node } from './ir/node.js';
+import { CommandTemplate } from './ast/stmt.js';
 
 export type IrFunction = {
   storage: Storage,
@@ -17,16 +18,22 @@ export type InsTy<T extends string> = {
   ins: T,
 }
 
-export type Ins = RunCmd | Assign;
+export type Ins = Execute | Assign;
 
 export type Assign = InsTy<'assign'> & {
   index: Index,
   expr: ExprIns,
 }
 
-export type RunCmd = InsTy<'cmd'> & {
-  command: string,
+export type Execute = InsTy<'execute'> & {
+  templates: ExecuteTemplate[]
 }
+
+export type ExecuteTemplate = ExecutePart[];
+export type ExecutePart = ExecuteTextPart | ExecuteRef;
+type ExecutePartTy<T extends string> = { ty: T };
+type ExecuteTextPart = ExecutePartTy<'text'> & { text: string };
+type ExecuteRef = ExecutePartTy<'ref'> & { ref: Ref };
 
 export type ExprIns = Ref | Bool | Not | Arith | Cmp | Call | Neg;
 

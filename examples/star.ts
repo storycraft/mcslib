@@ -1,6 +1,6 @@
 // Port of baekjoon #2447 c solution
 
-import { mcsAssign, mcsVar, mcsReturn, mcsWhile, mcsExpr, defineMcsFunction, mcsIf, mcsCmd, mcsCall } from '@/builder.js';
+import { mcsAssign, mcsVar, mcsReturn, mcsWhile, mcsExpr, defineMcsFunction, mcsIf, mcsExecute, mcsCall, mcsCmd } from '@/builder.js';
 
 export const index4 = defineMcsFunction(
   ['number', 'number', 'number'], (n, x, y) => {
@@ -23,24 +23,27 @@ export const index4 = defineMcsFunction(
 export const draw_star = defineMcsFunction(['number'], (n) => {
   const y = mcsVar('number', mcsExpr`0`);
   mcsWhile(mcsExpr`${y} < ${n}`, () => {
-    mcsCmd('data modify storage example:storage buffer set value []');
+    mcsExecute(mcsCmd`data modify storage example:storage buffer set value []`);
     
     const x = mcsVar('number', mcsExpr`0`);
     mcsWhile(mcsExpr`${x} < ${n}`, () => {
+      mcsExecute(mcsCmd`tellraw @s {"text": "x: ${x} y: ${y}"}`);
       mcsIf(
         mcsExpr`${mcsCall(index4, [n, x, y])} == 1`,
         () => {
-          mcsCmd('data modify storage example:storage buffer append value "§00"');
+          mcsExecute(mcsCmd`data modify storage example:storage buffer append value "§00"`);
         },
         () => {
-          mcsCmd('data modify storage example:storage buffer append value "§d#"');
+          mcsExecute(mcsCmd`data modify storage example:storage buffer append value "§d#"`);
         }
       )
 
       mcsAssign(x, mcsExpr`${x} + 1`);
     });
 
-    mcsCmd('tellraw @s [{"storage": "example:storage", "nbt": "buffer", "interpret": true}]');
+    mcsExecute(
+      mcsCmd`tellraw @s {"storage": "example:storage", "nbt": "buffer", "interpret": true}`
+    );
     mcsAssign(y, mcsExpr`${y} + 1`);
   });
 });

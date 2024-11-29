@@ -75,13 +75,24 @@ function place(
           }
           break;
         }
+
+        case 'execute': {
+          for (const template of ins.templates) {
+            for (const part of template) {
+              if (part.ty === 'ref') {
+                replaceRefsInLocal(cx, part.ref);
+              }
+            }
+          }
+          break;
+        }
       }
     }
 
     const end = node.end;
     switch (end.ins) {
       case 'switch_int': {
-        visitRefs(cx, end.index);
+        replaceRefs(cx, end.index);
         break;
       }
 
@@ -106,33 +117,33 @@ export function visitExpr(cx: Cx, ins: ExprIns) {
   switch (ins.expr) {
     case 'neg':
     case 'not': {
-      visitRefs(cx, ins.operand);
+      replaceRefs(cx, ins.operand);
       break;
     }
 
     case 'arith':
     case 'cmp':
     case 'bool': {
-      visitRefs(cx, ins.left, ins.right);
+      replaceRefs(cx, ins.left, ins.right);
       break;
     }
 
     case 'call': {
-      visitRefs(cx, ...ins.args);
+      replaceRefs(cx, ...ins.args);
       break;
     }
 
     case 'index': {
-      visitRefs(cx, ins);
+      replaceRefs(cx, ins);
       break;
     }
   }
 }
 
-function visitRefs(cx: Cx, first?: Ref, second?: Ref, ...rest: Ref[]) {
+function replaceRefs(cx: Cx, first?: Ref, second?: Ref, ...rest: Ref[]) {
   const lastAssignIndex = cx.assignments[cx.assignments.length - 1];
 
-  first: if (first && first.expr === 'index' && first.origin === 'local') {
+  first: if (first?.expr === 'index' && first.origin === 'local') {
     const item = cx.locs.at(first.index);
     if (!item) {
       break first;
@@ -148,7 +159,7 @@ function visitRefs(cx: Cx, first?: Ref, second?: Ref, ...rest: Ref[]) {
     }
   }
 
-  second: if (second && second.expr === 'index' && second.origin === 'local') {
+  second: if (second?.expr === 'index' && second.origin === 'local') {
     const item = cx.locs.at(second.index);
     if (!item) {
       break second;
@@ -164,7 +175,13 @@ function visitRefs(cx: Cx, first?: Ref, second?: Ref, ...rest: Ref[]) {
     }
   }
 
-  for (const ref of rest) {
+  if (rest.length > 0) {
+    replaceRefsInLocal(cx, ...rest);
+  }
+}
+
+function replaceRefsInLocal(cx: Cx, ...refs: Ref[]) {
+  for (const ref of refs) {
     if (ref.expr !== 'index' || ref.origin !== 'local') {
       continue;
     }

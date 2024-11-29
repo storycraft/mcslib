@@ -1,2 +1,1 @@
-data modify storage example:storage buffer append value "§d#"
-function example:__mcslib_n_fn0_v_b6
+$tellraw @s {"text": "x: $(l1) y: $(l0)"}

@@ -1,7 +1,8 @@
 import { FunctionDir } from '@/mcslib.js';
 import { Compiler } from '@/compile.js';
-import { draw_star } from './common.js';
+import { draw_star } from './star.js';
 import { open, writeFile } from 'fs/promises';
+import { cubeParticle } from './cube-particle.js';
 
 const EXAMPLE_DIR: FunctionDir = {
   get namespace() {
@@ -33,3 +34,9 @@ await compiler.export({
   args: ['size'],
 });
 console.log(`exported example function`);
+await compiler.export({
+  name: 'cube_particle',
+  fn: cubeParticle,
+  args: ['width', 'length', 'height', 'density'],
+});
+console.log(`exported cube_particle function`);

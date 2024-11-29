@@ -1,5 +1,5 @@
 import { If } from '@/ast/expr/condition.js';
-import { Stmt, Local, Return, Block, Assign, Command } from '@/ast/stmt.js';
+import { Stmt, Local, Return, Block, Assign, Execute, CommandTemplate } from '@/ast/stmt.js';
 import { Env, newStorageInit } from '../low.js';
 import { visitExpr } from './expr.js';
 import { Break, Continue, Loop } from '@/ast/loop.js';
@@ -7,6 +7,7 @@ import { SwitchInt } from '../end.js';
 import { Expr } from '@/ast/expr.js';
 import { emptyNode, Node } from '../node.js';
 import { IR_DEFAULT_CONST } from '../types.js';
+import { ExecuteTemplate } from '@/ir.js';
 
 export function visitStmt(env: Env, node: Node, stmt: Stmt): Node {
   switch (stmt.ast) {
@@ -50,8 +51,8 @@ export function visitStmt(env: Env, node: Node, stmt: Stmt): Node {
       break;
     }
 
-    case 'command': {
-      visitCommand(env, node, stmt);
+    case 'execute': {
+      visitExecute(env, node, stmt);
       break;
     }
 
@@ -178,11 +179,41 @@ function visitContinue(env: Env, node: Node, stmt: Continue): Node {
   return emptyNode();
 }
 
-function visitCommand(env: Env, node: Node, cmd: Command) {
+function visitExecute(env: Env, node: Node, execute: Execute) {
+  const templates: ExecuteTemplate[] = [];
+
+  for (const template of execute.templates) {
+    templates.push(parseTemplate(env, node, template));
+  }
+
   node.ins.push({
-    ins: 'cmd',
-    command: cmd.command,
+    ins: 'execute',
+    templates,
   });
+}
+
+function parseTemplate(
+  env: Env,
+  node: Node,
+  template: CommandTemplate
+): ExecuteTemplate {
+  const parts: ExecuteTemplate = [];
+  for (const part of template) {
+    switch (part.ty) {
+      case 'expr': {
+        const [, ref] = visitExpr(env, node, part.expr);
+        parts.push({ ty: 'ref', ref });
+        break;
+      }
+
+      case 'text': {
+        parts.push(part);
+        break;
+      }
+    }
+  }
+
+  return parts;
 }
 
 function visitStmtExpr(env: Env, node: Node, expr: Expr) {

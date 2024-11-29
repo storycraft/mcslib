@@ -1,9 +1,9 @@
 import { Env } from '@/codegen.js';
-import { ExprIns, Ins } from '@/ir.js';
+import { ExecuteTemplate, ExprIns, Ins } from '@/ir.js';
 import { EndIns } from '@/ir/end.js';
 import { Node } from '@/ir/node.js';
 import { FunctionWriter } from '@/mcslib.js';
-import { arithmetic, bool, call, cmp, disposeStackFrame, load, loadConstNumber, loadLocation, neg, not, storeFromR1 } from './intrinsics.js';
+import { arithmetic, bool, call, cmp, disposeStackFrame, load, loadConstNumber, loadLocation, NAMESPACE, neg, not, STACK, storeFromR1 } from './intrinsics.js';
 
 export async function walkNode(env: Env, node: Node, writer: FunctionWriter) {
   for (const ins of node.ins) {
@@ -21,9 +21,73 @@ async function walkIns(env: Env, ins: Ins, writer: FunctionWriter) {
       break;
     }
 
-    case 'cmd': {
-      await writer.write(ins.command);
+    case 'execute': {
+      let executeWriter: FunctionWriter;
+
+      const hasRefs = ins.templates.some(
+        (template) => template.some(({ ty }) => ty === 'ref')
+      );
+      if (hasRefs) {
+        executeWriter = await writer.createBranch();
+        await writer.write(
+          `function ${executeWriter.namespace}:${executeWriter.name} with storage ${NAMESPACE} ${STACK}[-1]`
+        );
+      } else {
+        executeWriter = writer;
+      }
+
+      for (const template of ins.templates) {
+        await writeTemplate(env, template, executeWriter);
+      }
       break;
+    }
+  }
+}
+
+async function writeTemplate(
+  env: Env,
+  template: ExecuteTemplate,
+  writer: FunctionWriter
+) {
+  let macro = false;
+  let cmd = '';
+  for (const part of template) {
+    switch (part.ty) {
+      case 'ref': {
+        const ref = part.ref;
+
+        if (ref.expr === 'const') {
+          if (ref.ty === 'empty') {
+            throw new Error('empty value cannot be referenced');
+          }
+
+          cmd += `${ref.value}`;
+        } else {
+          if (!macro) {
+            macro = true;
+          }
+
+          const loc = env.alloc.resolve(ref);
+          if (loc.at !== 'local') {
+            throw new Error('Execute ref must be allocated in local');
+          }
+          cmd += `$(l${loc.index})`;
+        }
+        break;
+      }
+
+      case 'text': {
+        cmd += part.text;
+        break;
+      }
+    }
+  }
+
+  if (cmd !== '') {
+    if (macro) {
+      await writer.write(`$${cmd}`);
+    } else {
+      await writer.write(cmd);
     }
   }
 }
