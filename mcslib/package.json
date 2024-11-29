@@ -7,7 +7,7 @@
   "main": "build/lib.js",
   "exports": {
     ".": "./build/lib.js",
-    "./*": "./build/*.js"
+    "./*.js": "./build/*.js"
   },
   "scripts": {
     "prepack": "pnpm build",

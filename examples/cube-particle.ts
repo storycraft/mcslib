@@ -1,4 +1,4 @@
-import { defineMcsFunction, mcsAssign, mcsCmd, mcsExecute, mcsExpr, mcsVar, mcsWhile } from 'mcslib/builder';
+import { defineMcsFunction, mcsAssign, mcsCmd, mcsExecute, mcsExpr, mcsVar, mcsWhile } from 'mcslib/builder.js';
 
 export const cubeParticle = defineMcsFunction(
   ['number', 'number', 'number', 'number'],

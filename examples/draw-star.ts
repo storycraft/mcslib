@@ -1,6 +1,6 @@
 // Port of baekjoon #2447 c solution
 
-import { mcsAssign, mcsVar, mcsReturn, mcsWhile, mcsExpr, defineMcsFunction, mcsIf, mcsExecute, mcsCall, mcsCmd } from 'mcslib/builder';
+import { mcsAssign, mcsVar, mcsReturn, mcsWhile, mcsExpr, defineMcsFunction, mcsIf, mcsExecute, mcsCall, mcsCmd } from 'mcslib/builder.js';
 
 export const index4 = defineMcsFunction(
   ['number', 'number', 'number'], (n, x, y) => {
