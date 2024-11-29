@@ -1,5 +1,4 @@
-This project is WIP and may contains a lot of unreported bugs.
-
+![NPM Version (with dist tag)](https://img.shields.io/npm/v/mcslib/latest)
 # `mcslib`: Minecraft command script library
 `mcslib` is structural programming language coded using javascript, compiles into minecraft datapack.
 
