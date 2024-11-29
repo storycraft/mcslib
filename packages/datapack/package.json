@@ -1,7 +1,7 @@
 {
-  "name": "@mcslib/datapack-gen",
+  "name": "@mcslib/datapack",
+  "description": "Compile MCS functions and pack into a datapack file",
   "version": "0.1.0",
-  "private": "true",
   "type": "module",
   "types": "build/lib.d.ts",
   "main": "build/lib.js",
@@ -17,11 +17,13 @@
   },
   "license": "MIT",
   "dependencies": {
-    "archiver": "^7.0.1",
+    "yazl": "^3.3.1"
+  },
+  "peerDependencies": {
     "mcslib": "workspace:^"
   },
   "devDependencies": {
-    "@types/archiver": "^6.0.3",
+    "@types/yazl": "^2.4.5",
     "typescript": "catalog:"
   }
 }

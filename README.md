@@ -11,11 +11,11 @@ Source codes in `examples/draw-star.ts`
 Source codes in `examples/cube-particle.ts`
 ![Cube particle example preview](./assets/cube_particle.png)
 
-
-Compile example using
+Compile example datapack using
 ```bash
-npm start --example=compile
+npm start --example=gen
 ```
+Run datapack with `intrinsics_datapack`
 
 ## Detail
 ### Data type

@@ -16,7 +16,6 @@
     "fix": "eslint --fix"
   },
   "devDependencies": {
-    "mcslib": "workspace:*",
     "@eslint/js": "9.14.0",
     "@types/eslint__js": "^8.42.3",
     "@types/node": "^22.9.3",
@@ -26,6 +25,10 @@
     "typescript": "catalog:",
     "tsx": "^4.19.2",
     "typescript-eslint": "^8.14.0"
+  },
+  "dependencies": {
+    "mcslib": "workspace:*",
+    "@mcslib/datapack": "workspace:*"
   },
   "packageManager": "pnpm@9.14.3"
 }
