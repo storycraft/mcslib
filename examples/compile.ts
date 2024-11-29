@@ -1,6 +1,6 @@
 import { FunctionDir } from '@/mcslib.js';
 import { Compiler } from '@/compile.js';
-import { draw_star } from './star.js';
+import { draw_star } from './draw-star.js';
 import { open, writeFile } from 'fs/promises';
 import { cubeParticle } from './cube-particle.js';
 
@@ -29,11 +29,11 @@ const EXAMPLE_DIR: FunctionDir = {
 
 const compiler = new Compiler(EXAMPLE_DIR);
 await compiler.export({
-  name: 'example',
+  name: 'draw_star',
   fn: draw_star,
   args: ['size'],
 });
-console.log(`exported example function`);
+console.log(`exported draw_star function`);
 await compiler.export({
   name: 'cube_particle',
   fn: cubeParticle,

@@ -27,7 +27,6 @@ export const draw_star = defineMcsFunction(['number'], (n) => {
     
     const x = mcsVar('number', mcsExpr`0`);
     mcsWhile(mcsExpr`${x} < ${n}`, () => {
-      mcsExecute(mcsCmd`tellraw @s {"text": "x: ${x} y: ${y}"}`);
       mcsIf(
         mcsExpr`${mcsCall(index4, [n, x, y])} == 1`,
         () => {
