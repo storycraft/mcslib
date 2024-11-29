@@ -1,6 +1,6 @@
 {
   "name": "mcslib",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Minecraft command script library",
   "type": "module",
   "types": "build/lib.d.ts",
