@@ -12,7 +12,7 @@ About language reference, see [guide.md](./guide.md) (in progress)
  - [x] Command template literal parser
  - [x] Execute commands using variable value
  - [ ] Store command result into variable
- - [ ] Store score, nbt value into variable
+ - [ ] Load score, nbt value into variable
  - [ ] IR optimization (in progress)
    - [x] Loop optimization
  - [ ] Codegen optimization (in progress)
