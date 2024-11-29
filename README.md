@@ -2,6 +2,23 @@
 # `mcslib`: Minecraft command script library
 `mcslib` is structural programming language coded using javascript, compiles into minecraft datapack.
 
+About language guide, see [specification.md](./specification.md) (in progress)
+
+About language reference, see [guide.md](./guide.md) (in progress)
+
+## Project milestone
+ - [x] Expression template literal lexer and parser
+ - [x] IR lowering
+ - [x] Command template literal parser
+ - [x] Execute commands using variable value
+ - [ ] Store command result into variable
+ - [ ] Store score, nbt value into variable
+ - [ ] IR optimization (in progress)
+   - [x] Loop optimization
+ - [ ] Codegen optimization (in progress)
+   - [x] Optimized memory allocation
+   - [x] Dead code elimination
+
 ## Example
 ### example:draw_star
 Source codes in `examples/draw-star.ts`
@@ -17,24 +34,5 @@ npm start --example=gen
 ```
 Run datapack with `intrinsics_datapack`
 
-## Detail
-### Data type
-Currently mcslib only supports `number` (double precision float) type, like javascript's `number` type.
-
-### operator
-`+`, `-`, `*`, `/`, `%`, `>`, `<`, `>=`, `<=`, `==`, `!=` operators are supported.  
-Bitwise operations are not supported since they can be emulated and very slow anyways.  
-Comparison operators use predicates internally and very fast.
-
-Remainder operator works correctly only if they were integer.
-
-### function
-Functions can receive arguments and return a value.
-Size of the stack frame is calculated on compile time.
-
-They uses mcslib's ABI. It's not compatible with minecraft function's arguments and return value.
-
-Compiler will creates compatible function if you export them.
-
-### control flow statements
-`if`, `while`, `loop` statements are supported.
+## License
+mcslib and project resources are licensed under MIT license
