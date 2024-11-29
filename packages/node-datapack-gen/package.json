@@ -1,7 +1,7 @@
 {
   "name": "@mcslib/node-datapack-gen",
   "version": "0.3.0",
-  "description": "Minecraft command script library",
+  "private": "true",
   "type": "module",
   "types": "build/lib.d.ts",
   "main": "build/lib.js",
