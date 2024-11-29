@@ -1,5 +1,5 @@
-import { FunctionDir } from '@/mcslib.js';
-import { Compiler } from '@/compile.js';
+import { FunctionDir } from 'mcslib';
+import { Compiler } from 'mcslib/compiler';
 import { draw_star } from './draw-star.js';
 import { open, writeFile } from 'fs/promises';
 import { cubeParticle } from './cube-particle.js';

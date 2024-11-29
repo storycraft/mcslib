@@ -1,0 +1,27 @@
+{
+  "name": "mcslib",
+  "version": "0.3.1",
+  "description": "Minecraft command script library",
+  "type": "module",
+  "types": "build/lib.d.ts",
+  "main": "build/lib.js",
+  "exports": {
+    ".": "./build/lib.js",
+    "./*": "./build/*.js"
+  },
+  "scripts": {
+    "prepack": "pnpm build",
+    "check": "tsc --skipLibCheck",
+    "build": "tsc && tsc-alias"
+  },
+  "author": "storycraft <storycraft@pancake.sh>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/storycraft/mcslib.git"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "catalog:",
+    "tsc-alias": "^1.8.10"
+  }
+}

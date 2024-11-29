@@ -16,18 +16,9 @@
     "noImplicitReturns": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
-    "strictNullChecks": true,
-    "incremental": true,
-    "tsBuildInfoFile": "./build/tsc-cache.tsbuildinfo",
-    "baseUrl": "./",
-    "paths": {
-    	"@/*": ["src/*"],
-    }
+    "strictNullChecks": true
   },
   "include": [
     "./"
-  ],
-  "exclude": [
-    "./build"
   ]
 }

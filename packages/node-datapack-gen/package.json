@@ -1,0 +1,25 @@
+{
+  "name": "@mcslib/node-datapack-gen",
+  "version": "0.3.0",
+  "description": "Minecraft command script library",
+  "type": "module",
+  "types": "build/lib.d.ts",
+  "main": "build/lib.js",
+  "scripts": {
+    "prepack": "pnpm build",
+    "check": "tsc --skipLibCheck",
+    "build": "tsc"
+  },
+  "author": "storycraft <storycraft@pancake.sh>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/storycraft/mcslib.git"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "mcslib": "workspace:^"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

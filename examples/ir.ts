@@ -1,6 +1,6 @@
 import { inspect } from 'node:util';
-import { low } from '@/ir/low.js';
-import { IrFunction } from '@/ir.js';
+import { low } from 'mcslib/ir/low';
+import { IrFunction } from 'mcslib/ir';
 import { AST_FN } from './tree.js';
 
 export const IR_FN: IrFunction = low(AST_FN);

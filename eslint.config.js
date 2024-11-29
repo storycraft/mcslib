@@ -4,7 +4,8 @@ import tseslint from 'typescript-eslint';
 export default [
   {
     ignores: [
-      'build/**',
+      'mcslib/build/**',
+      'packages/*/build/**',
       'eslint.config.js',
     ],
   },

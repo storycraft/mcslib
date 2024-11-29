@@ -1,10 +1,10 @@
 import { FnSig, McsFunction } from '@/ast/fn.js';
-import { FunctionDir, FunctionWriter } from './mcslib.js';
+import { FunctionDir, FunctionWriter } from './lib.js';
 import { gen } from './codegen.js';
 import { build } from './builder.js';
 import { low } from './ir/low.js';
 import { NAMESPACE, resolveRegister, STACK } from './codegen/intrinsics.js';
-import { mangle } from './compile/mangle.js';
+import { mangle } from './compiler/mangle.js';
 import { VarType } from './ast/types.js';
 
 export type Export<Args extends VarType[]> = {

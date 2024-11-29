@@ -1,4 +1,4 @@
-import { FunctionWriter } from '@/mcslib.js';
+import { FunctionWriter } from '@/lib.js';
 import { Location } from './alloc.js';
 import { Env } from '@/codegen.js';
 import { Arith, Bool, Cmp, Ref } from '@/ir.js';

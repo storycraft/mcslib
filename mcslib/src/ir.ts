@@ -1,7 +1,6 @@
 import { McsFunction } from '@/ast/fn.js';
 import { IrType } from './ir/types.js';
 import { Node } from './ir/node.js';
-import { CommandTemplate } from './ast/stmt.js';
 
 export type IrFunction = {
   storage: Storage,

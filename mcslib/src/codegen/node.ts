@@ -2,7 +2,7 @@ import { Env } from '@/codegen.js';
 import { ExecuteTemplate, ExprIns, Ins } from '@/ir.js';
 import { EndIns } from '@/ir/end.js';
 import { Node } from '@/ir/node.js';
-import { FunctionWriter } from '@/mcslib.js';
+import { FunctionWriter } from '@/lib.js';
 import { arithmetic, bool, call, cmp, disposeStackFrame, load, loadConstNumber, loadLocation, NAMESPACE, neg, not, STACK, storeFromR1 } from './intrinsics.js';
 
 export async function walkNode(env: Env, node: Node, writer: FunctionWriter) {

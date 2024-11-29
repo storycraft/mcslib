@@ -1,6 +1,6 @@
 // Port of baekjoon #2447 c solution
 
-import { mcsAssign, mcsVar, mcsReturn, mcsWhile, mcsExpr, defineMcsFunction, mcsIf, mcsExecute, mcsCall, mcsCmd } from '@/builder.js';
+import { mcsAssign, mcsVar, mcsReturn, mcsWhile, mcsExpr, defineMcsFunction, mcsIf, mcsExecute, mcsCall, mcsCmd } from 'mcslib/builder';
 
 export const index4 = defineMcsFunction(
   ['number', 'number', 'number'], (n, x, y) => {
@@ -24,7 +24,7 @@ export const draw_star = defineMcsFunction(['number'], (n) => {
   const y = mcsVar('number', mcsExpr`0`);
   mcsWhile(mcsExpr`${y} < ${n}`, () => {
     mcsExecute(mcsCmd`data modify storage example:storage buffer set value []`);
-    
+
     const x = mcsVar('number', mcsExpr`0`);
     mcsWhile(mcsExpr`${x} < ${n}`, () => {
       mcsIf(
