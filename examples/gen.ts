@@ -1,6 +1,6 @@
 import { draw_star } from './draw-star.js';
 import { cubeParticle } from './cube-particle.js';
-import { DatapackWriter } from '@mcslib/datapack/src/lib.js';
+import { DatapackWriter } from '@mcslib/datapack';
 import { createReadStream, createWriteStream } from 'fs';
 
 const path = 'example_pack.zip';
