@@ -11,7 +11,7 @@ const EXAMPLE_DIR: FunctionDir = {
 
   async create(name) {
     const handle = await open(
-      `examples/boj_2447/data/example/function/${name}.mcfunction`,
+      `examples/example_pack/data/example/function/${name}.mcfunction`,
       'w'
     );
 

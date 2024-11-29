@@ -14,9 +14,9 @@ export const cubeParticle = defineMcsFunction(
         const z = mcsVar('number', mcsExpr`0`);
         mcsWhile(mcsExpr`${z} < ${length}`, () => {
           const pos = [
-            mcsExpr`${xStart} + ${x} + 0.5`,
-            mcsExpr`${yStart} + ${y} + 2`,
-            mcsExpr`${zStart} + ${z} + 0.5`
+            mcsExpr`${xStart} + ${x}`,
+            mcsExpr`${yStart} + ${y}`,
+            mcsExpr`${zStart} + ${z}`
           ];
           mcsExecute(
             mcsCmd`particle minecraft:flame ~${pos[0]} ~${pos[1]} ~${pos[2]} 0 0 0 0 0 force`
