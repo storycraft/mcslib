@@ -2,9 +2,9 @@
 # `mcslib`: Minecraft command script library
 `mcslib` is structural programming language coded using javascript, compiles into minecraft datapack.
 
-About language guide, see [specification.md](./specification.md) (in progress)
+About language guide, see [guide.md](./guide.md) (in progress)
 
-About language reference, see [guide.md](./guide.md) (in progress)
+About language reference, see [reference.md](./reference.md) (in progress)
 
 ## Project milestone
  - [x] Expression template literal lexer and parser
