@@ -17,7 +17,7 @@ About language reference, see [guide.md](./guide.md) (in progress)
    - [x] Loop optimization
  - [ ] Codegen optimization (in progress)
    - [x] Optimized memory allocation
-   - [x] Dead code elimination
+   - [ ] Dead code elimination (partial)
 
 ## Example
 ### example:draw_star
