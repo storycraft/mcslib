@@ -36,8 +36,12 @@ async function walkIns(env: Env, ins: Ins, writer: FunctionWriter) {
         executeWriter = writer;
       }
 
-      for (const template of ins.templates) {
-        await writeTemplate(env, template, executeWriter);
+      try {
+        for (const template of ins.templates) {
+          await writeTemplate(env, template, executeWriter);
+        }
+      } finally {
+        await executeWriter.close();
       }
       break;
     }
