@@ -8,11 +8,11 @@ export const cubeParticle = defineMcsFunction(
     const zStart = mcsVar('number', mcsExpr`-${length} / 2`);
 
     const y = mcsVar('number', mcsExpr`0`);
-    mcsWhile(mcsExpr`${y} < ${height}`, () => {
+    mcsWhile(mcsExpr`${y} <= ${height}`, () => {
       const x = mcsVar('number', mcsExpr`0`);
-      mcsWhile(mcsExpr`${x} < ${width}`, () => {
+      mcsWhile(mcsExpr`${x} <= ${width}`, () => {
         const z = mcsVar('number', mcsExpr`0`);
-        mcsWhile(mcsExpr`${z} < ${length}`, () => {
+        mcsWhile(mcsExpr`${z} <= ${length}`, () => {
           const pos = [
             mcsExpr`${xStart} + ${x}`,
             mcsExpr`${yStart} + ${y}`,

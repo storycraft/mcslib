@@ -8,7 +8,9 @@
     "tsBuildInfoFile": "./build/tsc-cache.tsbuildinfo",
     "baseUrl": "./",
     "paths": {
-    	"@/*": ["src/*"],
+      "@/*": [
+        "src/*"
+      ],
     }
   },
   "include": [

@@ -1,6 +1,6 @@
 {
-  "name": "@mcslib/node-datapack-gen",
-  "version": "0.3.2",
+  "name": "@mcslib/datapack-gen",
+  "version": "0.1.0",
   "private": "true",
   "type": "module",
   "types": "build/lib.d.ts",
@@ -17,9 +17,11 @@
   },
   "license": "MIT",
   "dependencies": {
+    "archiver": "^7.0.1",
     "mcslib": "workspace:^"
   },
   "devDependencies": {
+    "@types/archiver": "^6.0.3",
     "typescript": "catalog:"
   }
 }
