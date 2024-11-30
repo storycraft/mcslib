@@ -8,6 +8,8 @@ About language reference, see [reference.md](./reference.md) (in progress)
 
 ## Project milestone
  - [x] Expression template literal lexer and parser
+ - [ ] Function, string, object, array types
+ - [ ] Value types and reference types
  - [x] IR lowering
  - [x] Command template literal parser
  - [x] Execute commands using variable value
