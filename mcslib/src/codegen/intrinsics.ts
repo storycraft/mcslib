@@ -28,7 +28,7 @@ export async function storeFromR1(to: Location, writer: FunctionWriter) {
 }
 
 export async function load(env: Env, from: Ref, register: number, writer: FunctionWriter) {
-  if (from.expr === 'const') {
+  if (from.kind === 'const') {
     if (from.ty === 'empty') {
       return;
     }
@@ -60,7 +60,7 @@ export async function loadLocation(location: Location, register: number, writer:
 }
 
 export async function arithmetic(env: Env, op: Arith['op'], left: Ref, right: Ref, writer: FunctionWriter) {
-  if (left.expr === 'const' && right.expr === 'const') {
+  if (left.kind === 'const' && right.kind === 'const') {
     if (left.ty === 'empty' || right.ty === 'empty') {
       throw new Error(`Tried to run ${op} ins with non existent locations left: ${left.ty} right: ${right.ty}`);
     }
@@ -140,7 +140,7 @@ export async function arithmetic(env: Env, op: Arith['op'], left: Ref, right: Re
 }
 
 export async function neg(env: Env, operand: Ref, writer: FunctionWriter) {
-  if (operand.expr === 'const') {
+  if (operand.kind === 'const') {
     if (operand.ty === 'empty') {
       throw new Error(`Tried to run neg ins with a non existent location`);
     }
@@ -163,7 +163,7 @@ export async function call(env: Env, fullName: string, args: Ref[], writer: Func
   const length = args.length;
   for (let i = 0; i < length; i++) {
     const arg = args[i];
-    if (arg.expr === 'const') {
+    if (arg.kind === 'const') {
       if (arg.ty === 'empty') {
         throw new Error('Cannot use empty type as a argument');
       }
@@ -182,7 +182,7 @@ export async function call(env: Env, fullName: string, args: Ref[], writer: Func
 }
 
 export async function cmp(env: Env, op: Cmp['op'], left: Ref, right: Ref, writer: FunctionWriter) {
-  if (left.expr === 'const' && right.expr === 'const') {
+  if (left.kind === 'const' && right.kind === 'const') {
     if (left.ty === 'empty' || right.ty === 'empty') {
       throw new Error(`Tried to run ${op} ins with non existent locations left: ${left.ty} right: ${right.ty}`);
     }
@@ -281,7 +281,7 @@ export async function cmp(env: Env, op: Cmp['op'], left: Ref, right: Ref, writer
 
 
 export async function bool(env: Env, op: Bool['op'], left: Ref, right: Ref, writer: FunctionWriter) {
-  if (left.expr === 'const' && right.expr === 'const') {
+  if (left.kind === 'const' && right.kind === 'const') {
     if (left.ty === 'empty' || right.ty === 'empty') {
       throw new Error(`Tried to run ${op} ins with non existent locations left: ${left.ty} right: ${right.ty}`);
     }
@@ -334,7 +334,7 @@ export async function bool(env: Env, op: Bool['op'], left: Ref, right: Ref, writ
 }
 
 export async function not(env: Env, operand: Ref, writer: FunctionWriter) {
-  if (operand.expr === 'const') {
+  if (operand.kind === 'const') {
     if (operand.ty === 'empty') {
       throw new Error(`Tried to run neg ins with a non existent location`);
     }

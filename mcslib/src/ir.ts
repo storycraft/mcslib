@@ -21,7 +21,7 @@ export type Ins = Execute | Assign;
 
 export type Assign = InsTy<'assign'> & {
   index: Index,
-  expr: ExprIns,
+  rvalue: Rvalue,
 }
 
 export type Execute = InsTy<'execute'> & {
@@ -34,10 +34,10 @@ type ExecutePartTy<T extends string> = { ty: T };
 type ExecuteTextPart = ExecutePartTy<'text'> & { text: string };
 type ExecuteRef = ExecutePartTy<'ref'> & { ref: Ref };
 
-export type ExprIns = Ref | Bool | Not | Arith | Cmp | Call | Neg;
+export type Rvalue = Ref | Bool | Not | Arith | Cmp | Call | Neg;
 
-export type ExprInsTy<T extends string> = {
-  expr: T,
+type RvalueKind<T extends string> = {
+  kind: T,
 }
 
 type Operands = {
@@ -45,7 +45,7 @@ type Operands = {
   right: Ref,
 };
 
-export type Arith = ExprInsTy<'arith'> & Operands & {
+export type Arith = RvalueKind<'arith'> & Operands & {
   op: '+' | '-' | '*' | '/' | '%'
 };
 
@@ -53,25 +53,25 @@ type Operand = {
   operand: Ref,
 };
 
-export type Neg = ExprInsTy<'neg'> & Operand;
+export type Neg = RvalueKind<'neg'> & Operand;
 
-export type Call = ExprInsTy<'call'> & {
+export type Call = RvalueKind<'call'> & {
   args: Ref[],
   f: McsFunction,
 }
 
-export type Bool = ExprInsTy<'bool'> & Operands & {
+export type Bool = RvalueKind<'bool'> & Operands & {
   op: '&&' | '||'
 }
-export type Not = ExprInsTy<'not'> & Operand;
+export type Not = RvalueKind<'not'> & Operand;
 
-export type Cmp = ExprInsTy<'cmp'> & Operands & {
+export type Cmp = RvalueKind<'cmp'> & Operands & {
   op: '>' | '<' | '>=' | '<=' | '==' | '!='
 };
 
 export type Ref = Const | Index;
 
-export type Const = ExprInsTy<'const'>
+export type Const = RvalueKind<'const'>
   & (ConstVariant<'number', number> | ConstVariant<'empty', null>);
 
 type ConstVariant<T extends IrType, V> = {
@@ -81,7 +81,7 @@ type ConstVariant<T extends IrType, V> = {
 
 export type Origin = 'local' | 'argument';
 
-export type Index = ExprInsTy<'index'> & {
+export type Index = RvalueKind<'index'> & {
   origin: Origin,
   index: number,
 }

@@ -55,7 +55,7 @@ function visitCmp(env: Env, node: Node, comp: Comparison): TypedRef {
   node.ins.push({
     ins: 'assign',
     index,
-    expr: { expr: 'cmp', op: comp.op, left, right },
+    rvalue: { kind: 'cmp', op: comp.op, left, right },
   });
 
   return [leftTy, index];
@@ -73,7 +73,7 @@ function visitBool(env: Env, node: Node, bool: BoolOperator): TypedRef {
   node.ins.push({
     ins: 'assign',
     index,
-    expr: { expr: 'bool', op: bool.op, left, right },
+    rvalue: { kind: 'bool', op: bool.op, left, right },
   });
 
   return [leftTy, index];
@@ -89,7 +89,7 @@ function visitNot(env: Env, node: Node, not: Not): TypedRef {
   node.ins.push({
     ins: 'assign',
     index,
-    expr: { expr: 'not', operand: ref },
+    rvalue: { kind: 'not', operand: ref },
   })
   return [ty, index];
 }
@@ -115,7 +115,7 @@ function visitCall(env: Env, node: Node, call: Call): TypedRef {
   node.ins.push({
     ins: 'assign',
     index,
-    expr: { expr: 'call', args, f: call.fn },
+    rvalue: { kind: 'call', args, f: call.fn },
   });
   env.dependencies.add(call.fn);
 
@@ -134,7 +134,7 @@ function visitArith(env: Env, node: Node, arith: Arithmetic): TypedRef {
   node.ins.push({
     ins: 'assign',
     index,
-    expr: { expr: 'arith', op: arith.op, left, right },
+    rvalue: { kind: 'arith', op: arith.op, left, right },
   });
 
   return [leftTy, index];
@@ -150,8 +150,8 @@ function visitNeg(env: Env, node: Node, neg: Neg): TypedRef {
   node.ins.push({
     ins: 'assign',
     index,
-    expr: {
-      expr: 'neg',
+    rvalue: {
+      kind: 'neg',
       operand,
     },
   });
@@ -162,7 +162,7 @@ function visitLiteral(env: Env, node: Node, lit: Literal): TypedRef {
   return [
     'number',
     {
-      expr: 'const',
+      kind: 'const',
       ty: 'number',
       value: lit.value,
     },

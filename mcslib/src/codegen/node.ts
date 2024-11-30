@@ -1,5 +1,5 @@
 import { Env } from '@/codegen.js';
-import { ExecuteTemplate, ExprIns, Ins } from '@/ir.js';
+import { ExecuteTemplate, Rvalue, Ins } from '@/ir.js';
 import { EndIns } from '@/ir/end.js';
 import { Node } from '@/ir/node.js';
 import { FunctionWriter } from '@/lib.js';
@@ -16,7 +16,7 @@ export async function walkNode(env: Env, node: Node, writer: FunctionWriter) {
 async function walkIns(env: Env, ins: Ins, writer: FunctionWriter) {
   switch (ins.ins) {
     case 'assign': {
-      await walkExpr(env, ins.expr, writer);
+      await walkExpr(env, ins.rvalue, writer);
       await storeFromR1(env.alloc.resolve(ins.index), writer);
       break;
     }
@@ -60,7 +60,7 @@ async function writeTemplate(
       case 'ref': {
         const ref = part.ref;
 
-        if (ref.expr === 'const') {
+        if (ref.kind === 'const') {
           if (ref.ty === 'empty') {
             throw new Error('empty value cannot be referenced');
           }
@@ -96,8 +96,8 @@ async function writeTemplate(
   }
 }
 
-async function walkExpr(env: Env, ins: ExprIns, writer: FunctionWriter) {
-  switch (ins.expr) {
+async function walkExpr(env: Env, ins: Rvalue, writer: FunctionWriter) {
+  switch (ins.kind) {
     case 'index':
     case 'const': {
       await load(env, ins, 1, writer);

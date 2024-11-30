@@ -1,4 +1,4 @@
-import { ExprIns, Index, IrFunction, Ref } from '@/ir.js';
+import { Rvalue, Index, IrFunction, Ref } from '@/ir.js';
 import { Node, traverseNode } from '@/ir/node.js';
 
 export type Location = None | R1 | R2 | Argument | Local;
@@ -69,7 +69,7 @@ function place(
       const ins = node.ins[i];
       switch (ins.ins) {
         case 'assign': {
-          visitExpr(cx, ins.expr);
+          visitExpr(cx, ins.rvalue);
           if (ins.index.origin === 'local') {
             cx.assignments.push(ins.index.index);
           }
@@ -113,8 +113,8 @@ type Cx = {
   assignments: number[],
 }
 
-export function visitExpr(cx: Cx, ins: ExprIns) {
-  switch (ins.expr) {
+export function visitExpr(cx: Cx, ins: Rvalue) {
+  switch (ins.kind) {
     case 'neg':
     case 'not': {
       replaceRefs(cx, ins.operand);
@@ -143,7 +143,7 @@ export function visitExpr(cx: Cx, ins: ExprIns) {
 function replaceRefs(cx: Cx, first?: Ref, second?: Ref, ...rest: Ref[]) {
   const lastAssignIndex = cx.assignments[cx.assignments.length - 1];
 
-  first: if (first?.expr === 'index' && first.origin === 'local') {
+  first: if (first?.kind === 'index' && first.origin === 'local') {
     const item = cx.locs.at(first.index);
     if (!item) {
       break first;
@@ -159,7 +159,7 @@ function replaceRefs(cx: Cx, first?: Ref, second?: Ref, ...rest: Ref[]) {
     }
   }
 
-  second: if (second?.expr === 'index' && second.origin === 'local') {
+  second: if (second?.kind === 'index' && second.origin === 'local') {
     const item = cx.locs.at(second.index);
     if (!item) {
       break second;
@@ -182,7 +182,7 @@ function replaceRefs(cx: Cx, first?: Ref, second?: Ref, ...rest: Ref[]) {
 
 function replaceRefsInLocal(cx: Cx, ...refs: Ref[]) {
   for (const ref of refs) {
-    if (ref.expr !== 'index' || ref.origin !== 'local') {
+    if (ref.kind !== 'index' || ref.origin !== 'local') {
       continue;
     }
 

@@ -116,7 +116,7 @@ function visitAssign(env: Env, node: Node, stmt: Assign) {
   node.ins.push({
     ins: 'assign',
     index,
-    expr,
+    rvalue: expr,
   });
 }
 

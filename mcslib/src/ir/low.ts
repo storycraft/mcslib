@@ -39,7 +39,7 @@ function initIr(f: Fn): [Env, IrFunction] {
       f.args[i],
       f.sig.args[i],
       {
-        expr: 'index',
+        kind: 'index',
         origin: 'argument',
         index: i,
       }
@@ -75,12 +75,12 @@ export type Env = {
 }
 
 export function refToIndex(env: Env, node: Node, ref: Ref): Index {
-  if (ref.expr === 'const') {
+  if (ref.kind === 'const') {
     const index = newStorage(env, ref.ty);
     node.ins.push({
       ins: 'assign',
       index,
-      expr: ref,
+      rvalue: ref,
     });
     return index;
   } else {
@@ -92,7 +92,7 @@ export function newStorage(env: Env, ty: IrType): Index {
   const index = env.storage.locals.length;
   env.storage.locals.push(ty);
   return {
-    expr: 'index',
+    kind: 'index',
     origin: 'local',
     index,
   };
