@@ -79,7 +79,7 @@ class StmtChecker implements StmtVisitor {
 
     if (ty !== exprTy) {
       this.cx.messages.push({
-        err: Error(`'${exprTy}' cannot be assigned to '${exprTy}'`)
+        err: Error(`'${exprTy}' cannot be assigned to '${ty}'`)
       });
     }
 
