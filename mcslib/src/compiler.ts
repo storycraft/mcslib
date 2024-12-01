@@ -52,7 +52,8 @@ export class Compiler {
       await writer.write(
         `function ${inner}`
       );
-      if (fn.sig.returns != null) {
+
+      if (fn.sig.returns === 'number') {
         await writer.write(
           `return run data get storage ${NAMESPACE} ${resolveRegister(1)}`
         );
