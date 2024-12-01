@@ -1,4 +1,4 @@
-import { Arithmetic, Assign, Bool, Call, Comparison, Expr, Id, If, Local, Neg, Not, Return, Stmt } from '@/ast.js';
+import { Assign, Binary, Call, Expr, Id, If, Local, Return, Stmt, Unary } from '@/ast.js';
 import { acceptExpr, acceptStmt, ExprVisitor, StmtVisitor } from '@/ast/visit.js';
 import { Fn } from '@/fn.js';
 import { VarType } from '@/types.js';
@@ -12,7 +12,7 @@ export type Diagnostics = {
  * @param f Function to check
  * @returns Type diagnostics
  */
-export function check(f: Fn): Diagnostics[] {
+export function typeCheck(f: Fn): Diagnostics[] {
   const cx: Cx = {
     f,
     messages: [],
@@ -108,35 +108,23 @@ class ExprChecker implements ExprVisitor {
     return this.ty;
   }
 
-  visitComparison(expr: Comparison): boolean {
+  visitBinary(expr: Binary): boolean {
     const rightTy = this.check(expr.right);
     const leftTy = this.check(expr.left);
 
     if (leftTy !== 'number' || rightTy !== 'number') {
       this.cx.messages.push({
-        err: Error(`cannot compare using ${expr.op} on type left: ${leftTy} right: ${rightTy}`),
+        err: Error(`cannot apply binary operator '${expr.op}' on type left: ${leftTy} right: ${rightTy}`),
       });
     }
     return true;
   }
 
-  visitBool(expr: Bool): boolean {
-    const rightTy = this.check(expr.right);
-    const leftTy = this.check(expr.left);
-
-    if (leftTy !== 'number' || rightTy !== 'number') {
-      this.cx.messages.push({
-        err: Error(`cannot apply ${expr.op} on type left: ${leftTy} right: ${rightTy}`),
-      });
-    }
-    return true;
-  }
-
-  visitNot(expr: Not): boolean {
+  visitUnary(expr: Unary): boolean {
     const ty = this.check(expr.expr);
     if (ty !== 'number') {
       this.cx.messages.push({
-        err: Error(`cannot apply ! on type: ${ty}`),
+        err: Error(`cannot apply unary operator '${expr.op}' on type: ${ty}`),
       });
     }
 
@@ -163,29 +151,6 @@ class ExprChecker implements ExprVisitor {
     }
 
     this.ty = expr.fn.sig.returns;
-    return true;
-  }
-
-  visitArithmetic(expr: Arithmetic): boolean {
-    const rightTy = this.check(expr.right);
-    const leftTy = this.check(expr.left);
-
-    if (leftTy !== rightTy) {
-      this.cx.messages.push({
-        err: Error(`incompatible type for arithmetic. left: ${leftTy} right: ${rightTy}`),
-      });
-    }
-    return true;
-  }
-
-  visitNeg(neg: Neg): boolean {
-    const ty = this.check(neg.expr);
-    if (ty !== 'number') {
-      this.cx.messages.push({
-        err: Error(`cannot apply - operator to type: ${ty}`),
-      });
-    }
-
     return true;
   }
 

@@ -1,5 +1,5 @@
 import { Env, newStorage } from '../lowering.js';
-import { Arithmetic, Bool, Call, Comparison, Expr, Id, Literal, Neg, Not } from '@/ast.js';
+import { Binary, Call, Expr, Id, Literal, Unary } from '@/ast.js';
 import { acceptExpr, ExprVisitor } from '@/ast/visit.js';
 import { Index, Ref } from '@/ir.js';
 import { Node } from '@/ir/node.js';
@@ -21,7 +21,7 @@ class ExprLowVisitor implements ExprVisitor {
     return this.ref;
   }
 
-  visitComparison(expr: Comparison): boolean {
+  visitBinary(expr: Binary): boolean {
     const right = this.low(expr.right);
     const left = this.low(expr.left);
 
@@ -36,29 +36,14 @@ class ExprLowVisitor implements ExprVisitor {
     return true;
   }
 
-  visitBool(expr: Bool): boolean {
-    const right = this.low(expr.right);
-    const left = this.low(expr.left);
-
-    const index = newStorage(this.env);
-    this.node.ins.push({
-      ins: 'assign',
-      index,
-      rvalue: { kind: 'binary', op: expr.op, left, right },
-    });
-
-    this.ref = index;
-    return true;
-  }
-
-  visitNot(expr: Not): boolean {
+  visitUnary(expr: Unary): boolean {
     const ref = this.low(expr.expr);
     const index = newStorage(this.env);
     this.node.ins.push({
       ins: 'assign',
       index,
-      rvalue: { kind: 'unary', op: '!', operand: ref },
-    })
+      rvalue: { kind: 'unary', op: expr.op, operand: ref },
+    });
     this.ref = index;
     return true;
   }
@@ -85,39 +70,6 @@ class ExprLowVisitor implements ExprVisitor {
       rvalue: { kind: 'call', args, f: expr.fn },
     });
     this.env.dependencies.add(expr.fn);
-
-    this.ref = index;
-    return true;
-  }
-
-  visitArithmetic(expr: Arithmetic): boolean {
-    const right = this.low(expr.right);
-    const left = this.low(expr.left);
-
-    const index = newStorage(this.env);
-    this.node.ins.push({
-      ins: 'assign',
-      index,
-      rvalue: { kind: 'binary', op: expr.op, left, right },
-    });
-
-    this.ref = index;
-    return true;
-  }
-
-  visitNeg(neg: Neg): boolean {
-    const operand = this.low(neg.expr);
-
-    const index = newStorage(this.env);
-    this.node.ins.push({
-      ins: 'assign',
-      index,
-      rvalue: {
-        kind: 'unary',
-        op: '-',
-        operand,
-      },
-    });
 
     this.ref = index;
     return true;

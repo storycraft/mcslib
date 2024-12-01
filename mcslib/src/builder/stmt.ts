@@ -73,7 +73,8 @@ export function mcsLoop(f: () => void, label?: string) {
 export function mcsWhile(condition: Expr, f: () => void, label?: string) {
   mcsLoop(() => {
     mcsIf({
-      kind: 'not',
+      kind: 'unary',
+      op: '!',
       expr: condition,
     }, () => {
       mcsBreak();

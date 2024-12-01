@@ -65,7 +65,7 @@ export type Break = AstKind<'break'> & {
   label?: Label,
 }
 
-export type Expr = Id | Comparison | Bool | Not | Arithmetic | Neg | Literal | Call;
+export type Expr = Id | Binary | Unary | Literal | Call;
 
 declare const marker: unique symbol;
 export type Id<T = VarType> = AstKind<'id'> & {
@@ -77,29 +77,14 @@ export type Literal = AstKind<'literal'> & {
   value: number,
 }
 
-export type Arithmetic = AstKind<'arithmetic'> & {
+export type Binary = AstKind<'binary'> & {
   left: Expr,
-  op: '+' | '-' | '*' | '/' | '%',
+  op: '+' | '-' | '*' | '/' | '%' | '==' | '!=' | '<=' | '>=' | '<' | '>' | '||' | '&&',
   right: Expr,
 }
 
-export type Neg = AstKind<'neg'> & {
-  expr: Expr,
-}
-
-export type Comparison = AstKind<'comparison'> & {
-  left: Expr,
-  op: '==' | '!=' | '<=' | '>=' | '<' | '>',
-  right: Expr,
-}
-
-export type Bool = AstKind<'bool'> & {
-  left: Expr,
-  op: '||' | '&&',
-  right: Expr,
-}
-
-export type Not = AstKind<'not'> & {
+export type Unary = AstKind<'unary'> & {
+  op: '-' | '!',
   expr: Expr,
 }
 

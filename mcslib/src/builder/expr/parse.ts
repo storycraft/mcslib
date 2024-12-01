@@ -1,4 +1,4 @@
-import { Expr, Not, Neg } from '@/ast.js';
+import { Expr, Unary } from '@/ast.js';
 import { Token } from './lex.js';
 
 type Variant<T, V> = {
@@ -75,7 +75,7 @@ function parseCondition(cx: ParseCx): Expr {
   cx.index++;
 
   return {
-    kind: 'bool',
+    kind: 'binary',
     left,
     op,
     right: parseCondition(cx),
@@ -96,7 +96,7 @@ function parseEquation(cx: ParseCx): Expr {
   ) {
     cx.index++;
     return {
-      kind: 'comparison',
+      kind: 'binary',
       left,
       op,
       right: parseEquation(cx),
@@ -116,7 +116,7 @@ function parsePolynomial(cx: ParseCx): Expr {
   cx.index++;
 
   return {
-    kind: 'arithmetic',
+    kind: 'binary',
     left,
     op,
     right: parsePolynomial(cx),
@@ -133,7 +133,7 @@ function parseMonomial(cx: ParseCx): Expr {
   cx.index++;
 
   return {
-    kind: 'arithmetic',
+    kind: 'binary',
     left,
     op,
     right: parseMonomial(cx),
@@ -174,18 +174,20 @@ function parseParen(cx: ParseCx): Expr {
   throw new Error(`unclosed paren at: ${cx.index}`);
 }
 
-function parseNot(cx: ParseCx): Not {
+function parseNot(cx: ParseCx): Unary {
   expectStringTokenVal(cx, '!');
   return {
-    kind: 'not',
+    kind: 'unary',
+    op: '!',
     expr: parseExpr(cx),
   };
 }
 
-function parseNeg(cx: ParseCx): Neg {
+function parseNeg(cx: ParseCx): Unary {
   expectStringTokenVal(cx, '-');
   return {
-    kind: 'neg',
+    kind: 'unary',
+    op: '-',
     expr: parseFactor(cx),
   };
 }

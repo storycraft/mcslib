@@ -6,7 +6,7 @@ import { NAMESPACE, resolveRegister, STACK } from './codegen/intrinsics.js';
 import { mangle } from './compiler/mangle.js';
 import { VarType } from './types.js';
 import { low } from './lowering.js';
-import { check } from './lowering/pass/check.js';
+import { typeCheck } from './lowering/pass/check.js';
 
 export type Export<Args extends VarType[]> = {
   name: string,
@@ -79,7 +79,7 @@ export class Compiler {
     const tree = build(f);
 
     // Perform type checking
-    const diagnostics = check(tree);
+    const diagnostics = typeCheck(tree);
     if (diagnostics.length > 0) {
       throw AggregateError(diagnostics.map(obj => obj.err));
     }

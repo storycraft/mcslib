@@ -1,4 +1,4 @@
-import { Assign, Block, Break, Continue, Execute, If, Local, Loop, Return, Stmt, ExprStmt, Expr, Id, Literal, Arithmetic, Comparison, Bool, Neg, Not, Call } from '@/ast.js';
+import { Assign, Block, Break, Continue, Execute, If, Local, Loop, Return, Stmt, ExprStmt, Expr, Id, Literal, Call, Unary, Binary } from '@/ast.js';
 
 /**
  * Visitor function for statement ast.
@@ -86,11 +86,8 @@ export function acceptStmt(stmt: Stmt, v: StmtVisitor) {
 export interface ExprVisitor {
   visitId?(expr: Id): boolean,
   visitLiteral?(expr: Literal): boolean,
-  visitArithmetic?(expr: Arithmetic): boolean,
-  visitComparison?(expr: Comparison): boolean,
-  visitBool?(expr: Bool): boolean,
-  visitNeg?(expr: Neg): boolean,
-  visitNot?(expr: Not): boolean,
+  visitBinary?(expr: Binary): boolean,
+  visitUnary?(expr: Unary): boolean,
   visitCall?(expr: Call): boolean,
 }
 
@@ -105,39 +102,16 @@ export function acceptExpr(expr: Expr, v: ExprVisitor) {
       break;
     }
 
-    case 'arithmetic': {
-      if (!v.visitArithmetic?.(expr)) {
+    case 'binary': {
+      if (!v.visitBinary?.(expr)) {
         acceptExpr(expr.left, v);
         acceptExpr(expr.right, v);
       }
       break;
     }
 
-    case 'comparison': {
-      if (!v.visitComparison?.(expr)) {
-        acceptExpr(expr.left, v);
-        acceptExpr(expr.right, v);
-      }
-      break;
-    }
-
-    case 'bool': {
-      if (!v.visitBool?.(expr)) {
-        acceptExpr(expr.left, v);
-        acceptExpr(expr.right, v);
-      }
-      break;
-    }
-
-    case 'neg': {
-      if (!v.visitNeg?.(expr)) {
-        acceptExpr(expr.expr, v);
-      }
-      break;
-    }
-
-    case 'not': {
-      if (!v.visitNot?.(expr)) {
+    case 'unary': {
+      if (!v.visitUnary?.(expr)) {
         acceptExpr(expr.expr, v);
       }
       break;
