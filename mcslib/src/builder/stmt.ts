@@ -1,6 +1,6 @@
 import { blockScope, fnScope } from '../builder.js';
 import { Break, CommandTemplate, Continue, Expr, Id, If, Loop } from '@/ast.js';
-import { VarType } from '@/ast/types.js';
+import { VarType } from '@/types.js';
 
 export function mcsVar<const T extends VarType>(ty: T, init: Expr): Id<T> {
   const id: Id<T> = {

@@ -3,7 +3,7 @@ import { ExecuteTemplate, Rvalue, Ins } from '@/ir.js';
 import { EndIns } from '@/ir/end.js';
 import { Node } from '@/ir/node.js';
 import { FunctionWriter } from '@/lib.js';
-import { arithmetic, bool, call, cmp, disposeStackFrame, load, loadConstNumber, loadLocation, NAMESPACE, neg, not, STACK, storeFromR1 } from './intrinsics.js';
+import { arithmetic as binary, bool, call, cmp, disposeStackFrame, load, loadConst, loadLocation, NAMESPACE, neg, not, STACK, storeFromR1 } from './intrinsics.js';
 
 export async function walkNode(env: Env, node: Node, writer: FunctionWriter) {
   for (const ins of node.ins) {
@@ -57,11 +57,7 @@ async function writeTemplate(
         const ref = part.ref;
 
         if (ref.kind === 'const') {
-          if (ref.ty === 'empty') {
-            throw new Error('empty value cannot be referenced');
-          }
-
-          cmd += `${ref.value}`;
+          cmd += JSON.stringify(ref.value);
         } else {
           if (!macro) {
             macro = true;
@@ -100,8 +96,8 @@ async function walkExpr(env: Env, ins: Rvalue, writer: FunctionWriter) {
       break;
     }
 
-    case 'arith': {
-      await arithmetic(env, ins.op, ins.left, ins.right, writer);
+    case 'binary': {
+      await binary(env, ins.op, ins.left, ins.right, writer);
       break;
     }
 
@@ -168,7 +164,7 @@ async function walkEndIns(env: Env, ins: EndIns, writer: FunctionWriter) {
           }
 
           const name = await env.nodeMap.branch(env, target, writer);
-          await loadConstNumber(i, 2, writer);
+          await loadConst(i, 2, writer);
           await writer.write(
             `execute if predicate mcs_intrinsic:eq run return run function ${writer.namespace}:${name}`
           );

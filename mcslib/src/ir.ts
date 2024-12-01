@@ -1,16 +1,12 @@
-import { McsFunction } from '@/fn.js';
-import { IrType } from './ir/types.js';
+import { FnSig, McsFunction } from '@/fn.js';
 import { Node } from './ir/node.js';
+import { Primitive } from './types.js';
 
 export type IrFunction = {
-  storage: FnStorage,
+  sig: FnSig,
+  locals: number,
   node: Node,
   dependencies: Set<McsFunction>,
-}
-
-export type FnStorage = {
-  arguments: IrType[],
-  locals: IrType[],
 }
 
 export type InsTy<T extends string> = {
@@ -34,7 +30,7 @@ type ExecutePartTy<T extends string> = { ty: T };
 type ExecuteTextPart = ExecutePartTy<'text'> & { text: string };
 type ExecuteRef = ExecutePartTy<'ref'> & { ref: Ref };
 
-export type Rvalue = Ref | Bool | Not | Arith | Cmp | Call | Neg;
+export type Rvalue = Ref | Call | Bool | Cmp | Not | BinaryOp | Neg;
 
 type RvalueKind<T extends string> = {
   kind: T,
@@ -45,7 +41,7 @@ type Operands = {
   right: Ref,
 };
 
-export type Arith = RvalueKind<'arith'> & Operands & {
+export type BinaryOp = RvalueKind<'binary'> & Operands & {
   op: '+' | '-' | '*' | '/' | '%'
 };
 
@@ -71,13 +67,9 @@ export type Cmp = RvalueKind<'cmp'> & Operands & {
 
 export type Ref = Const | Index;
 
-export type Const = RvalueKind<'const'>
-  & (ConstVariant<'number', number> | ConstVariant<'empty', null>);
-
-type ConstVariant<T extends IrType, V> = {
-  ty: T,
-  value: V,
-}
+export type Const = RvalueKind<'const'> & {
+  value: Primitive,
+};
 
 export type Origin = 'local' | 'argument';
 

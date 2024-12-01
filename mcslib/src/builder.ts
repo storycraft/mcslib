@@ -22,7 +22,7 @@ export function defineMcsFunction<
 >(
   args: Sig['args'],
   buildFn: McsBuildFn<Sig>,
-  returns?: Sig['returns'],
+  returns: Sig['returns'] = 'empty',
 ): McsFunction<Sig> {
   return {
     sig: {

@@ -1,5 +1,5 @@
 import { Id, Block } from '@/ast.js';
-import { VarType } from './ast/types.js';
+import { VarType } from './types.js';
 
 export type Fn<Sig extends FnSig = FnSig> = {
   args: Id[],
@@ -12,7 +12,7 @@ export type FnSig<
   Ret extends VarType = VarType,
 > = {
   args: Args,
-  returns?: Ret,
+  returns: Ret,
 }
 
 /**

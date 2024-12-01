@@ -23,14 +23,14 @@ export interface Alloc {
 }
 
 export function alloc(ir: IrFunction): Alloc {
-  const args: Location[] = ir.storage.arguments.map((arg, index) => {
+  const args: Location[] = ir.sig.args.map((_, index) => {
     return {
       at: 'argument',
       index,
     };
   });
 
-  const [stackSize, locals] = place(ir.storage.locals.length, ir.node);
+  const [stackSize, locals] = place(ir.locals, ir.node);
   return {
     stackSize,
     resolve({
@@ -119,7 +119,7 @@ export function visitExpr(cx: Cx, ins: Rvalue) {
       break;
     }
 
-    case 'arith':
+    case 'binary':
     case 'cmp':
     case 'bool': {
       replaceRefs(cx, ins.left, ins.right);

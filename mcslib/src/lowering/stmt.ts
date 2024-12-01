@@ -1,11 +1,11 @@
-import { Env, newStorageInit } from '../lowering.js';
+import { Env, newConst, newStorageInit } from '../lowering.js';
 import { lowExpr } from './expr.js';
 import { acceptStmt, StmtVisitor } from '@/ast/visit.js';
 import { Local, Return, If, Break, Continue, CommandTemplate, Stmt, Assign, Loop, Execute } from '@/ast.js';
 import { emptyNode, Node } from '@/ir/node.js';
-import { IR_DEFAULT_CONST } from '@/ir/types.js';
 import { SwitchInt } from '@/ir/end.js';
 import { ExecuteTemplate } from '@/ir.js';
+import { DEFAULT_CONST } from '@/types.js';
 
 export function lowStmt(env: Env, node: Node, stmt: Stmt): Node {
   const visitor = new StmtLowVisitor(env, node);
@@ -34,7 +34,7 @@ class StmtLowVisitor implements StmtVisitor {
       const [ty, ref] = lowExpr(this.env, this.node, stmt.expr);
       if (ty !== this.env.sig.returns) {
         throw new Error(
-          `invalid return value expected: ${this.env.sig.returns ?? 'empty'} got: ${ty}`
+          `invalid return value expected: ${this.env.sig.returns} got: ${ty}`
         );
       }
 
@@ -43,7 +43,7 @@ class StmtLowVisitor implements StmtVisitor {
         ref,
       };
     } else {
-      if (this.env.sig.returns != null) {
+      if (this.env.sig.returns !== 'empty') {
         throw new Error(
           `cannot return without an expression on ${this.env.sig.returns} return type`
         );
@@ -51,7 +51,7 @@ class StmtLowVisitor implements StmtVisitor {
 
       this.node.end = {
         ins: 'ret',
-        ref: IR_DEFAULT_CONST.empty,
+        ref: newConst(DEFAULT_CONST.empty),
       };
     }
 

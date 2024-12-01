@@ -1,5 +1,5 @@
 import { FnSig, McsFunction } from './fn.js';
-import { VarType } from './ast/types.js'
+import { VarType } from './types.js'
 
 /**
  * identifier for ast types

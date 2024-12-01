@@ -1,7 +1,8 @@
 import { FunctionWriter } from '@/lib.js';
 import { Location } from './alloc.js';
 import { Env } from '@/codegen.js';
-import { Arith, Bool, Cmp, Ref } from '@/ir.js';
+import { BinaryOp, Bool, Cmp, Ref } from '@/ir.js';
+import { Primitive } from '@/types.js';
 
 export const NAMESPACE = 'mcs:system';
 export const REGISTERS = 'registers';
@@ -29,20 +30,24 @@ export async function storeFromR1(to: Location, writer: FunctionWriter) {
 
 export async function load(env: Env, from: Ref, register: number, writer: FunctionWriter) {
   if (from.kind === 'const') {
-    if (from.ty === 'empty') {
-      return;
-    }
-
-    return loadConstNumber(from.value, register, writer);
+    return loadConst(from.value, register, writer);
   } else {
     return loadLocation(env.alloc.resolve(from), register, writer);
   }
 }
 
-export async function loadConstNumber(value: number, register: number, writer: FunctionWriter) {
+export async function loadConst(value: Primitive, register: number, writer: FunctionWriter) {
   await writer.write(
-    `data modify storage ${NAMESPACE} ${resolveRegister(register)} set value ${value}d`
+    `data modify storage ${NAMESPACE} ${resolveRegister(register)} set value ${serializeValue(value)}`
   );
+}
+
+export function serializeValue(value: Primitive) {
+  if (typeof value === 'number') {
+    return `${value}d`;
+  } else {
+    return JSON.stringify(value);
+  }
 }
 
 export async function loadLocation(location: Location, register: number, writer: FunctionWriter) {
@@ -59,12 +64,8 @@ export async function loadLocation(location: Location, register: number, writer:
   );
 }
 
-export async function arithmetic(env: Env, op: Arith['op'], left: Ref, right: Ref, writer: FunctionWriter) {
+export async function arithmetic(env: Env, op: BinaryOp['op'], left: Ref, right: Ref, writer: FunctionWriter) {
   if (left.kind === 'const' && right.kind === 'const') {
-    if (left.ty === 'empty' || right.ty === 'empty') {
-      throw new Error(`Tried to run ${op} ins with non existent locations left: ${left.ty} right: ${right.ty}`);
-    }
-
     let computed: number;
     switch (op) {
       case '+': {
@@ -141,12 +142,8 @@ export async function arithmetic(env: Env, op: Arith['op'], left: Ref, right: Re
 
 export async function neg(env: Env, operand: Ref, writer: FunctionWriter) {
   if (operand.kind === 'const') {
-    if (operand.ty === 'empty') {
-      throw new Error(`Tried to run neg ins with a non existent location`);
-    }
-
     await writer.write(
-      `data modify storage ${NAMESPACE} ${resolveRegister(1)} set value ${-operand.value}d`
+      `data modify storage ${NAMESPACE} ${resolveRegister(1)} set value -${serializeValue(operand.value)}`
     );
     return;
   }
@@ -282,10 +279,6 @@ export async function cmp(env: Env, op: Cmp['op'], left: Ref, right: Ref, writer
 
 export async function bool(env: Env, op: Bool['op'], left: Ref, right: Ref, writer: FunctionWriter) {
   if (left.kind === 'const' && right.kind === 'const') {
-    if (left.ty === 'empty' || right.ty === 'empty') {
-      throw new Error(`Tried to run ${op} ins with non existent locations left: ${left.ty} right: ${right.ty}`);
-    }
-
     let computed: boolean;
     switch (op) {
       case '&&': {
@@ -335,10 +328,6 @@ export async function bool(env: Env, op: Bool['op'], left: Ref, right: Ref, writ
 
 export async function not(env: Env, operand: Ref, writer: FunctionWriter) {
   if (operand.kind === 'const') {
-    if (operand.ty === 'empty') {
-      throw new Error(`Tried to run neg ins with a non existent location`);
-    }
-
     if (operand.value === 0) {
       await writer.write(
         `data modify storage ${NAMESPACE} ${resolveRegister(1)} set value 1d`

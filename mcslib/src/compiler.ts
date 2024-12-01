@@ -4,7 +4,7 @@ import { gen } from './codegen.js';
 import { build } from './builder.js';
 import { NAMESPACE, resolveRegister, STACK } from './codegen/intrinsics.js';
 import { mangle } from './compiler/mangle.js';
-import { VarType } from './ast/types.js';
+import { VarType } from './types.js';
 import { low } from './lowering.js';
 
 export type Export<Args extends VarType[]> = {

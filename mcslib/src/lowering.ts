@@ -1,8 +1,7 @@
 import { Fn, FnSig, McsFunction } from '@/fn.js';
-import { VarType } from '@/ast/types.js';
-import { IrFunction, Ref, Index, FnStorage } from './ir.js';
+import { Primitive, VarType } from '@/types.js';
+import { IrFunction, Ref, Index, Const } from './ir.js';
 import { emptyNode, Node } from './ir/node.js';
-import { IR_DEFAULT_CONST, IrType } from './ir/types.js';
 import { lowStmt } from './lowering/stmt.js';
 import { Expr, Id, Label } from './ast.js';
 import { lowExpr } from './lowering/expr.js';
@@ -24,11 +23,8 @@ function initIr(f: Fn): [Env, IrFunction] {
     sig: f.sig,
     varResolver: new VarResolver(),
     loop: new LoopStack(),
-    storage: {
-      arguments: f.sig.args,
-      locals: [],
-    },
     dependencies: new Set<McsFunction>(),
+    nextLocalId: 0,
   };
 
   const length = f.args.length;
@@ -45,7 +41,8 @@ function initIr(f: Fn): [Env, IrFunction] {
   }
 
   return [env, {
-    storage: env.storage,
+    sig: f.sig,
+    locals: env.nextLocalId,
     node: emptyNode(),
     dependencies: env.dependencies,
   }];
@@ -59,7 +56,7 @@ function finish(env: Env, last: Node) {
   if (env.sig.returns == null) {
     last.end = {
       ins: 'ret',
-      ref: IR_DEFAULT_CONST.empty,
+      ref: newConst(null),
     };
   }
 }
@@ -68,13 +65,13 @@ export type Env = {
   sig: FnSig,
   varResolver: VarResolver,
   loop: LoopStack,
-  storage: FnStorage,
   dependencies: Set<McsFunction>,
+  nextLocalId: number,
 }
 
 export function refToIndex(env: Env, node: Node, ref: Ref): Index {
   if (ref.kind === 'const') {
-    const index = newStorage(env, ref.ty);
+    const index = newStorage(env);
     node.ins.push({
       ins: 'assign',
       index,
@@ -86,9 +83,15 @@ export function refToIndex(env: Env, node: Node, ref: Ref): Index {
   }
 }
 
-export function newStorage(env: Env, ty: IrType): Index {
-  const index = env.storage.locals.length;
-  env.storage.locals.push(ty);
+export function newConst(value: Primitive): Const {
+  return {
+    kind: 'const',
+    value,
+  };
+}
+
+export function newStorage(env: Env): Index {
+  const index = env.nextLocalId++;
   return {
     kind: 'index',
     origin: 'local',
@@ -99,7 +102,7 @@ export function newStorage(env: Env, ty: IrType): Index {
 export function newStorageInit(
   env: Env,
   node: Node,
-  ty: IrType,
+  ty: VarType,
   expr: Expr,
 ): Index {
   const [exprTy, ref] = lowExpr(env, node, expr);
@@ -110,7 +113,7 @@ export function newStorageInit(
   return refToIndex(env, node, ref);
 }
 
-export type TypedRef = [IrType, Ref];
+export type TypedRef = [VarType, Ref];
 
 /**
  * Map var id to ir index

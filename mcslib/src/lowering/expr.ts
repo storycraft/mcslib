@@ -3,7 +3,6 @@ import { Arithmetic, Bool, Call, Comparison, Expr, Id, Literal, Neg, Not } from 
 import { acceptExpr, ExprVisitor } from '@/ast/visit.js';
 import { Index } from '@/ir.js';
 import { Node } from '@/ir/node.js';
-import { IrType } from '@/ir/types.js';
 
 export function lowExpr(env: Env, node: Node, expr: Expr): TypedRef {
   const visitor = new ExprLowVisitor(env, node);
@@ -14,7 +13,7 @@ export function lowExpr(env: Env, node: Node, expr: Expr): TypedRef {
 class ExprLowVisitor implements ExprVisitor {
   public ref: TypedRef = [
     'empty',
-    { kind: 'const', ty: 'empty', value: null }
+    { kind: 'const', value: null }
   ];
 
   constructor(
@@ -35,7 +34,7 @@ class ExprLowVisitor implements ExprVisitor {
       throw new Error(`cannot compare using ${expr.op} on type left: ${leftTy} right: ${rightTy}`);
     }
 
-    const index = newStorage(this.env, leftTy);
+    const index = newStorage(this.env);
     this.node.ins.push({
       ins: 'assign',
       index,
@@ -54,7 +53,7 @@ class ExprLowVisitor implements ExprVisitor {
       throw new Error(`cannot apply ${expr.op} on type left: ${leftTy} right: ${rightTy}`);
     }
 
-    const index = newStorage(this.env, leftTy);
+    const index = newStorage(this.env);
     this.node.ins.push({
       ins: 'assign',
       index,
@@ -71,7 +70,7 @@ class ExprLowVisitor implements ExprVisitor {
       throw new Error(`cannot apply ! on type: ${ty}`);
     }
 
-    const index = newStorage(this.env, ty);
+    const index = newStorage(this.env);
     this.node.ins.push({
       ins: 'assign',
       index,
@@ -82,7 +81,7 @@ class ExprLowVisitor implements ExprVisitor {
   }
 
   visitCall(expr: Call): boolean {
-    const returnTy: IrType = expr.fn.sig.returns ?? 'empty';
+    const returnTy = expr.fn.sig.returns;
 
     if (expr.fn.sig.args.length !== expr.args.length) {
       throw new Error(`required ${expr.fn.sig.args.length} arguments but ${expr.args.length} are supplied`);
@@ -91,7 +90,7 @@ class ExprLowVisitor implements ExprVisitor {
     const length = expr.args.length;
     for (let i = 0; i < length; i++) {
       const argTy = expr.fn.sig.args[i];
-      const index = newStorage(this.env, argTy);
+      const index = newStorage(this.env);
       const [ty, rvalue] = this.visit(expr.args[i]);
       if (ty != argTy) {
         throw new Error(
@@ -107,7 +106,7 @@ class ExprLowVisitor implements ExprVisitor {
       args[i] = index;
     }
 
-    const index = newStorage(this.env, returnTy);
+    const index = newStorage(this.env);
     this.node.ins.push({
       ins: 'assign',
       index,
@@ -127,11 +126,11 @@ class ExprLowVisitor implements ExprVisitor {
       throw new Error(`incompatible type for arithmetic. left: ${leftTy} right: ${rightTy}`);
     }
 
-    const index = newStorage(this.env, leftTy);
+    const index = newStorage(this.env);
     this.node.ins.push({
       ins: 'assign',
       index,
-      rvalue: { kind: 'arith', op: expr.op, left, right },
+      rvalue: { kind: 'binary', op: expr.op, left, right },
     });
 
     this.ref = [leftTy, index];
@@ -144,7 +143,7 @@ class ExprLowVisitor implements ExprVisitor {
       throw new Error(`cannot apply - operator to type: ${ty}`);
     }
 
-    const index = newStorage(this.env, ty);
+    const index = newStorage(this.env);
     this.node.ins.push({
       ins: 'assign',
       index,
@@ -163,7 +162,6 @@ class ExprLowVisitor implements ExprVisitor {
       'number',
       {
         kind: 'const',
-        ty: 'number',
         value: expr.value,
       },
     ];
