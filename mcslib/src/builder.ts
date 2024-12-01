@@ -1,6 +1,7 @@
 import { Stmt } from './ast.js';
 import { Fn, FnSig, McsBuildFn, McsFunction } from './fn.js';
 import { create, Store } from './store.js';
+import { VarType } from './types.js';
 
 export * from './builder/stmt.js';
 export * from './builder/expr.js';
@@ -17,18 +18,30 @@ export const fnScope: Store<FnScope> = create();
 
 export const blockScope: Store<BlockScope> = create();
 
+export function defineMcsFunction<const Args extends VarType[]>(
+  args: Args,
+  buildFn: McsBuildFn<FnSig<Args, 'empty'>>
+): McsFunction<FnSig<Args, 'empty'>>;
+
 export function defineMcsFunction<
-  const Sig extends FnSig,
+  const Args extends VarType[],
+  const Ret extends VarType,
 >(
-  args: Sig['args'],
-  buildFn: McsBuildFn<Sig>,
-  returns: Sig['returns'] = 'empty',
-): McsFunction<Sig> {
+  args: Args,
+  buildFn: McsBuildFn<FnSig<Args, Ret>>,
+  returns: Ret,
+): McsFunction<FnSig<Args, Ret>>;
+
+export function defineMcsFunction(
+  args: VarType[],
+  buildFn: McsBuildFn<FnSig>,
+  returns: VarType = 'empty',
+): McsFunction {
   return {
     sig: {
       args,
       returns,
-    } as Sig,
+    },
     buildFn,
   };
 }
