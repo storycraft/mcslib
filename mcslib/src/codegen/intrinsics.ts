@@ -37,9 +37,11 @@ export async function load(env: Env, from: Ref, register: number, writer: Functi
 }
 
 export async function loadConst(value: Primitive, register: number, writer: FunctionWriter) {
-  await writer.write(
-    `data modify storage ${NAMESPACE} ${resolveRegister(register)} set value ${serializeValue(value)}`
-  );
+  if (value != null) {
+    await writer.write(
+      `data modify storage ${NAMESPACE} ${resolveRegister(register)} set value ${serializeValue(value)}`
+    );
+  }
 }
 
 export function serializeValue(value: Primitive) {
