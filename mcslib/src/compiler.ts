@@ -6,6 +6,7 @@ import { NAMESPACE, resolveRegister, STACK } from './codegen/intrinsics.js';
 import { mangle } from './compiler/mangle.js';
 import { VarType } from './types.js';
 import { low } from './lowering.js';
+import { check } from './lowering/pass/check.js';
 
 export type Export<Args extends VarType[]> = {
   name: string,
@@ -74,7 +75,17 @@ export class Compiler {
     const fullName = `${this.dir.namespace}:${id}`;
     this.compileMap.set(f, fullName);
 
-    const ir = low(build(f));
+    // Build syntax tree
+    const tree = build(f);
+
+    // Perform type checking
+    const diagnostics = check(tree);
+    if (diagnostics.length > 0) {
+      throw AggregateError(diagnostics.map(obj => obj.err));
+    }
+
+    // Ir lowering
+    const ir = low(tree);
 
     const tasks: Promise<unknown>[] = [];
     for (const depFn of ir.dependencies) {

@@ -17,7 +17,6 @@ export type Block = AstKind<'block'> & {
 export type Local = AstKind<'local'> & {
   id: Id,
   ty: VarType,
-  init: Expr,
 }
 
 export type Assign = AstKind<'assign'> & {

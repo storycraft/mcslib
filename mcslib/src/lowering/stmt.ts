@@ -1,10 +1,10 @@
-import { Env, newConst, newStorageInit } from '../lowering.js';
+import { Env, newStorage, newStorageInit } from '../lowering.js';
 import { lowExpr } from './expr.js';
 import { acceptStmt, StmtVisitor } from '@/ast/visit.js';
 import { Local, Return, If, Break, Continue, CommandTemplate, Stmt, Assign, Loop, Execute } from '@/ast.js';
 import { emptyNode, Node } from '@/ir/node.js';
 import { SwitchInt } from '@/ir/end.js';
-import { ExecuteTemplate } from '@/ir.js';
+import { ExecuteTemplate, newConst } from '@/ir.js';
 import { DEFAULT_CONST } from '@/types.js';
 
 export function lowStmt(env: Env, node: Node, stmt: Stmt): Node {
@@ -22,8 +22,7 @@ class StmtLowVisitor implements StmtVisitor {
   visitLocal(stmt: Local): boolean {
     this.env.varResolver.register(
       stmt.id,
-      stmt.ty,
-      newStorageInit(this.env, this.node, stmt.ty, stmt.init)
+      newStorage(this.env)
     );
 
     return false;
@@ -31,24 +30,12 @@ class StmtLowVisitor implements StmtVisitor {
 
   visitReturn(stmt: Return): boolean {
     if (stmt.expr) {
-      const [ty, ref] = lowExpr(this.env, this.node, stmt.expr);
-      if (ty !== this.env.sig.returns) {
-        throw new Error(
-          `invalid return value expected: ${this.env.sig.returns} got: ${ty}`
-        );
-      }
-
+      const ref = lowExpr(this.env, this.node, stmt.expr);
       this.node.end = {
         ins: 'ret',
         ref,
       };
     } else {
-      if (this.env.sig.returns !== 'empty') {
-        throw new Error(
-          `cannot return without an expression on ${this.env.sig.returns} return type`
-        );
-      }
-
       this.node.end = {
         ins: 'ret',
         ref: newConst(DEFAULT_CONST.empty),
@@ -60,11 +47,8 @@ class StmtLowVisitor implements StmtVisitor {
   }
 
   visitAssign(stmt: Assign): boolean {
-    const [varTy, index] = this.env.varResolver.resolve(stmt.id);
-    const [exprTy, expr] = lowExpr(this.env, this.node, stmt.expr);
-    if (exprTy !== varTy) {
-      throw new Error(`cannot assign to variable with type: ${varTy} using expression returning ${exprTy}`);
-    }
+    const index = this.env.varResolver.resolve(stmt.id);
+    const expr = lowExpr(this.env, this.node, stmt.expr);
 
     this.node.ins.push({
       ins: 'assign',
@@ -86,7 +70,7 @@ class StmtLowVisitor implements StmtVisitor {
 
     const switchIns: SwitchInt = {
       ins: 'switch_int',
-      index: newStorageInit(this.env, this.node, 'number', stmt.condition),
+      index: newStorageInit(this.env, this.node, stmt.condition),
       table: [next],
       default: ifNode,
     };
@@ -158,8 +142,7 @@ function parseTemplate(
   for (const part of template) {
     switch (part.ty) {
       case 'expr': {
-        const [, ref] = lowExpr(env, node, part.expr);
-        parts.push({ ty: 'ref', ref });
+        parts.push({ ty: 'ref', ref: lowExpr(env, node, part.expr) });
         break;
       }
 

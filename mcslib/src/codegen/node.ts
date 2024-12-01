@@ -3,7 +3,7 @@ import { ExecuteTemplate, Rvalue, Ins } from '@/ir.js';
 import { EndIns } from '@/ir/end.js';
 import { Node } from '@/ir/node.js';
 import { FunctionWriter } from '@/lib.js';
-import { arithmetic, call, disposeStackFrame, load, loadConst, loadLocation, NAMESPACE, STACK, storeFromR1 } from './intrinsics.js';
+import { binary, call, disposeStackFrame, load, loadConst, loadLocation, NAMESPACE, STACK, storeFromR1, unary } from './intrinsics.js';
 
 export async function walkNode(env: Env, node: Node, writer: FunctionWriter) {
   for (const ins of node.ins) {
@@ -102,7 +102,7 @@ async function walkExpr(env: Env, ins: Rvalue, writer: FunctionWriter) {
     }
 
     case 'unary': {
-      await unary(env, ins.operand, writer);
+      await unary(env, ins.op, ins.operand, writer);
       break;
     }
 

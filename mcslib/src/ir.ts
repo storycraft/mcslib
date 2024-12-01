@@ -30,19 +30,19 @@ type ExecutePartTy<T extends string> = { ty: T };
 type ExecuteTextPart = ExecutePartTy<'text'> & { text: string };
 type ExecuteRef = ExecutePartTy<'ref'> & { ref: Ref };
 
-export type Rvalue = Ref | Call | BinaryOp | UnaryOp;
+export type Rvalue = Ref | Call | Binary | Unary;
 
 type RvalueKind<T extends string> = {
   kind: T,
 }
 
-export type BinaryOp = RvalueKind<'binary'> & {
+export type Binary = RvalueKind<'binary'> & {
   op: '+' | '-' | '*' | '/' | '%' | '&&' | '||' | '>' | '<' | '>=' | '<=' | '==' | '!=',
   left: Ref,
   right: Ref,
 };
 
-export type UnaryOp = RvalueKind<'unary'> & {
+export type Unary = RvalueKind<'unary'> & {
   op: '-' | '!',
   operand: Ref,
 };
@@ -57,6 +57,13 @@ export type Ref = Const | Index;
 export type Const = RvalueKind<'const'> & {
   value: Primitive,
 };
+
+export function newConst(value: Primitive): Const {
+  return {
+    kind: 'const',
+    value,
+  };
+}
 
 export type Origin = 'local' | 'argument';
 

@@ -1,7 +1,7 @@
 import { FunctionWriter } from '@/lib.js';
 import { Location } from './alloc.js';
 import { Env } from '@/codegen.js';
-import { BinaryOp, Bool, Cmp, Ref } from '@/ir.js';
+import { Binary, Ref, Unary } from '@/ir.js';
 import { Primitive } from '@/types.js';
 
 export const NAMESPACE = 'mcs:system';
@@ -64,42 +64,7 @@ export async function loadLocation(location: Location, register: number, writer:
   );
 }
 
-export async function arithmetic(env: Env, op: BinaryOp['op'], left: Ref, right: Ref, writer: FunctionWriter) {
-  if (left.kind === 'const' && right.kind === 'const') {
-    let computed: number;
-    switch (op) {
-      case '+': {
-        computed = left.value + right.value;
-        break;
-      }
-
-      case '-': {
-        computed = left.value - right.value;
-        break;
-      }
-
-      case '*': {
-        computed = left.value * right.value;
-        break;
-      }
-
-      case '/': {
-        computed = left.value / right.value;
-        break;
-      }
-
-      case '%': {
-        computed = left.value % right.value;
-        break;
-      }
-    }
-
-    await writer.write(
-      `data modify storage ${NAMESPACE} ${resolveRegister(1)} set value ${computed}d`
-    );
-    return;
-  }
-
+export async function binary(env: Env, op: Binary['op'], left: Ref, right: Ref, writer: FunctionWriter) {
   await load(env, left, 1, writer);
   await load(env, right, 2, writer);
   switch (op) {
@@ -137,101 +102,7 @@ export async function arithmetic(env: Env, op: BinaryOp['op'], left: Ref, right:
       );
       break;
     }
-  }
-}
 
-export async function neg(env: Env, operand: Ref, writer: FunctionWriter) {
-  if (operand.kind === 'const') {
-    await writer.write(
-      `data modify storage ${NAMESPACE} ${resolveRegister(1)} set value -${serializeValue(operand.value)}`
-    );
-    return;
-  }
-
-  await load(env, operand, 1, writer);
-  await writer.write(
-    `function mcs_intrinsic:neg with storage ${NAMESPACE} ${REGISTERS}`
-  );
-}
-
-export async function call(env: Env, fullName: string, args: Ref[], writer: FunctionWriter) {
-  await writer.write(`data modify storage ${NAMESPACE} tmp set value {}`);
-
-  const length = args.length;
-  for (let i = 0; i < length; i++) {
-    const arg = args[i];
-    if (arg.kind === 'const') {
-      if (arg.ty === 'empty') {
-        throw new Error('Cannot use empty type as a argument');
-      }
-
-      await writer.write(
-        `data modify storage ${NAMESPACE} tmp.a${i} set value ${arg.value}d`
-      );
-    } else {
-      await writer.write(
-        `data modify storage ${NAMESPACE} tmp.a${i} set from storage ${NAMESPACE} ${resolveLoc(env.alloc.resolve(arg))}`
-      );
-    }
-  }
-  await writer.write(`data modify storage ${NAMESPACE} ${STACK} append from storage ${NAMESPACE} tmp`);
-  await writer.write(`function ${fullName}`);
-}
-
-export async function cmp(env: Env, op: Cmp['op'], left: Ref, right: Ref, writer: FunctionWriter) {
-  if (left.kind === 'const' && right.kind === 'const') {
-    if (left.ty === 'empty' || right.ty === 'empty') {
-      throw new Error(`Tried to run ${op} ins with non existent locations left: ${left.ty} right: ${right.ty}`);
-    }
-
-    let computed: boolean;
-    switch (op) {
-      case '==': {
-        computed = left.value === right.value;
-        break;
-      }
-
-      case '!=': {
-        computed = left.value !== right.value;
-        break;
-      }
-
-      case '>': {
-        computed = left.value > right.value;
-        break;
-      }
-
-      case '<': {
-        computed = left.value < right.value;
-        break;
-      }
-
-      case '>=': {
-        computed = left.value >= right.value;
-        break;
-      }
-
-      case '<=': {
-        computed = left.value <= right.value;
-        break;
-      }
-    }
-
-    if (computed) {
-      await writer.write(
-        `data modify storage ${NAMESPACE} ${resolveRegister(1)} set value 1d`
-      );
-    } else {
-      await writer.write(
-        `data modify storage ${NAMESPACE} ${resolveRegister(1)} set value 0d`
-      );
-    }
-    return;
-  }
-
-  await load(env, left, 1, writer);
-  await load(env, right, 2, writer);
-  switch (op) {
     case '==': {
       await writer.write(
         `execute store success storage ${NAMESPACE} ${resolveRegister(1)} double 1 if predicate mcs_intrinsic:eq`
@@ -273,40 +144,7 @@ export async function cmp(env: Env, op: Cmp['op'], left: Ref, right: Ref, writer
       );
       break;
     }
-  }
-}
 
-
-export async function bool(env: Env, op: Bool['op'], left: Ref, right: Ref, writer: FunctionWriter) {
-  if (left.kind === 'const' && right.kind === 'const') {
-    let computed: boolean;
-    switch (op) {
-      case '&&': {
-        computed = left.value !== 0 && right.value !== 0;
-        break;
-      }
-
-      case '||': {
-        computed = left.value !== 0 || right.value !== 0;
-        break;
-      }
-    }
-
-    if (computed) {
-      await writer.write(
-        `data modify storage ${NAMESPACE} ${resolveRegister(1)} set value 1d`
-      );
-    } else {
-      await writer.write(
-        `data modify storage ${NAMESPACE} ${resolveRegister(1)} set value 0d`
-      );
-    }
-    return;
-  }
-
-  await load(env, left, 1, writer);
-  await load(env, right, 2, writer);
-  switch (op) {
     case '&&': {
       await writer.write(
         `execute store success storage ${NAMESPACE} ${resolveRegister(1)} double 1 unless predicate mcs_intrinsic:zero unless predicate mcs_intrinsic:zero_r2`
@@ -326,24 +164,44 @@ export async function bool(env: Env, op: Bool['op'], left: Ref, right: Ref, writ
   }
 }
 
-export async function not(env: Env, operand: Ref, writer: FunctionWriter) {
-  if (operand.kind === 'const') {
-    if (operand.value === 0) {
+export async function unary(env: Env, op: Unary['op'], operand: Ref, writer: FunctionWriter) {
+  await load(env, operand, 1, writer);
+
+  switch (op) {
+    case '-': {
       await writer.write(
-        `data modify storage ${NAMESPACE} ${resolveRegister(1)} set value 1d`
+        `function mcs_intrinsic:neg with storage ${NAMESPACE} ${REGISTERS}`
+      );
+      break;
+    }
+
+    case '!': {
+      await writer.write(
+        `execute store success storage ${NAMESPACE} ${resolveRegister(1)} double 1 if predicate mcs_intrinsic:zero`
+      );
+      break;
+    }
+  }
+}
+
+export async function call(env: Env, fullName: string, args: Ref[], writer: FunctionWriter) {
+  await writer.write(`data modify storage ${NAMESPACE} tmp set value {}`);
+
+  const length = args.length;
+  for (let i = 0; i < length; i++) {
+    const arg = args[i];
+    if (arg.kind === 'const') {
+      await writer.write(
+        `data modify storage ${NAMESPACE} tmp.a${i} set value ${arg.value}d`
       );
     } else {
       await writer.write(
-        `data modify storage ${NAMESPACE} ${resolveRegister(1)} set value 0d`
+        `data modify storage ${NAMESPACE} tmp.a${i} set from storage ${NAMESPACE} ${resolveLoc(env.alloc.resolve(arg))}`
       );
     }
-    return;
   }
-
-  await load(env, operand, 1, writer);
-  await writer.write(
-    `execute store success storage ${NAMESPACE} ${resolveRegister(1)} double 1 if predicate mcs_intrinsic:zero`
-  );
+  await writer.write(`data modify storage ${NAMESPACE} ${STACK} append from storage ${NAMESPACE} tmp`);
+  await writer.write(`function ${fullName}`);
 }
 
 export function resolveLoc(loc: Location): string {

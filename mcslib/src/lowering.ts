@@ -1,6 +1,5 @@
 import { Fn, FnSig, McsFunction } from '@/fn.js';
-import { Primitive, VarType } from '@/types.js';
-import { IrFunction, Ref, Index, Const } from './ir.js';
+import { IrFunction, Ref, Index, newConst } from './ir.js';
 import { emptyNode, Node } from './ir/node.js';
 import { lowStmt } from './lowering/stmt.js';
 import { Expr, Id, Label } from './ast.js';
@@ -31,7 +30,6 @@ function initIr(f: Fn): [Env, IrFunction] {
   for (let i = 0; i < length; i++) {
     env.varResolver.register(
       f.args[i],
-      f.sig.args[i],
       {
         kind: 'index',
         origin: 'argument',
@@ -53,7 +51,7 @@ function finish(env: Env, last: Node) {
     return;
   }
 
-  if (env.sig.returns == null) {
+  if (env.sig.returns === 'empty') {
     last.end = {
       ins: 'ret',
       ref: newConst(null),
@@ -83,13 +81,6 @@ export function refToIndex(env: Env, node: Node, ref: Ref): Index {
   }
 }
 
-export function newConst(value: Primitive): Const {
-  return {
-    kind: 'const',
-    value,
-  };
-}
-
 export function newStorage(env: Env): Index {
   const index = env.nextLocalId++;
   return {
@@ -102,34 +93,27 @@ export function newStorage(env: Env): Index {
 export function newStorageInit(
   env: Env,
   node: Node,
-  ty: VarType,
   expr: Expr,
 ): Index {
-  const [exprTy, ref] = lowExpr(env, node, expr);
-  if (exprTy !== ty) {
-    throw new Error(`expected type: ${exprTy} got: ${ty}`);
-  }
-
+  const ref = lowExpr(env, node, expr);
   return refToIndex(env, node, ref);
 }
-
-export type TypedRef = [VarType, Ref];
 
 /**
  * Map var id to ir index
  */
 export class VarResolver {
-  private readonly map = new Map<number, [VarType, Index]>();
+  private readonly map = new Map<number, Index>();
 
-  register(id: Id, ty: VarType, index: Index) {
+  register(id: Id, index: Index) {
     if (this.map.has(id.id)) {
       throw new Error(`multiple local variable declaration. id: ${id.id}`);
     }
 
-    this.map.set(id.id, [ty, index]);
+    this.map.set(id.id, index);
   }
 
-  resolve(id: Id): [VarType, Index]  {
+  resolve(id: Id): Index  {
     const item = this.map.get(id.id);
     if (item == null) {
       throw new Error(`local variable id: ${id.id} is not defined`);

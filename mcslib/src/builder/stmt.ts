@@ -8,12 +8,19 @@ export function mcsVar<const T extends VarType>(ty: T, init: Expr): Id<T> {
     id: fnScope.get().varCounter++,
   };
 
-  blockScope.get().stmts.push({
-    kind: 'local',
-    id,
-    ty,
-    init,
-  });
+  blockScope.get().stmts.push(
+    {
+      kind: 'local',
+      id,
+      ty,
+    },
+    {
+      kind: 'assign',
+      id,
+      expr: init,
+    },
+  );
+
   return id;
 }
 
