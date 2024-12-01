@@ -6,7 +6,7 @@ import { NAMESPACE, resolveRegister, STACK } from './codegen/intrinsics.js';
 import { mangle } from './compiler/mangle.js';
 import { VarType } from './types.js';
 import { low } from './lowering.js';
-import { typeCheck } from './lowering/pass/check.js';
+import { typeCheck } from './ast/pass/check.js';
 
 export type Export<Args extends VarType[]> = {
   name: string,
