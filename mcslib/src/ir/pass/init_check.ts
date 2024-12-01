@@ -35,7 +35,7 @@ class Checker implements RvalueVisitor {
 
     for (const ins of node.ins) {
       if (ins.ins !== 'assign') {
-        return;
+        continue;
       }
       const index = ins.index.index;
       acceptRvalue(ins.rvalue, this);
