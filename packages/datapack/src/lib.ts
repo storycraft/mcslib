@@ -1,6 +1,6 @@
 import { FunctionDir, Writer } from 'mcslib';
-import { VarType } from 'mcslib/ast/types.js';
 import { Compiler, Export } from 'mcslib/compiler.js';
+import { VarType } from 'mcslib/types.js';
 import { createReadStream } from 'node:fs';
 import { opendir } from 'node:fs/promises';
 import { join, relative } from 'node:path';
