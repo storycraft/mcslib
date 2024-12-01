@@ -38,7 +38,7 @@ class ExprLowVisitor implements ExprVisitor {
     this.node.ins.push({
       ins: 'assign',
       index,
-      rvalue: { kind: 'cmp', op: expr.op, left, right },
+      rvalue: { kind: 'binary', op: expr.op, left, right },
     });
 
     this.ref = [leftTy, index];
@@ -57,7 +57,7 @@ class ExprLowVisitor implements ExprVisitor {
     this.node.ins.push({
       ins: 'assign',
       index,
-      rvalue: { kind: 'bool', op: expr.op, left, right },
+      rvalue: { kind: 'binary', op: expr.op, left, right },
     });
 
     this.ref = [leftTy, index];
@@ -74,7 +74,7 @@ class ExprLowVisitor implements ExprVisitor {
     this.node.ins.push({
       ins: 'assign',
       index,
-      rvalue: { kind: 'not', operand: ref },
+      rvalue: { kind: 'unary', op: '!', operand: ref },
     })
     this.ref = [ty, index];
     return false;
@@ -148,7 +148,8 @@ class ExprLowVisitor implements ExprVisitor {
       ins: 'assign',
       index,
       rvalue: {
-        kind: 'neg',
+        kind: 'unary',
+        op: '-',
         operand,
       },
     });

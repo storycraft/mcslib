@@ -3,7 +3,7 @@ import { ExecuteTemplate, Rvalue, Ins } from '@/ir.js';
 import { EndIns } from '@/ir/end.js';
 import { Node } from '@/ir/node.js';
 import { FunctionWriter } from '@/lib.js';
-import { arithmetic as binary, bool, call, cmp, disposeStackFrame, load, loadConst, loadLocation, NAMESPACE, neg, not, STACK, storeFromR1 } from './intrinsics.js';
+import { arithmetic, call, disposeStackFrame, load, loadConst, loadLocation, NAMESPACE, STACK, storeFromR1 } from './intrinsics.js';
 
 export async function walkNode(env: Env, node: Node, writer: FunctionWriter) {
   for (const ins of node.ins) {
@@ -101,8 +101,8 @@ async function walkExpr(env: Env, ins: Rvalue, writer: FunctionWriter) {
       break;
     }
 
-    case 'neg': {
-      await neg(env, ins.operand, writer);
+    case 'unary': {
+      await unary(env, ins.operand, writer);
       break;
     }
 
@@ -113,21 +113,6 @@ async function walkExpr(env: Env, ins: Rvalue, writer: FunctionWriter) {
       }
 
       await call(env, fullName, ins.args, writer);
-      break;
-    }
-
-    case 'cmp': {
-      await cmp(env, ins.op, ins.left, ins.right, writer);
-      break;
-    }
-
-    case 'bool': {
-      await bool(env, ins.op, ins.left, ins.right, writer);
-      break;
-    }
-
-    case 'not': {
-      await not(env, ins.operand, writer);
       break;
     }
 

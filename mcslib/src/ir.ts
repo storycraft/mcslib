@@ -30,40 +30,27 @@ type ExecutePartTy<T extends string> = { ty: T };
 type ExecuteTextPart = ExecutePartTy<'text'> & { text: string };
 type ExecuteRef = ExecutePartTy<'ref'> & { ref: Ref };
 
-export type Rvalue = Ref | Call | Bool | Cmp | Not | BinaryOp | Neg;
+export type Rvalue = Ref | Call | BinaryOp | UnaryOp;
 
 type RvalueKind<T extends string> = {
   kind: T,
 }
 
-type Operands = {
+export type BinaryOp = RvalueKind<'binary'> & {
+  op: '+' | '-' | '*' | '/' | '%' | '&&' | '||' | '>' | '<' | '>=' | '<=' | '==' | '!=',
   left: Ref,
   right: Ref,
 };
 
-export type BinaryOp = RvalueKind<'binary'> & Operands & {
-  op: '+' | '-' | '*' | '/' | '%'
-};
-
-type Operand = {
+export type UnaryOp = RvalueKind<'unary'> & {
+  op: '-' | '!',
   operand: Ref,
 };
-
-export type Neg = RvalueKind<'neg'> & Operand;
 
 export type Call = RvalueKind<'call'> & {
   args: Ref[],
   f: McsFunction,
 }
-
-export type Bool = RvalueKind<'bool'> & Operands & {
-  op: '&&' | '||'
-}
-export type Not = RvalueKind<'not'> & Operand;
-
-export type Cmp = RvalueKind<'cmp'> & Operands & {
-  op: '>' | '<' | '>=' | '<=' | '==' | '!='
-};
 
 export type Ref = Const | Index;
 

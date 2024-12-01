@@ -79,7 +79,7 @@ function place(
         case 'execute': {
           for (const part of ins.template) {
             if (part.ty === 'ref') {
-              replaceRefsInLocal(cx, part.ref);
+              placeInLocal(cx, part.ref);
             }
           }
           break;
@@ -113,15 +113,12 @@ type Cx = {
 
 export function visitExpr(cx: Cx, ins: Rvalue) {
   switch (ins.kind) {
-    case 'neg':
-    case 'not': {
+    case 'unary': {
       replaceRefs(cx, ins.operand);
       break;
     }
 
-    case 'binary':
-    case 'cmp':
-    case 'bool': {
+    case 'binary': {
       replaceRefs(cx, ins.left, ins.right);
       break;
     }
@@ -174,26 +171,26 @@ function replaceRefs(cx: Cx, first?: Ref, second?: Ref, ...rest: Ref[]) {
   }
 
   if (rest.length > 0) {
-    replaceRefsInLocal(cx, ...rest);
+    for (const ref of rest) {
+      placeInLocal(cx, ref);
+    }
   }
 }
 
-function replaceRefsInLocal(cx: Cx, ...refs: Ref[]) {
-  for (const ref of refs) {
-    if (ref.kind !== 'index' || ref.origin !== 'local') {
-      continue;
-    }
+function placeInLocal(cx: Cx, ref: Ref) {
+  if (ref.kind !== 'index' || ref.origin !== 'local') {
+    return;
+  }
 
-    const item = cx.locs.at(ref.index);
-    if (!item) {
-      continue;
-    }
+  const item = cx.locs.at(ref.index);
+  if (!item) {
+    return;
+  }
 
-    if (item.at === 'none') {
-      cx.locs[ref.index] = {
-        at: 'local',
-        index: cx.nextLocalId++,
-      };
-    }
+  if (item.at === 'none') {
+    cx.locs[ref.index] = {
+      at: 'local',
+      index: cx.nextLocalId++,
+    };
   }
 }
