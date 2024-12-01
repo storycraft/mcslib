@@ -33,7 +33,7 @@ Source codes in `examples/cube-particle.ts`
 
 Compile example datapack using
 ```bash
-npm start --example=gen
+npm start --example=build
 ```
 Run datapack with `intrinsics_datapack`
 

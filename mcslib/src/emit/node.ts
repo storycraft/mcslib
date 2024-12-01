@@ -22,23 +22,21 @@ async function walkIns(env: Env, ins: Ins, writer: FunctionWriter) {
     }
 
     case 'execute': {
-      let executeWriter: FunctionWriter;
-
       const hasRefs = ins.template.some(({ ty }) => ty === 'ref');
       if (hasRefs) {
-        executeWriter = await writer.createBranch();
-        await writer.write(
-          `function ${executeWriter.namespace}:${executeWriter.name} with storage ${NAMESPACE} ${STACK}[-1]`
-        );
+        const executeWriter = await writer.createBranch();
+        try {
+          await writer.write(
+            `function ${executeWriter.namespace}:${executeWriter.name} with storage ${NAMESPACE} ${STACK}[-1]`
+          );
+          await writeTemplate(env, ins.template, executeWriter);
+        } finally {
+          await executeWriter.close();
+        }
       } else {
-        executeWriter = writer;
+        await writeTemplate(env, ins.template, writer);
       }
 
-      try {
-        await writeTemplate(env, ins.template, executeWriter);
-      } finally {
-        await executeWriter.close();
-      }
       break;
     }
   }
