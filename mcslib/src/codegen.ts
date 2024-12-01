@@ -2,7 +2,7 @@ import { IrFunction } from '@/ir.js';
 import { FunctionWriter } from './lib.js';
 import { Alloc, alloc } from './codegen/alloc.js';
 import { NodeMap, walkNode } from './codegen/node.js';
-import { McsFunction } from './ast/fn.js';
+import { McsFunction } from './fn.js';
 
 /**
  * generate functions from ir

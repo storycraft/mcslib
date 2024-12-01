@@ -77,11 +77,9 @@ function place(
         }
 
         case 'execute': {
-          for (const template of ins.templates) {
-            for (const part of template) {
-              if (part.ty === 'ref') {
-                replaceRefsInLocal(cx, part.ref);
-              }
+          for (const part of ins.template) {
+            if (part.ty === 'ref') {
+              replaceRefsInLocal(cx, part.ref);
             }
           }
           break;

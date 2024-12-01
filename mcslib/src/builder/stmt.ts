@@ -1,19 +1,15 @@
 import { blockScope, fnScope } from '../builder.js';
-import { Id } from '@/ast.js';
-import { Expr } from '@/ast/expr.js';
-import { If } from '@/ast/expr/condition.js';
-import { Break, Continue, Loop } from '@/ast/loop.js';
-import { CommandTemplate } from '@/ast/stmt.js';
+import { Break, CommandTemplate, Continue, Expr, Id, If, Loop } from '@/ast.js';
 import { VarType } from '@/ast/types.js';
 
 export function mcsVar<const T extends VarType>(ty: T, init: Expr): Id<T> {
   const id: Id<T> = {
-    ast: 'id',
+    kind: 'id',
     id: fnScope.get().varCounter++,
   };
 
   blockScope.get().stmts.push({
-    ast: 'local',
+    kind: 'local',
     id,
     ty,
     init,
@@ -23,7 +19,7 @@ export function mcsVar<const T extends VarType>(ty: T, init: Expr): Id<T> {
 
 export function mcsAssign(id: Id, expr: Expr) {
   blockScope.get().stmts.push({
-    ast: 'assign',
+    kind: 'assign',
     id,
     expr,
   });
@@ -31,10 +27,10 @@ export function mcsAssign(id: Id, expr: Expr) {
 
 export function mcsIf(condition: Expr, f: () => void, elseF?: () => void) {
   const stmt: If = {
-    ast: 'if',
+    kind: 'if',
     condition,
     block: {
-      ast: 'block',
+      kind: 'block',
       stmts: [],
     },
   };
@@ -43,7 +39,7 @@ export function mcsIf(condition: Expr, f: () => void, elseF?: () => void) {
   blockScope.with({ stmts: stmt.block.stmts }, f);
   if (elseF) {
     stmt.else = {
-      ast: 'block',
+      kind: 'block',
       stmts: [],
     };
     blockScope.with({ stmts: stmt.else.stmts }, elseF);
@@ -52,15 +48,15 @@ export function mcsIf(condition: Expr, f: () => void, elseF?: () => void) {
 
 export function mcsLoop(f: () => void, label?: string) {
   const stmt: Loop = {
-    ast: 'loop',
+    kind: 'loop',
     block: {
-      ast: 'block',
+      kind: 'block',
       stmts: [],
     },
   };
 
   if (label) {
-    stmt.label = { ast: 'label', name: label };
+    stmt.label = { name: label };
   }
 
   blockScope.get().stmts.push(stmt);
@@ -70,7 +66,7 @@ export function mcsLoop(f: () => void, label?: string) {
 export function mcsWhile(condition: Expr, f: () => void, label?: string) {
   mcsLoop(() => {
     mcsIf({
-      ast: 'not',
+      kind: 'not',
       expr: condition,
     }, () => {
       mcsBreak();
@@ -82,10 +78,10 @@ export function mcsWhile(condition: Expr, f: () => void, label?: string) {
 
 export function mcsContinue(label?: string) {
   const stmt: Continue = {
-    ast: 'continue',
+    kind: 'continue',
   };
   if (label) {
-    stmt.label = { ast: 'label', name: label };
+    stmt.label = { name: label };
   }
 
   blockScope.get().stmts.push(stmt);
@@ -93,10 +89,10 @@ export function mcsContinue(label?: string) {
 
 export function mcsBreak(label?: string) {
   const stmt: Break = {
-    ast: 'break',
+    kind: 'break',
   };
   if (label) {
-    stmt.label = { ast: 'label', name: label };
+    stmt.label = { name: label };
   }
 
   blockScope.get().stmts.push(stmt);
@@ -104,19 +100,22 @@ export function mcsBreak(label?: string) {
 
 export function mcsReturn(expr?: Expr) {
   blockScope.get().stmts.push({
-    ast: 'return',
+    kind: 'return',
     expr,
   });
 }
 
 export function mcsStmt(expr: Expr) {
-  blockScope.get().stmts.push(expr);
+  blockScope.get().stmts.push({
+    kind: 'expr',
+    expr,
+  });
 }
 
-export function mcsExecute(...templates: CommandTemplate[]) {
+export function mcsExecute(template: CommandTemplate) {
   blockScope.get().stmts.push({
-    ast: 'execute',
-    templates,
+    kind: 'execute',
+    template,
   });
 }
 

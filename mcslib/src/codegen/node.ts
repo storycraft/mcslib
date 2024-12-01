@@ -24,9 +24,7 @@ async function walkIns(env: Env, ins: Ins, writer: FunctionWriter) {
     case 'execute': {
       let executeWriter: FunctionWriter;
 
-      const hasRefs = ins.templates.some(
-        (template) => template.some(({ ty }) => ty === 'ref')
-      );
+      const hasRefs = ins.template.some(({ ty }) => ty === 'ref');
       if (hasRefs) {
         executeWriter = await writer.createBranch();
         await writer.write(
@@ -37,9 +35,7 @@ async function walkIns(env: Env, ins: Ins, writer: FunctionWriter) {
       }
 
       try {
-        for (const template of ins.templates) {
-          await writeTemplate(env, template, executeWriter);
-        }
+        await writeTemplate(env, ins.template, executeWriter);
       } finally {
         await executeWriter.close();
       }

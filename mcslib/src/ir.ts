@@ -1,14 +1,14 @@
-import { McsFunction } from '@/ast/fn.js';
+import { McsFunction } from '@/fn.js';
 import { IrType } from './ir/types.js';
 import { Node } from './ir/node.js';
 
 export type IrFunction = {
-  storage: Storage,
+  storage: FnStorage,
   node: Node,
   dependencies: Set<McsFunction>,
 }
 
-export type Storage = {
+export type FnStorage = {
   arguments: IrType[],
   locals: IrType[],
 }
@@ -25,7 +25,7 @@ export type Assign = InsTy<'assign'> & {
 }
 
 export type Execute = InsTy<'execute'> & {
-  templates: ExecuteTemplate[]
+  template: ExecuteTemplate
 }
 
 export type ExecuteTemplate = ExecutePart[];

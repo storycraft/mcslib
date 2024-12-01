@@ -1,13 +1,11 @@
-import { Fn, FnSig, McsFunction } from '@/ast/fn.js';
-import { IrFunction, Storage, Ref, Index } from '../ir.js';
-import { Expr } from '@/ast/expr.js';
-import { IR_DEFAULT_CONST, IrType } from './types.js';
-import { visitBlock } from './low/stmt.js';
-import { visitExpr } from './low/expr.js';
-import { Id } from '@/ast.js';
-import { Label } from '@/ast/loop.js';
+import { Fn, FnSig, McsFunction } from '@/fn.js';
 import { VarType } from '@/ast/types.js';
-import { emptyNode, Node } from './node.js';
+import { IrFunction, Ref, Index, FnStorage } from './ir.js';
+import { emptyNode, Node } from './ir/node.js';
+import { IR_DEFAULT_CONST, IrType } from './ir/types.js';
+import { lowStmt } from './lowering/stmt.js';
+import { Expr, Id, Label } from './ast.js';
+import { lowExpr } from './lowering/expr.js';
 
 /**
  * create intermediate representation of a function
@@ -16,10 +14,10 @@ import { emptyNode, Node } from './node.js';
  */
 export function low(f: Fn): IrFunction {
   const [env, ir] = initIr(f);
-  finish(env, visitBlock(env, ir.node, f.block));
-
+  finish(env, lowStmt(env, ir.node, f.block));
   return ir;
 }
+
 
 function initIr(f: Fn): [Env, IrFunction] {
   const env: Env = {
@@ -70,7 +68,7 @@ export type Env = {
   sig: FnSig,
   varResolver: VarResolver,
   loop: LoopStack,
-  storage: Storage,
+  storage: FnStorage,
   dependencies: Set<McsFunction>,
 }
 
@@ -104,7 +102,7 @@ export function newStorageInit(
   ty: IrType,
   expr: Expr,
 ): Index {
-  const [exprTy, ref] = visitExpr(env, node, expr);
+  const [exprTy, ref] = lowExpr(env, node, expr);
   if (exprTy !== ty) {
     throw new Error(`expected type: ${exprTy} got: ${ty}`);
   }

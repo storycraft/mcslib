@@ -1,4 +1,4 @@
-import { FnSig } from '@/ast/fn.js';
+import { FnSig } from '@/fn.js';
 import { VarType } from '@/ast/types.js';
 import { IrType } from '@/ir/types.js';
 

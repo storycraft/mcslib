@@ -1,17 +1,10 @@
-import { AstTy, Id } from '../ast.js';
-import { Expr } from './expr.js';
-import { Block } from './stmt.js';
-import { VarType } from './types.js';
+import { Id, Block } from '@/ast.js';
+import { VarType } from './ast/types.js';
 
-export type Fn<Sig extends FnSig = FnSig> = AstTy<'fn'> & {
+export type Fn<Sig extends FnSig = FnSig> = {
   args: Id[],
   sig: Sig,
   block: Block,
-}
-
-export type Call<Sig extends FnSig = FnSig> = AstTy<'call'> & {
-  fn: McsFunction<Sig>,
-  args: Expr[],
 }
 
 export type FnSig<

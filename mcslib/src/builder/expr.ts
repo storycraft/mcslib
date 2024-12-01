@@ -1,7 +1,7 @@
-import { Call, FnSig, McsFunction } from '@/ast/fn.js';
-import { Expr } from '@/ast/expr.js';
+import { FnSig, McsFunction } from '@/fn.js';
 import { parseExpr, Term } from './expr/parse.js';
 import { lex } from './expr/lex.js';
+import { Expr, Call } from '@/ast.js';
 
 export function mcsExpr(
   arr: TemplateStringsArray,
@@ -38,7 +38,7 @@ export function mcsCall<const Sig extends FnSig>(
   args: Expr[],
 ): Call<Sig> {
   return {
-    ast: 'call',
+    kind: 'call',
     fn,
     args,
   }

@@ -1,6 +1,6 @@
-import { Fn, FnSig, McsBuildFn, McsFunction } from './ast/fn.js';
+import { Stmt } from './ast.js';
+import { Fn, FnSig, McsBuildFn, McsFunction } from './fn.js';
 import { create, Store } from './store.js';
-import { Stmt } from './ast/stmt.js';
 
 export * from './builder/stmt.js';
 export * from './builder/expr.js';
@@ -35,13 +35,12 @@ export function defineMcsFunction<
 
 export function build<const Sig extends FnSig>(fn: McsFunction<Sig>): Fn<Sig> {
   const item: Fn<Sig> = {
-    ast: 'fn',
     args: fn.sig.args.map((_, id) => {
-      return { ast: 'id', id } as const;
+      return { kind: 'id', id } as const;
     }),
     sig: fn.sig,
     block: {
-      ast: 'block',
+      kind: 'block',
       stmts: [],
     },
   };

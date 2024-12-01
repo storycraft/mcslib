@@ -1,5 +1,4 @@
-import { Expr, Neg } from '@/ast/expr.js';
-import { Not } from '@/ast/expr/condition.js';
+import { Expr, Not, Neg } from '@/ast.js';
 import { Token } from './lex.js';
 
 type Variant<T, V> = {
@@ -76,7 +75,7 @@ function parseCondition(cx: ParseCx): Expr {
   cx.index++;
 
   return {
-    ast: 'bool',
+    kind: 'bool',
     left,
     op,
     right: parseCondition(cx),
@@ -97,7 +96,7 @@ function parseEquation(cx: ParseCx): Expr {
   ) {
     cx.index++;
     return {
-      ast: 'comparison',
+      kind: 'comparison',
       left,
       op,
       right: parseEquation(cx),
@@ -117,7 +116,7 @@ function parsePolynomial(cx: ParseCx): Expr {
   cx.index++;
 
   return {
-    ast: 'arithmetic',
+    kind: 'arithmetic',
     left,
     op,
     right: parsePolynomial(cx),
@@ -134,7 +133,7 @@ function parseMonomial(cx: ParseCx): Expr {
   cx.index++;
 
   return {
-    ast: 'arithmetic',
+    kind: 'arithmetic',
     left,
     op,
     right: parseMonomial(cx),
@@ -178,7 +177,7 @@ function parseParen(cx: ParseCx): Expr {
 function parseNot(cx: ParseCx): Not {
   expectStringTokenVal(cx, '!');
   return {
-    ast: 'not',
+    kind: 'not',
     expr: parseExpr(cx),
   };
 }
@@ -186,7 +185,7 @@ function parseNot(cx: ParseCx): Not {
 function parseNeg(cx: ParseCx): Neg {
   expectStringTokenVal(cx, '-');
   return {
-    ast: 'neg',
+    kind: 'neg',
     expr: parseFactor(cx),
   };
 }
@@ -204,7 +203,7 @@ function parseTerm(cx: ParseCx): Expr {
   } else if (term.value.kind === 'number') {
     cx.index++;
     return {
-      ast: 'literal',
+      kind: 'literal',
       value: term.value.value,
     };
   }
