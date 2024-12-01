@@ -45,7 +45,7 @@ class StmtChecker implements StmtVisitor {
 
   visitLocal(stmt: Local): boolean {
     this.cx.vars.set(stmt.id.id, stmt.ty);
-    return false;
+    return true;
   }
 
   visitReturn(stmt: Return): boolean {
@@ -68,7 +68,7 @@ class StmtChecker implements StmtVisitor {
       }
     }
 
-    return false;
+    return true;
   }
 
   visitAssign(stmt: Assign): boolean {
@@ -83,7 +83,7 @@ class StmtChecker implements StmtVisitor {
       });
     }
 
-    return false;
+    return true;
   }
 
   visitIf(stmt: If): boolean {
@@ -93,7 +93,7 @@ class StmtChecker implements StmtVisitor {
       });
     }
 
-    return false;
+    return true;
   }
 }
 
@@ -117,7 +117,7 @@ class ExprChecker implements ExprVisitor {
         err: Error(`cannot compare using ${expr.op} on type left: ${leftTy} right: ${rightTy}`),
       });
     }
-    return false;
+    return true;
   }
 
   visitBool(expr: Bool): boolean {
@@ -129,7 +129,7 @@ class ExprChecker implements ExprVisitor {
         err: Error(`cannot apply ${expr.op} on type left: ${leftTy} right: ${rightTy}`),
       });
     }
-    return false;
+    return true;
   }
 
   visitNot(expr: Not): boolean {
@@ -140,7 +140,7 @@ class ExprChecker implements ExprVisitor {
       });
     }
 
-    return false;
+    return true;
   }
 
   visitCall(expr: Call): boolean {
@@ -163,7 +163,7 @@ class ExprChecker implements ExprVisitor {
     }
 
     this.ty = expr.fn.sig.returns;
-    return false;
+    return true;
   }
 
   visitArithmetic(expr: Arithmetic): boolean {
@@ -175,7 +175,7 @@ class ExprChecker implements ExprVisitor {
         err: Error(`incompatible type for arithmetic. left: ${leftTy} right: ${rightTy}`),
       });
     }
-    return false;
+    return true;
   }
 
   visitNeg(neg: Neg): boolean {
@@ -186,12 +186,12 @@ class ExprChecker implements ExprVisitor {
       });
     }
 
-    return false;
+    return true;
   }
 
   visitLiteral(): boolean {
     this.ty = 'number';
-    return false;
+    return true;
   }
 
   visitId(id: Id): boolean {
@@ -204,6 +204,6 @@ class ExprChecker implements ExprVisitor {
       this.ty = ty;
     }
 
-    return false;
+    return true;
   }
 }

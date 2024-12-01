@@ -25,7 +25,7 @@ class StmtLowVisitor implements StmtVisitor {
       newStorage(this.env)
     );
 
-    return false;
+    return true;
   }
 
   visitReturn(stmt: Return): boolean {
@@ -43,7 +43,7 @@ class StmtLowVisitor implements StmtVisitor {
     }
 
     this.node = emptyNode();
-    return false;
+    return true;
   }
 
   visitAssign(stmt: Assign): boolean {
@@ -56,7 +56,7 @@ class StmtLowVisitor implements StmtVisitor {
       rvalue: expr,
     });
 
-    return false;
+    return true;
   }
 
   visitIf(stmt: If): boolean {
@@ -86,7 +86,7 @@ class StmtLowVisitor implements StmtVisitor {
     }
 
     this.node = next;
-    return false;
+    return true;
   }
 
   visitLoop(stmt: Loop): boolean {
@@ -98,7 +98,7 @@ class StmtLowVisitor implements StmtVisitor {
       stmt.label,
     );
 
-    return false;
+    return true;
   }
 
   visitBreak(stmt: Break): boolean {
@@ -109,7 +109,7 @@ class StmtLowVisitor implements StmtVisitor {
     };
 
     this.node = emptyNode();
-    return false;
+    return true;
   }
 
   visitContinue(stmt: Continue): boolean {
@@ -120,7 +120,7 @@ class StmtLowVisitor implements StmtVisitor {
     };
 
     this.node = emptyNode();
-    return false;
+    return true;
   }
 
   visitExecute(stmt: Execute): boolean {
@@ -129,7 +129,7 @@ class StmtLowVisitor implements StmtVisitor {
       template: parseTemplate(this.env, this.node, stmt.template),
     });
 
-    return false;
+    return true;
   }
 }
 

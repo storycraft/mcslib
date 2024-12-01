@@ -5,7 +5,7 @@ import { Index, Ref } from '@/ir.js';
 import { Node } from '@/ir/node.js';
 
 export function lowExpr(env: Env, node: Node, expr: Expr): Ref {
-  return new ExprLowVisitor(env, node).visit(expr);
+  return new ExprLowVisitor(env, node).low(expr);
 }
 
 class ExprLowVisitor implements ExprVisitor {
@@ -16,14 +16,14 @@ class ExprLowVisitor implements ExprVisitor {
     private readonly node: Node,
   ) { }
 
-  visit(expr: Expr): Ref {
+  low(expr: Expr): Ref {
     acceptExpr(expr, this);
     return this.ref;
   }
 
   visitComparison(expr: Comparison): boolean {
-    const right = this.visit(expr.right);
-    const left = this.visit(expr.left);
+    const right = this.low(expr.right);
+    const left = this.low(expr.left);
 
     const index = newStorage(this.env);
     this.node.ins.push({
@@ -33,12 +33,12 @@ class ExprLowVisitor implements ExprVisitor {
     });
 
     this.ref = index;
-    return false;
+    return true;
   }
 
   visitBool(expr: Bool): boolean {
-    const right = this.visit(expr.right);
-    const left = this.visit(expr.left);
+    const right = this.low(expr.right);
+    const left = this.low(expr.left);
 
     const index = newStorage(this.env);
     this.node.ins.push({
@@ -48,11 +48,11 @@ class ExprLowVisitor implements ExprVisitor {
     });
 
     this.ref = index;
-    return false;
+    return true;
   }
 
   visitNot(expr: Not): boolean {
-    const ref = this.visit(expr.expr);
+    const ref = this.low(expr.expr);
     const index = newStorage(this.env);
     this.node.ins.push({
       ins: 'assign',
@@ -60,7 +60,7 @@ class ExprLowVisitor implements ExprVisitor {
       rvalue: { kind: 'unary', op: '!', operand: ref },
     })
     this.ref = index;
-    return false;
+    return true;
   }
 
   visitCall(expr: Call): boolean {
@@ -68,7 +68,7 @@ class ExprLowVisitor implements ExprVisitor {
     const length = expr.args.length;
     for (let i = 0; i < length; i++) {
       const index = newStorage(this.env);
-      const rvalue = this.visit(expr.args[i]);
+      const rvalue = this.low(expr.args[i]);
 
       this.node.ins.push({
         ins: 'assign',
@@ -87,12 +87,12 @@ class ExprLowVisitor implements ExprVisitor {
     this.env.dependencies.add(expr.fn);
 
     this.ref = index;
-    return false;
+    return true;
   }
 
   visitArithmetic(expr: Arithmetic): boolean {
-    const right = this.visit(expr.right);
-    const left = this.visit(expr.left);
+    const right = this.low(expr.right);
+    const left = this.low(expr.left);
 
     const index = newStorage(this.env);
     this.node.ins.push({
@@ -102,11 +102,11 @@ class ExprLowVisitor implements ExprVisitor {
     });
 
     this.ref = index;
-    return false;
+    return true;
   }
 
   visitNeg(neg: Neg): boolean {
-    const operand = this.visit(neg.expr);
+    const operand = this.low(neg.expr);
 
     const index = newStorage(this.env);
     this.node.ins.push({
@@ -120,7 +120,7 @@ class ExprLowVisitor implements ExprVisitor {
     });
 
     this.ref = index;
-    return false;
+    return true;
   }
 
   visitLiteral(expr: Literal): boolean {
@@ -128,11 +128,11 @@ class ExprLowVisitor implements ExprVisitor {
       kind: 'const',
       value: expr.value,
     };
-    return false;
+    return true;
   }
 
   visitId(expr: Id): boolean {
     this.ref = this.env.varResolver.resolve(expr);
-    return false;
+    return true;
   }
 }

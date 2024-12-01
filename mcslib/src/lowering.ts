@@ -157,7 +157,7 @@ export class LoopStack {
     };
     this.stack.push(loop);
 
-    if (label) {
+    if (label != null) {
       if (this.labelToIrNode.has(label.name)) {
         throw new Error(`duplicate label name: ${label.name}`);
       }
@@ -173,7 +173,7 @@ export class LoopStack {
     } finally {
       this.stack.pop();
 
-      if (label) {
+      if (label != null) {
         this.labelToIrNode.delete(label.name);
       }
     }
