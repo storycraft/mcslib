@@ -1,7 +1,7 @@
 import { Diagnostics } from '@/diagnostics.js';
 import { Index, IrFunction } from '@/ir.js';
 import { acceptRvalue, RvalueVisitor } from '../visit.js';
-import { Node } from '../node.js';
+import { childrenNodes, Node } from '../node.js';
 
 export function checkInit(ir: IrFunction): Diagnostics[] {
   const messages: Diagnostics[] = [];
@@ -45,27 +45,16 @@ class Checker implements RvalueVisitor {
       }
     }
 
-    const end = node.end;
-    switch (end.ins) {
-      case 'jmp': {
-        this.check(end.next);
-        break;
-      }
+    const children = childrenNodes(node);
+    const length = children.length;
+    if (length > 1) {
+      this.check(children[0]);
 
-      case 'switch_int': {
-        for (const branch of end.table) {
-          if (!branch) {
-            continue;
-          }
-
-          new Checker(
-            this.cx,
-            this.statuses.slice()
-          ).check(branch);
-        }
-
-        this.check(end.default);
-        break;
+      for (let i = 1; i < length; i++) {
+        new Checker(
+          this.cx,
+          this.statuses.slice()
+        ).check(children[i]);
       }
     }
   }

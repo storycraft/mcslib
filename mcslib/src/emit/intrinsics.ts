@@ -1,6 +1,6 @@
 import { FunctionWriter } from '@/lib.js';
 import { Location } from './alloc.js';
-import { Env } from '@/codegen.js';
+import { Env } from '@/emit.js';
 import { Binary, Ref, Unary } from '@/ir.js';
 import { Primitive } from '@/types.js';
 

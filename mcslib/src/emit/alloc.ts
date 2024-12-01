@@ -90,7 +90,7 @@ function place(
     const end = node.end;
     switch (end.ins) {
       case 'switch_int': {
-        replaceRefs(cx, end.index);
+        replaceRefs(cx, end.ref);
         break;
       }
 

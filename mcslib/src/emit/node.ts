@@ -1,9 +1,9 @@
-import { Env } from '@/codegen.js';
+import { Env } from '@/emit.js';
 import { ExecuteTemplate, Rvalue, Ins } from '@/ir.js';
 import { EndIns } from '@/ir/end.js';
 import { Node } from '@/ir/node.js';
 import { FunctionWriter } from '@/lib.js';
-import { binary, call, disposeStackFrame, load, loadConst, loadLocation, NAMESPACE, STACK, storeFromR1, unary } from './intrinsics.js';
+import { binary, call, disposeStackFrame, load, loadConst, NAMESPACE, STACK, storeFromR1, unary } from './intrinsics.js';
 
 export async function walkNode(env: Env, node: Node, writer: FunctionWriter) {
   for (const ins of node.ins) {
@@ -133,7 +133,7 @@ async function walkEndIns(env: Env, ins: EndIns, writer: FunctionWriter) {
     }
 
     case 'switch_int': {
-      await loadLocation(env.alloc.resolve(ins.index), 1, writer);
+      await load(env, ins.ref, 1, writer);
 
       const length = ins.table.length;
       if (length === 1 && ins.table[0]) {

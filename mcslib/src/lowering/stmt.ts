@@ -1,4 +1,4 @@
-import { Env, newStorage, newStorageInit } from '../lowering.js';
+import { Env, newStorage } from '../lowering.js';
 import { lowExpr } from './expr.js';
 import { acceptStmt, StmtVisitor } from '@/ast/visit.js';
 import { Local, Return, If, Break, Continue, CommandTemplate, Stmt, Assign, Loop, Execute } from '@/ast.js';
@@ -70,7 +70,7 @@ class StmtLowVisitor implements StmtVisitor {
 
     const switchIns: SwitchInt = {
       ins: 'switch_int',
-      index: newStorageInit(this.env, this.node, stmt.condition),
+      ref: lowExpr(this.env, this.node, stmt.condition),
       table: [next],
       default: ifNode,
     };

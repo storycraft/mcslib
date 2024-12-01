@@ -1,8 +1,8 @@
 import { FnSig, McsFunction } from '@/fn.js';
 import { FunctionDir, FunctionWriter } from './lib.js';
-import { gen } from './codegen.js';
+import { emit } from './emit.js';
 import { build } from './builder.js';
-import { NAMESPACE, resolveRegister, STACK } from './codegen/intrinsics.js';
+import { NAMESPACE, resolveRegister, STACK } from './emit/intrinsics.js';
 import { mangle } from './compiler/mangle.js';
 import { VarType } from './types.js';
 import { low } from './lowering.js';
@@ -112,7 +112,7 @@ export class Compiler {
 
     const writer = await FunctionWriter.create(this.dir, id);
     try {
-      await gen(
+      await emit(
         ir,
         this.compileMap,
         writer,

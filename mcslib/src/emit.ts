@@ -1,16 +1,16 @@
 import { IrFunction } from '@/ir.js';
 import { FunctionWriter } from './lib.js';
-import { Alloc, alloc } from './codegen/alloc.js';
-import { NodeMap, walkNode } from './codegen/node.js';
+import { Alloc, alloc } from './emit/alloc.js';
+import { NodeMap, walkNode } from './emit/node.js';
 import { McsFunction } from './fn.js';
 
 /**
- * generate functions from ir
+ * emit functions from ir
  * @param ir 
  * @param linkMap
  * @param writer 
  */
-export async function gen(
+export async function emit(
   ir: IrFunction,
   linkMap: Map<McsFunction, string>,
   writer: FunctionWriter
