@@ -13,6 +13,7 @@ import { lowExpr } from './lowering/expr.js';
 export function low(f: Fn): IrFunction {
   const [env, ir] = initIr(f);
   finish(env, lowStmt(env, ir.node, f.block));
+  ir.locals = env.nextLocalId;
   return ir;
 }
 
@@ -40,7 +41,7 @@ function initIr(f: Fn): [Env, IrFunction] {
 
   return [env, {
     sig: f.sig,
-    locals: env.nextLocalId,
+    locals: 0,
     node: emptyNode(),
     dependencies: env.dependencies,
   }];
