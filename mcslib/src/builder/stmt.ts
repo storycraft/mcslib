@@ -2,24 +2,25 @@ import { blockScope, fnScope } from '../builder.js';
 import { Break, CommandTemplate, Continue, Expr, Id, If, Loop } from '@/ast.js';
 import { VarType } from '@/types.js';
 
-export function mcsVar<const T extends VarType>(ty: T, init: Expr): Id<T> {
+export function mcsVar<const T extends VarType>(ty: T, init?: Expr): Id<T> {
   const id: Id<T> = {
     kind: 'id',
     id: fnScope.get().varCounter++,
   };
 
-  blockScope.get().stmts.push(
-    {
-      kind: 'local',
-      id,
-      ty,
-    },
-    {
+  const stmts = blockScope.get().stmts;
+  stmts.push({
+    kind: 'local',
+    id,
+    ty,
+  });
+  if (init) {
+    stmts.push({
       kind: 'assign',
       id,
       expr: init,
-    },
-  );
+    });
+  }
 
   return id;
 }

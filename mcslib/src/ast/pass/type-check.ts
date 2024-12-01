@@ -1,18 +1,15 @@
 import { Assign, Binary, Call, Expr, Id, If, Local, Return, Stmt, Unary } from '@/ast.js';
 import { acceptExpr, acceptStmt, ExprVisitor, StmtVisitor } from '@/ast/visit.js';
+import { Diagnostics } from '@/diagnostics.js';
 import { Fn } from '@/fn.js';
 import { VarType } from '@/types.js';
-
-export type Diagnostics = {
-  err: Error,
-}
 
 /**
  * Perform type checking
  * @param f Function to check
  * @returns Type diagnostics
  */
-export function typeCheck(f: Fn): Diagnostics[] {
+export function checkType(f: Fn): Diagnostics[] {
   const cx: Cx = {
     f,
     messages: [],

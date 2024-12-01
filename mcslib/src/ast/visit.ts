@@ -1,7 +1,7 @@
 import { Assign, Block, Break, Continue, Execute, If, Local, Loop, Return, Stmt, ExprStmt, Expr, Id, Literal, Call, Unary, Binary } from '@/ast.js';
 
 /**
- * Visitor function for statement ast.
+ * Visitor interface for statement ast.
  * 
  * Return true to stop traversing children
  */
@@ -79,7 +79,7 @@ export function acceptStmt(stmt: Stmt, v: StmtVisitor) {
 }
 
 /**
- * Visitor function for expression ast.
+ * Visitor interface for expression ast.
  * 
  * Return true to stop traversing children
  */

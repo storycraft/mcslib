@@ -6,7 +6,8 @@ import { NAMESPACE, resolveRegister, STACK } from './codegen/intrinsics.js';
 import { mangle } from './compiler/mangle.js';
 import { VarType } from './types.js';
 import { low } from './lowering.js';
-import { typeCheck } from './ast/pass/check.js';
+import { checkType } from './ast/pass/type-check.js';
+import { checkInit } from './ir/pass/init_check.js';
 
 export type Export<Args extends VarType[]> = {
   name: string,
@@ -79,13 +80,29 @@ export class Compiler {
     const tree = build(f);
 
     // Perform type checking
-    const diagnostics = typeCheck(tree);
-    if (diagnostics.length > 0) {
-      throw AggregateError(diagnostics.map(obj => obj.err));
+    {
+      const diagnostics = checkType(tree);
+      if (diagnostics.length > 0) {
+        throw AggregateError(
+          diagnostics.map(obj => obj.err),
+          'failed type checking'
+        );
+      }
     }
 
     // Ir lowering
     const ir = low(tree);
+
+    // Perform init checking
+    {
+      const diagnostics = checkInit(ir);
+      if (diagnostics.length > 0) {
+        throw AggregateError(
+          diagnostics.map(obj => obj.err),
+          'failed initialization checking'
+        );
+      }
+    }
 
     const tasks: Promise<unknown>[] = [];
     for (const depFn of ir.dependencies) {
