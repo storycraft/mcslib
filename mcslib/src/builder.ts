@@ -1,8 +1,7 @@
 import { Stmt } from './ast.js';
-import { ExprError } from './builder/expr.js';
-import { Diagnostic } from './diagnostic.js';
+import { diagnostic, Diagnostic } from './diagnostic.js';
 import { Fn, FnSig, McsBuildFn, McsFunction } from './fn.js';
-import { callSite } from './span.js';
+import { callSite, Span } from './span.js';
 import { create, Store } from './store.js';
 import { VarType } from './types.js';
 
@@ -11,6 +10,7 @@ export * from './builder/expr.js';
 
 export type FnScope = {
   varCounter: number,
+  diagnostics: Diagnostic[],
 }
 
 export type BlockScope = {
@@ -55,9 +55,15 @@ export type Result<Sig extends FnSig> = {
   diagnostics: Diagnostic[],
 }
 
+export class BuilderError {
+  constructor(
+    public readonly span: Span,
+    public readonly message: string,
+  ) { }
+}
+
 export function build<const Sig extends FnSig>(fn: McsFunction<Sig>): Result<Sig> {
   const span = callSite(1);
-  let diagnostics: Diagnostic[] = [];
 
   const f: Fn<Sig> = {
     span,
@@ -72,15 +78,19 @@ export function build<const Sig extends FnSig>(fn: McsFunction<Sig>): Result<Sig
     },
   };
 
+  const diagnostics: Diagnostic[] = [];
   fnScope.with({
     varCounter: fn.sig.args.length,
+    diagnostics,
   }, () => {
     blockScope.with({ stmts: f.block.stmts }, () => {
       try {
         fn.buildFn(...f.args);
       } catch (e) {
-        if (e instanceof ExprError) {
-          diagnostics = e.diagnostics;
+        if (e instanceof BuilderError) {
+          diagnostics.push(
+            diagnostic('error', e.message, e.span),
+          );
         } else {
           throw e;
         }

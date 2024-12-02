@@ -3,21 +3,15 @@ import { parseExpr, Term } from './expr/parse.js';
 import { lex } from './expr/lex.js';
 import { Expr, Call } from '@/ast.js';
 import { callSite } from '@/span.js';
-import { Diagnostic } from '@/diagnostic.js';
-
-export class ExprError {
-  constructor(
-    public readonly diagnostics: Diagnostic[],
-  ) { }
-}
+import { fnScope } from '@/builder.js';
 
 export function mcsExpr(
   arr: TemplateStringsArray,
   ...args: Expr[]
 ): Expr {
-  const diagnostics: Diagnostic[] = [];
-  const terms: Term[] = [];
   const span = callSite(1);
+  const diagnostics = fnScope.get().diagnostics;
+  const terms: Term[] = [];
 
   const lexResult = lex(arr[0], span);
   if (lexResult.diagnostics.length > 0) {
@@ -48,16 +42,7 @@ export function mcsExpr(
     }
   }
 
-  if (diagnostics.length > 0) {
-    throw new ExprError(diagnostics);
-  }
-
-  const res = parseExpr(terms, span);
-  if (res.result === 'ok') {
-    return res.expr;
-  }
-
-  throw new ExprError([res.diagnostic]);
+  return parseExpr(terms, span);
 }
 
 export function mcsCall<const Sig extends FnSig>(

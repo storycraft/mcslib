@@ -1,7 +1,7 @@
 import { Expr, Unary } from '@/ast.js';
 import { Token } from './lex.js';
 import { Span } from '@/span.js';
-import { diagnostic, Diagnostic } from '@/diagnostic.js';
+import { BuilderError } from '@/builder.js';
 
 type Variant<T, V> = {
   ty: T,
@@ -16,66 +16,46 @@ type ParseCx = {
   index: number,
 }
 
-type Result = {
-  result: 'ok',
-  expr: Expr,
-} | {
-  result: 'err',
-  diagnostic: Diagnostic,
-};
-
 export function parseExpr(
   terms: Term[],
   span: Span,
-): Result {
-  try {
-    return {
-      result: 'ok',
-      expr: parseCondition({
-        span,
-        terms,
-        index: 0,
-      }),
-    };
-  } catch (e) {
-    if (e instanceof ParseError) {
-      return {
-        result: 'err',
-        diagnostic: diagnostic('error', e.message, span),
-      };
-    }
-
-    throw e;
-  }
-}
-
-class ParseError {
-  constructor(
-    public readonly message: string,
-  ) { }
+): Expr {
+  return parseCondition({
+    span,
+    terms,
+    index: 0,
+  });
 }
 
 function expectStringTokenVal(cx: ParseCx, val: string) {
   const token = expectToken(cx);
   if (token.kind !== 'string') {
-    throw new ParseError(`expected string token '${val}', got ${token.kind} kind at index: ${cx.index}`);
+    throw new BuilderError(
+      cx.span,
+      `expected string token '${val}', got ${token.kind} kind at index: ${cx.index}`
+    );
   }
 
   if (token.value !== val) {
-    throw new ParseError(`expected string token ${val}, got value '${token.value}' at index: ${cx.index}`);
+    throw new BuilderError(
+      cx.span,
+      `expected string token ${val}, got value '${token.value}' at index: ${cx.index}`
+    );
   }
 }
 
 function expectToken(cx: ParseCx): Token {
   const term = cx.terms.at(cx.index);
   if (term == null) {
-    throw new ParseError(
+    throw new BuilderError(
+      cx.span, 
       `unexpected end of parse buffer. expected a token`,
     );
   }
 
   if (term.ty !== 'token') {
-    throw new ParseError(
+    throw new BuilderError(
+      cx.span, 
       `expected a token, got ${term.ty}. index: ${cx.index}`,
     );
   }
@@ -218,7 +198,7 @@ function parseParen(cx: ParseCx): Expr {
     terms.push(cx.terms[cx.index]);
   }
 
-  throw new ParseError(`unclosed paren at: ${cx.index}`);
+  throw new BuilderError(cx.span, `unclosed paren at: ${cx.index}`);
 }
 
 function parseNot(cx: ParseCx): Unary {
@@ -245,7 +225,7 @@ function parseTerm(cx: ParseCx): Expr {
   const term = cx.terms.at(cx.index);
 
   if (!term) {
-    throw new ParseError('unexpected end of a parse buffer');
+    throw new BuilderError(cx.span, 'unexpected end of a parse buffer');
   }
 
   if (term.ty === 'expr') {
@@ -261,5 +241,8 @@ function parseTerm(cx: ParseCx): Expr {
   }
 
   const token = term.value;
-  throw new ParseError(`expected an expression, found ${term.ty} ${token.value}. index: ${cx.index}`);
+  throw new BuilderError(
+    cx.span,
+    `expected an expression, found ${term.ty} ${token.value}. index: ${cx.index}`
+  );
 }
