@@ -42,8 +42,21 @@ export class DatapackWriter {
     await new Promise(resolve => stream.once('close', resolve));
   }
 
-  async export<const Args extends VarType[]>(settings: Export<Args>) {
-    await this.compiler.export(settings);
+  async export<const Args extends VarType[]>(settings: Export<Args>): Promise<string> {
+    const {
+      fullName,
+      diagnostics,
+    } = await this.compiler.export(settings);
+
+    if (diagnostics.length > 0) {
+      for (const diagnostic of diagnostics) {
+        console.error(diagnostic);
+      }
+
+      throw new Error('compile failed with errors', { cause: diagnostics });
+    }
+
+    return fullName;
   }
 
   async finish() {

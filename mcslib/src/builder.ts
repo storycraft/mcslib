@@ -39,7 +39,7 @@ export function defineMcsFunction(
   returns: VarType = 'empty',
 ): McsFunction {
   return {
-    span: callSite(),
+    span: callSite(1),
     sig: {
       args,
       returns,
@@ -49,7 +49,7 @@ export function defineMcsFunction(
 }
 
 export function build<const Sig extends FnSig>(fn: McsFunction<Sig>): Fn<Sig> {
-  const span = callSite();
+  const span = callSite(1);
   const item: Fn<Sig> = {
     span,
     args: fn.sig.args.map((_, id) => {

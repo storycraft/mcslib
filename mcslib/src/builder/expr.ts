@@ -29,7 +29,7 @@ export function mcsExpr(
   }
 
   return parseExpr({
-    span: callSite(),
+    span: callSite(1),
     terms,
     index: 0,
   });
@@ -41,7 +41,7 @@ export function mcsCall<const Sig extends FnSig>(
 ): Call<Sig> {
   return {
     kind: 'call',
-    span: callSite(),
+    span: callSite(1),
     fn,
     args,
   }

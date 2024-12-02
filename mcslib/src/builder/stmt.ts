@@ -4,7 +4,7 @@ import { callSite } from '@/span.js';
 import { VarType } from '@/types.js';
 
 export function mcsVar<const T extends VarType>(ty: T, init?: Expr): Id<T> {
-  const span = callSite();
+  const span = callSite(1);
   const id: Id<T> = {
     kind: 'id',
     span,
@@ -33,14 +33,14 @@ export function mcsVar<const T extends VarType>(ty: T, init?: Expr): Id<T> {
 export function mcsAssign(id: Id, expr: Expr) {
   blockScope.get().stmts.push({
     kind: 'assign',
-    span: callSite(),
+    span: callSite(1),
     id,
     expr,
   });
 }
 
 export function mcsIf(condition: Expr, f: () => void, elseF?: () => void) {
-  const span = callSite();
+  const span = callSite(1);
   const stmt: If = {
     kind: 'if',
     span,
@@ -65,7 +65,7 @@ export function mcsIf(condition: Expr, f: () => void, elseF?: () => void) {
 }
 
 export function mcsLoop(f: () => void, label?: string) {
-  const span = callSite();
+  const span = callSite(1);
   const stmt: Loop = {
     kind: 'loop',
     span,
@@ -88,7 +88,7 @@ export function mcsWhile(condition: Expr, f: () => void, label?: string) {
   mcsLoop(() => {
     mcsIf({
       kind: 'unary',
-      span: callSite(),
+      span: callSite(1),
       op: '!',
       expr: condition,
     }, () => {
@@ -102,7 +102,7 @@ export function mcsWhile(condition: Expr, f: () => void, label?: string) {
 export function mcsContinue(label?: string) {
   const stmt: Continue = {
     kind: 'continue',
-    span: callSite(),
+    span: callSite(1),
   };
   if (label) {
     stmt.label = { name: label };
@@ -114,7 +114,7 @@ export function mcsContinue(label?: string) {
 export function mcsBreak(label?: string) {
   const stmt: Break = {
     kind: 'break',
-    span: callSite(),
+    span: callSite(1),
   };
   if (label) {
     stmt.label = { name: label };
@@ -127,7 +127,7 @@ export function mcsReturn(expr?: Expr) {
   blockScope.get().stmts.push({
     kind: 'return',
     expr,
-    span: callSite(),
+    span: callSite(1),
   });
 }
 
@@ -135,7 +135,7 @@ export function mcsStmt(expr: Expr) {
   blockScope.get().stmts.push({
     kind: 'expr',
     expr,
-    span: callSite(),
+    span: callSite(1),
   });
 }
 
@@ -143,7 +143,7 @@ export function mcsExecute(template: CommandTemplate) {
   blockScope.get().stmts.push({
     kind: 'execute',
     template,
-    span: callSite(),
+    span: callSite(1),
   });
 }
 

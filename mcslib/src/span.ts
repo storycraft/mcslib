@@ -22,8 +22,8 @@ export type Span = {
 /**
  * Create a new span of the call site
  */
-export function callSite(): Span {
-  const pos = new StackTracey().items[1];
+export function callSite(offset = 0): Span {
+  const pos = new StackTracey().items[1 + offset];
   return {
     location: pos.fileRelative,
     line: pos.line,
