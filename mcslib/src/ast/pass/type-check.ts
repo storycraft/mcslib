@@ -179,6 +179,11 @@ class ExprChecker implements ExprVisitor {
     return true;
   }
 
+  visitOutput(): boolean {
+    this.ty = 'number';
+    return true;
+  }
+
   visitLiteral(): boolean {
     this.ty = 'number';
     return true;
