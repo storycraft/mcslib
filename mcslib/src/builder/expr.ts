@@ -53,11 +53,11 @@ export function mcsExpr(
   }
 
   const res = parseExpr(terms, span);
-  if (res.result === 'failed') {
-    throw new ExprError([res.diagnostic]);
-  } else {
+  if (res.result === 'ok') {
     return res.expr;
   }
+
+  throw new ExprError([res.diagnostic]);
 }
 
 export function mcsCall<const Sig extends FnSig>(

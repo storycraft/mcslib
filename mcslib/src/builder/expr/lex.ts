@@ -1,4 +1,4 @@
-import { Diagnostic } from '@/diagnostic.js';
+import { diagnostic, Diagnostic } from '@/diagnostic.js';
 import { Span } from '@/span.js';
 
 export type Token = TokenKind<'string', string> | TokenKind<'number', number>;
@@ -45,11 +45,13 @@ export function lex(str: string, span: Span): Result {
       continue outer;
     }
 
-    diagnostics.push({
-      level: 'error',
-      message: `invalid syntax at: ${i}`,
-      span,
-    });
+    diagnostics.push(
+      diagnostic(
+        'error',
+        `invalid syntax at: ${i}`,
+        span,
+      )
+    );
     i++;
   }
 

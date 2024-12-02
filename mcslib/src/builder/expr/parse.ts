@@ -1,7 +1,7 @@
 import { Expr, Unary } from '@/ast.js';
 import { Token } from './lex.js';
 import { Span } from '@/span.js';
-import { Diagnostic } from '@/diagnostic.js';
+import { diagnostic, Diagnostic } from '@/diagnostic.js';
 
 type Variant<T, V> = {
   ty: T,
@@ -20,7 +20,7 @@ type Result = {
   result: 'ok',
   expr: Expr,
 } | {
-  result: 'failed',
+  result: 'err',
   diagnostic: Diagnostic,
 };
 
@@ -40,16 +40,12 @@ export function parseExpr(
   } catch (e) {
     if (e instanceof ParseError) {
       return {
-        result: 'failed',
-        diagnostic: {
-          level: 'error',
-          message: e.message,
-          span,
-        },
+        result: 'err',
+        diagnostic: diagnostic('error', e.message, span),
       };
-    } else {
-      throw e;
     }
+
+    throw e;
   }
 }
 
@@ -73,11 +69,15 @@ function expectStringTokenVal(cx: ParseCx, val: string) {
 function expectToken(cx: ParseCx): Token {
   const term = cx.terms.at(cx.index);
   if (term == null) {
-    throw new ParseError(`unexpected end of parse buffer. expected a token`);
+    throw new ParseError(
+      `unexpected end of parse buffer. expected a token`,
+    );
   }
 
   if (term.ty !== 'token') {
-    throw new ParseError(`expected a token, got ${term.ty}. index: ${cx.index}`);
+    throw new ParseError(
+      `expected a token, got ${term.ty}. index: ${cx.index}`,
+    );
   }
 
   cx.index++;
@@ -209,8 +209,8 @@ function parseParen(cx: ParseCx): Expr {
     if (str == ')') {
       cx.index++;
       return parseCondition({
-        span: cx.span,
         terms,
+        span: cx.span,
         index: 0,
       });
     }
