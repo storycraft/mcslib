@@ -86,14 +86,21 @@ export class Compiler {
     this.compileMap.set(f, fullName);
 
     // Build syntax tree
-    const tree = build(f);
+    const buildRes = build(f);
+    if (buildRes.diagnostics.length > 0) {
+      return {
+        fullName,
+        diagnostics: buildRes.diagnostics,
+      };
+    }
+    const tree = buildRes.f;
 
     // Perform type checking
     {
-      const diagnostics = checkType(tree);
+      const diagnostics = checkType(buildRes.f);
       if (diagnostics.length > 0) {
         return {
-          fullName: fullName,
+          fullName,
           diagnostics,
         };
       }

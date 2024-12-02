@@ -1,3 +1,6 @@
+import { Diagnostic } from '@/diagnostic.js';
+import { Span } from '@/span.js';
+
 export type Token = TokenKind<'string', string> | TokenKind<'number', number>;
 
 type TokenKind<T extends string, V> = {
@@ -5,12 +8,21 @@ type TokenKind<T extends string, V> = {
   value: V,
 }
 
-export function lex(str: string): Token[] {
+type Result = {
+  tokens: Token[],
+  diagnostics: Diagnostic[],
+}
+
+export function lex(str: string, span: Span): Result {
   if (str === '') {
-    return [];
+    return {
+      tokens: [],
+      diagnostics: [],
+    };
   }
 
   const tokens: Token[] = [];
+  const diagnostics: Diagnostic[] = [];
 
   const length = str.length;
   outer: for (let i = 0; i < length;) {
@@ -33,10 +45,21 @@ export function lex(str: string): Token[] {
       continue outer;
     }
 
-    throw new Error(`invalid syntax to lex at: ${i} input: '${str.slice(i)}'`);
+    diagnostics.push({
+      level: 'error',
+      message: `invalid syntax at: ${i} buffer: '${str.slice(i)}'`,
+      span,
+    });
+
+    while (i < length && str[i] !== ' ') {
+      i++;
+    }
   }
 
-  return tokens;
+  return {
+    tokens,
+    diagnostics,
+  };
 }
 
 type LexFn = (sub: string) => [number, Token] | null;

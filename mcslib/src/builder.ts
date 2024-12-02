@@ -1,4 +1,6 @@
 import { Stmt } from './ast.js';
+import { ExprError } from './builder/expr.js';
+import { Diagnostic } from './diagnostic.js';
 import { Fn, FnSig, McsBuildFn, McsFunction } from './fn.js';
 import { callSite } from './span.js';
 import { create, Store } from './store.js';
@@ -48,9 +50,16 @@ export function defineMcsFunction(
   };
 }
 
-export function build<const Sig extends FnSig>(fn: McsFunction<Sig>): Fn<Sig> {
+export type Result<Sig extends FnSig> = {
+  f: Fn<Sig>,
+  diagnostics: Diagnostic[],
+}
+
+export function build<const Sig extends FnSig>(fn: McsFunction<Sig>): Result<Sig> {
   const span = callSite(1);
-  const item: Fn<Sig> = {
+  let diagnostics: Diagnostic[] = [];
+
+  const f: Fn<Sig> = {
     span,
     args: fn.sig.args.map((_, id) => {
       return { kind: 'id', span, id } as const;
@@ -66,10 +75,21 @@ export function build<const Sig extends FnSig>(fn: McsFunction<Sig>): Fn<Sig> {
   fnScope.with({
     varCounter: fn.sig.args.length,
   }, () => {
-    blockScope.with({ stmts: item.block.stmts }, () => {
-      fn.buildFn(...item.args);
+    blockScope.with({ stmts: f.block.stmts }, () => {
+      try {
+        fn.buildFn(...f.args);
+      } catch (e) {
+        if (e instanceof ExprError) {
+          diagnostics = e.diagnostics;
+        } else {
+          throw e;
+        }
+      }
     });
   });
 
-  return item;
+  return {
+    f,
+    diagnostics,
+  };
 }

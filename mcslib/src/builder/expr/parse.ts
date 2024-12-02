@@ -1,6 +1,7 @@
 import { Expr, Unary } from '@/ast.js';
 import { Token } from './lex.js';
 import { Span } from '@/span.js';
+import { Diagnostic } from '@/diagnostic.js';
 
 type Variant<T, V> = {
   ty: T,
@@ -9,35 +10,74 @@ type Variant<T, V> = {
 
 export type Term = Variant<'expr', Expr> | Variant<'token', Token>;
 
-export type ParseCx = {
+type ParseCx = {
   span: Span,
   terms: Term[],
   index: number,
 }
 
-export function parseExpr(cx: ParseCx): Expr {
-  return parseCondition(cx);
+type Result = {
+  result: 'ok',
+  expr: Expr,
+} | {
+  result: 'failed',
+  diagnostic: Diagnostic,
+};
+
+export function parseExpr(
+  terms: Term[],
+  span: Span,
+): Result {
+  try {
+    return {
+      result: 'ok',
+      expr: parseCondition({
+        span,
+        terms,
+        index: 0,
+      }),
+    };
+  } catch (e) {
+    if (e instanceof ParseError) {
+      return {
+        result: 'failed',
+        diagnostic: {
+          level: 'error',
+          message: e.message,
+          span,
+        },
+      };
+    } else {
+      throw e;
+    }
+  }
+}
+
+class ParseError {
+  constructor(
+    public readonly message: string,
+  ) { }
 }
 
 function expectStringTokenVal(cx: ParseCx, val: string) {
   const token = expectToken(cx);
   if (token.kind !== 'string') {
-    throw new Error(`expected string token '${val}', got ${token.kind} kind at index: ${cx.index}`);
+    throw new ParseError(`expected string token '${val}', got ${token.kind} kind at index: ${cx.index}`);
   }
 
   if (token.value !== val) {
-    throw new Error(`expected string token ${val}, got value '${token.value}' at index: ${cx.index}`);
+    throw new ParseError(`expected string token ${val}, got value '${token.value}' at index: ${cx.index}`);
   }
 }
 
 function expectToken(cx: ParseCx): Token {
   const term = cx.terms.at(cx.index);
   if (term == null) {
-    throw new Error(`unexpected end of parse buffer. expected a token`);
+    throw new ParseError(`unexpected end of parse buffer. expected a token`);
   }
 
   if (term.ty !== 'token') {
-    throw new Error(`expected a token, got ${term.ty}. index: ${cx.index}`);
+    throw new ParseError(`expected a token, got ${term.ty}. index: ${cx.index}`);
   }
 
   cx.index++;
@@ -168,7 +208,7 @@ function parseParen(cx: ParseCx): Expr {
     const str = peekStringToken(cx);
     if (str == ')') {
       cx.index++;
-      return parseExpr({
+      return parseCondition({
         span: cx.span,
         terms,
         index: 0,
@@ -178,7 +218,7 @@ function parseParen(cx: ParseCx): Expr {
     terms.push(cx.terms[cx.index]);
   }
 
-  throw new Error(`unclosed paren at: ${cx.index}`);
+  throw new ParseError(`unclosed paren at: ${cx.index}`);
 }
 
 function parseNot(cx: ParseCx): Unary {
@@ -187,7 +227,7 @@ function parseNot(cx: ParseCx): Unary {
     kind: 'unary',
     span: cx.span,
     op: '!',
-    expr: parseExpr(cx),
+    expr: parseCondition(cx),
   };
 }
 
@@ -205,7 +245,7 @@ function parseTerm(cx: ParseCx): Expr {
   const term = cx.terms.at(cx.index);
 
   if (!term) {
-    throw new Error('unexpected end of a parse buffer');
+    throw new ParseError('unexpected end of a parse buffer');
   }
 
   if (term.ty === 'expr') {
@@ -221,5 +261,5 @@ function parseTerm(cx: ParseCx): Expr {
   }
 
   const token = term.value;
-  throw new Error(`expected an expression, found ${term.ty} ${token.value}. index: ${cx.index}`);
+  throw new ParseError(`expected an expression, found ${term.ty} ${token.value}. index: ${cx.index}`);
 }

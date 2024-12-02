@@ -1,7 +1,7 @@
 /**
  * possible variable types
  */
-export type VarType = 'number' | 'empty';
+export type VarType = 'number' | 'string' | 'empty';
 
 export type Primitive = number | string | Record<string, unknown> | null | Primitive[];
 
@@ -10,5 +10,6 @@ export type Primitive = number | string | Record<string, unknown> | null | Primi
  */
 export const DEFAULT_CONST: Record<VarType, Primitive> = {
   'number': 0,
+  'string': '',
   'empty': null,
 }

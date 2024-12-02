@@ -3,13 +3,28 @@ import { parseExpr, Term } from './expr/parse.js';
 import { lex } from './expr/lex.js';
 import { Expr, Call } from '@/ast.js';
 import { callSite } from '@/span.js';
+import { Diagnostic } from '@/diagnostic.js';
+
+export class ExprError {
+  constructor(
+    public readonly diagnostics: Diagnostic[],
+  ) { }
+}
 
 export function mcsExpr(
   arr: TemplateStringsArray,
   ...args: Expr[]
 ): Expr {
+  const diagnostics: Diagnostic[] = [];
   const terms: Term[] = [];
-  for (const value of lex(arr[0])) {
+  const span = callSite(1);
+
+  const lexResult = lex(arr[0], span);
+  if (lexResult.diagnostics.length > 0) {
+    diagnostics.push(...lexResult.diagnostics);
+  }
+
+  for (const value of lexResult.tokens) {
     terms.push({ ty: 'token', value });
   }
 
@@ -22,17 +37,27 @@ export function mcsExpr(
       });
 
       const str = arr[i + 1];
-      for (const value of lex(str)) {
+      const lexResult = lex(str, span);
+      if (lexResult.diagnostics.length > 0) {
+        diagnostics.push(...lexResult.diagnostics);
+      }
+
+      for (const value of lexResult.tokens) {
         terms.push({ ty: 'token', value });
       }
     }
   }
 
-  return parseExpr({
-    span: callSite(1),
-    terms,
-    index: 0,
-  });
+  if (diagnostics.length > 0) {
+    throw new ExprError(diagnostics);
+  }
+
+  const res = parseExpr(terms, span);
+  if (res.result === 'failed') {
+    throw new ExprError([res.diagnostic]);
+  } else {
+    return res.expr;
+  }
 }
 
 export function mcsCall<const Sig extends FnSig>(
