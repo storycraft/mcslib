@@ -37,6 +37,7 @@ class Checker implements RvalueVisitor {
       if (ins.ins !== 'assign') {
         continue;
       }
+
       const index = ins.index.index;
       acceptRvalue(ins.rvalue, this);
 
@@ -45,9 +46,14 @@ class Checker implements RvalueVisitor {
       }
     }
 
+    const end = node.end;
+    if (end.ins === 'switch_int') {
+      acceptRvalue(end.ref, this);
+    }
+
     const children = childrenNodes(node);
     const length = children.length;
-    if (length > 1) {
+    if (length > 0) {
       this.check(children[0]);
 
       for (let i = 1; i < length; i++) {
