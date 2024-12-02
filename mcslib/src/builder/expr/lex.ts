@@ -47,7 +47,7 @@ export function lex(str: string, span: Span): Result {
 
     diagnostics.push({
       level: 'error',
-      message: `invalid syntax at: ${i} buffer: '${str.slice(i)}'`,
+      message: `invalid syntax at: ${i}`,
       span,
     });
 
