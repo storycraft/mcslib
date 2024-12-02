@@ -50,10 +50,7 @@ export function lex(str: string, span: Span): Result {
       message: `invalid syntax at: ${i}`,
       span,
     });
-
-    while (i < length && str[i] !== ' ') {
-      i++;
-    }
+    i++;
   }
 
   return {
