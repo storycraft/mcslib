@@ -1,6 +1,6 @@
 import { Span } from './span.js';
 
-export type Level = 'warn' | 'error';
+export type Level = 'info' | 'warn' | 'error';
 
 export type Diagnostic = {
   level: Level,
