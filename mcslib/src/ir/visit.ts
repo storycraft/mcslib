@@ -30,6 +30,15 @@ export function acceptRvalue(rvalue: Rvalue, v: RvalueVisitor) {
       break;
     }
 
+    case 'call': {
+      if (!v.visitCall?.(rvalue)) {
+        for (const arg of rvalue.args) {
+          acceptRvalue(arg, v);
+        }
+      }
+      break;
+    }
+
     case 'const': {
       v.visitConst?.(rvalue);
       break;
