@@ -20,10 +20,10 @@ export type Span = {
 }
 
 /**
- * Create a new span of the call site
+ * Create a new span of the best effort call site
  */
 export function callSite(offset = 0): Span {
-  const pos = new StackTracey().items[1 + offset];
+  const pos = new StackTracey(undefined, 2 + offset).items[0];
   return {
     location: pos.fileRelative,
     line: pos.line,
