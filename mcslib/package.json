@@ -21,7 +21,10 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "typescript": "catalog:",
-    "tsc-alias": "^1.8.10"
+    "tsc-alias": "^1.8.10",
+    "typescript": "catalog:"
+  },
+  "dependencies": {
+    "stacktracey": "^2.1.8"
   }
 }
