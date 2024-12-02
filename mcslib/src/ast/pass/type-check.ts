@@ -1,6 +1,6 @@
 import { Assign, Binary, Call, Expr, Id, If, Local, Return, Stmt, Unary } from '@/ast.js';
 import { acceptExpr, acceptStmt, ExprVisitor, StmtVisitor } from '@/ast/visit.js';
-import { Diagnostics } from '@/diagnostics.js';
+import { diagnostics, Diagnostics } from '@/diagnostics.js';
 import { Fn } from '@/fn.js';
 import { VarType } from '@/types.js';
 
@@ -49,19 +49,23 @@ class StmtChecker implements StmtVisitor {
     if (stmt.expr) {
       const ty = new ExprChecker(this.cx).check(stmt.expr);
       if (ty !== this.cx.f.sig.returns) {
-        this.cx.messages.push({
-          err: Error(
-            `invalid return value expected: ${this.cx.f.sig.returns} got: ${ty}`
-          ),
-        });
+        this.cx.messages.push(
+          diagnostics(
+            'error',
+            `invalid return value expected: ${this.cx.f.sig.returns} got: ${ty}`,
+            stmt.span
+          )
+        );
       }
     } else {
       if (this.cx.f.sig.returns !== 'empty') {
-        this.cx.messages.push({
-          err: Error(
-            `cannot return without an expression on ${this.cx.f.sig.returns} return type`
-          ),
-        });
+        this.cx.messages.push(
+          diagnostics(
+            'error',
+            `cannot return without an expression on ${this.cx.f.sig.returns} return type`,
+            stmt.span
+          )
+        );
       }
     }
 
@@ -75,9 +79,13 @@ class StmtChecker implements StmtVisitor {
     const exprTy = checker.check(stmt.expr);
 
     if (ty !== exprTy) {
-      this.cx.messages.push({
-        err: Error(`'${exprTy}' cannot be assigned to '${ty}'`)
-      });
+      this.cx.messages.push(
+        diagnostics(
+          'error',
+          `'${exprTy}' cannot be assigned to '${ty}'`,
+          stmt.span,
+        )
+      );
     }
 
     return true;
@@ -85,9 +93,13 @@ class StmtChecker implements StmtVisitor {
 
   visitIf(stmt: If): boolean {
     if (new ExprChecker(this.cx).check(stmt.condition) !== 'number') {
-      this.cx.messages.push({
-        err: Error(`condition must be 'number' type`)
-      });
+      this.cx.messages.push(
+        diagnostics(
+          'error',
+          `condition must be 'number' type`,
+          stmt.span,
+        )
+      );
     }
 
     return true;
@@ -110,9 +122,13 @@ class ExprChecker implements ExprVisitor {
     const leftTy = this.check(expr.left);
 
     if (leftTy !== 'number' || rightTy !== 'number') {
-      this.cx.messages.push({
-        err: Error(`cannot apply binary operator '${expr.op}' on type left: ${leftTy} right: ${rightTy}`),
-      });
+      this.cx.messages.push(
+        diagnostics(
+          'error',
+          `cannot apply binary operator '${expr.op}' on type left: ${leftTy} right: ${rightTy}`,
+          expr.span,
+        )
+      );
     }
     return true;
   }
@@ -120,9 +136,13 @@ class ExprChecker implements ExprVisitor {
   visitUnary(expr: Unary): boolean {
     const ty = this.check(expr.expr);
     if (ty !== 'number') {
-      this.cx.messages.push({
-        err: Error(`cannot apply unary operator '${expr.op}' on type: ${ty}`),
-      });
+      this.cx.messages.push(
+        diagnostics(
+          'error',
+          `cannot apply unary operator '${expr.op}' on type: ${ty}`,
+          expr.span,
+        )
+      );
     }
 
     return true;
@@ -130,9 +150,13 @@ class ExprChecker implements ExprVisitor {
 
   visitCall(expr: Call): boolean {
     if (expr.fn.sig.args.length !== expr.args.length) {
-      this.cx.messages.push({
-        err: Error(`required ${expr.fn.sig.args.length} arguments but ${expr.args.length} are supplied`),
-      });
+      this.cx.messages.push(
+        diagnostics(
+          'error',
+          `required ${expr.fn.sig.args.length} arguments but ${expr.args.length} are supplied`,
+          expr.span,
+        )
+      );
     }
 
     const length = expr.args.length;
@@ -141,9 +165,13 @@ class ExprChecker implements ExprVisitor {
       const ty = this.check(expr.args[i]);
 
       if (ty != argTy) {
-        this.cx.messages.push({
-          err: Error(`expected type ${argTy} got ${ty} at argument pos: ${i}`),
-        });
+        this.cx.messages.push(
+          diagnostics(
+            'error',
+            `expected type ${argTy} got ${ty} at argument pos: ${i}`,
+            expr.span,
+          )
+        );
       }
     }
 
@@ -159,9 +187,13 @@ class ExprChecker implements ExprVisitor {
   visitId(id: Id): boolean {
     const ty = this.cx.vars.get(id.id);
     if (ty == null) {
-      this.cx.messages.push({
-        err: Error(`unknown variable id: ${id.id}`),
-      });
+      this.cx.messages.push(
+        diagnostics(
+          'error',
+          `unknown variable id: ${id.id}`,
+          id.span,
+        )
+      );
     } else {
       this.ty = ty;
     }

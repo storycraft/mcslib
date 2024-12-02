@@ -1,4 +1,5 @@
 import { FnSig, McsFunction } from './fn.js';
+import { Span } from './span.js';
 import { VarType } from './types.js'
 
 /**
@@ -6,6 +7,7 @@ import { VarType } from './types.js'
  */
 type AstKind<T extends string> = {
   kind: T,
+  span: Span,
 }
 
 export type Stmt = Block | Local | Assign | If | Loop | Continue | Break | Return | ExprStmt | Execute;

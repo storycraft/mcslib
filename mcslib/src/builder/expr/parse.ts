@@ -1,5 +1,6 @@
 import { Expr, Unary } from '@/ast.js';
 import { Token } from './lex.js';
+import { Span } from '@/span.js';
 
 type Variant<T, V> = {
   ty: T,
@@ -9,6 +10,7 @@ type Variant<T, V> = {
 export type Term = Variant<'expr', Expr> | Variant<'token', Token>;
 
 export type ParseCx = {
+  span: Span,
   terms: Term[],
   index: number,
 }
@@ -76,6 +78,7 @@ function parseCondition(cx: ParseCx): Expr {
 
   return {
     kind: 'binary',
+    span: cx.span,
     left,
     op,
     right: parseCondition(cx),
@@ -97,6 +100,7 @@ function parseEquation(cx: ParseCx): Expr {
     cx.index++;
     return {
       kind: 'binary',
+      span: cx.span,
       left,
       op,
       right: parseEquation(cx),
@@ -117,6 +121,7 @@ function parsePolynomial(cx: ParseCx): Expr {
 
   return {
     kind: 'binary',
+    span: cx.span,
     left,
     op,
     right: parsePolynomial(cx),
@@ -134,6 +139,7 @@ function parseMonomial(cx: ParseCx): Expr {
 
   return {
     kind: 'binary',
+    span: cx.span,
     left,
     op,
     right: parseMonomial(cx),
@@ -163,6 +169,7 @@ function parseParen(cx: ParseCx): Expr {
     if (str == ')') {
       cx.index++;
       return parseExpr({
+        span: cx.span,
         terms,
         index: 0,
       });
@@ -178,6 +185,7 @@ function parseNot(cx: ParseCx): Unary {
   expectStringTokenVal(cx, '!');
   return {
     kind: 'unary',
+    span: cx.span,
     op: '!',
     expr: parseExpr(cx),
   };
@@ -187,6 +195,7 @@ function parseNeg(cx: ParseCx): Unary {
   expectStringTokenVal(cx, '-');
   return {
     kind: 'unary',
+    span: cx.span,
     op: '-',
     expr: parseFactor(cx),
   };
@@ -206,6 +215,7 @@ function parseTerm(cx: ParseCx): Expr {
     cx.index++;
     return {
       kind: 'literal',
+      span: cx.span,
       value: term.value.value,
     };
   }

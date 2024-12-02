@@ -1,5 +1,6 @@
 import { Stmt } from './ast.js';
 import { Fn, FnSig, McsBuildFn, McsFunction } from './fn.js';
+import { callSite } from './span.js';
 import { create, Store } from './store.js';
 import { VarType } from './types.js';
 
@@ -38,6 +39,7 @@ export function defineMcsFunction(
   returns: VarType = 'empty',
 ): McsFunction {
   return {
+    span: callSite(),
     sig: {
       args,
       returns,
@@ -47,13 +49,16 @@ export function defineMcsFunction(
 }
 
 export function build<const Sig extends FnSig>(fn: McsFunction<Sig>): Fn<Sig> {
+  const span = callSite();
   const item: Fn<Sig> = {
+    span,
     args: fn.sig.args.map((_, id) => {
-      return { kind: 'id', id } as const;
+      return { kind: 'id', span, id } as const;
     }),
     sig: fn.sig,
     block: {
       kind: 'block',
+      span,
       stmts: [],
     },
   };

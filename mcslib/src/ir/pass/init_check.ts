@@ -1,4 +1,4 @@
-import { Diagnostics } from '@/diagnostics.js';
+import { diagnostics, Diagnostics } from '@/diagnostics.js';
 import { Index, IrFunction } from '@/ir.js';
 import { acceptRvalue, RvalueVisitor } from '../visit.js';
 import { childrenNodes, Node } from '../node.js';
@@ -61,9 +61,13 @@ class Checker implements RvalueVisitor {
 
   visitIndex(rvalue: Index): boolean {
     if (rvalue.origin === 'local' && !this.statuses[rvalue.index]) {
-      this.cx.messages.push({
-        err: Error(`use of uninitialized variable index: ${rvalue.index}`),
-      });
+      this.cx.messages.push(
+        diagnostics(
+          'error',
+          `use of uninitialized variable index: ${rvalue.index}`,
+          rvalue.span,
+        )
+      );
     }
 
     return true;

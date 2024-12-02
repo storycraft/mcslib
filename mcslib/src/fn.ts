@@ -1,7 +1,9 @@
 import { Id, Block } from '@/ast.js';
 import { VarType } from './types.js';
+import { Span } from './span.js';
 
 export type Fn<Sig extends FnSig = FnSig> = {
+  span: Span,
   args: Id[],
   sig: Sig,
   block: Block,
@@ -19,6 +21,7 @@ export type FnSig<
  * Unique identifier for a function
  */
 export type McsFunction<Sig extends FnSig = FnSig> = {
+  span: Span,
   sig: Sig,
   buildFn: McsBuildFn<Sig>,
 };

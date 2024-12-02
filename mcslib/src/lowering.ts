@@ -4,6 +4,7 @@ import { emptyNode, Node } from './ir/node.js';
 import { lowStmt } from './lowering/stmt.js';
 import { Expr, Id, Label } from './ast.js';
 import { lowExpr } from './lowering/expr.js';
+import { Span } from './span.js';
 
 /**
  * create intermediate representation of a function
@@ -12,7 +13,16 @@ import { lowExpr } from './lowering/expr.js';
  */
 export function low(f: Fn): IrFunction {
   const [env, ir] = initIr(f);
-  finish(env, lowStmt(env, ir.node, f.block));
+  const last = lowStmt(env, ir.node, f.block);
+
+  if (last.end.ins === 'unreachable' && env.sig.returns === 'empty') {
+    last.end = {
+      ins: 'ret',
+      span: f.block.span,
+      ref: newConst(null, f.block.span),
+    };
+  }
+
   ir.locals = env.nextLocalId;
   return ir;
 }
@@ -29,10 +39,12 @@ function initIr(f: Fn): [Env, IrFunction] {
 
   const length = f.args.length;
   for (let i = 0; i < length; i++) {
+    const arg = f.args[i];
     env.varResolver.register(
-      f.args[i],
+      arg,
       {
         kind: 'index',
+        span: arg.span,
         origin: 'argument',
         index: i,
       }
@@ -47,19 +59,6 @@ function initIr(f: Fn): [Env, IrFunction] {
   }];
 }
 
-function finish(env: Env, last: Node) {
-  if (last.end.ins !== 'unreachable') {
-    return;
-  }
-
-  if (env.sig.returns === 'empty') {
-    last.end = {
-      ins: 'ret',
-      ref: newConst(null),
-    };
-  }
-}
-
 export type Env = {
   sig: FnSig,
   varResolver: VarResolver,
@@ -70,9 +69,10 @@ export type Env = {
 
 export function refToIndex(env: Env, node: Node, ref: Ref): Index {
   if (ref.kind === 'const') {
-    const index = newStorage(env);
+    const index = newStorage(env, ref.span);
     node.ins.push({
       ins: 'assign',
+      span: ref.span,
       index,
       rvalue: ref,
     });
@@ -82,10 +82,11 @@ export function refToIndex(env: Env, node: Node, ref: Ref): Index {
   }
 }
 
-export function newStorage(env: Env): Index {
+export function newStorage(env: Env, span: Span): Index {
   const index = env.nextLocalId++;
   return {
     kind: 'index',
+    span,
     origin: 'local',
     index,
   };
@@ -138,6 +139,7 @@ export class LoopStack {
 
   enter(
     node: Node,
+    span: Span,
     f: (loop: Loop) => Node,
     label?: Label
   ): Node {
@@ -148,6 +150,7 @@ export class LoopStack {
       loopStart = emptyNode();
       node.end = {
         ins: 'jmp',
+        span,
         next: loopStart,
       };
     }
@@ -168,6 +171,7 @@ export class LoopStack {
     try {
       f(loop).end = {
         ins: 'jmp',
+        span,
         next: loopStart,
       };
       return loop.nextNode;

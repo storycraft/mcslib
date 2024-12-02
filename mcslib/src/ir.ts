@@ -1,6 +1,7 @@
 import { FnSig, McsFunction } from '@/fn.js';
 import { Node } from './ir/node.js';
 import { Primitive } from './types.js';
+import { Span } from './span.js';
 
 export type IrFunction = {
   sig: FnSig,
@@ -11,6 +12,7 @@ export type IrFunction = {
 
 export type InsTy<T extends string> = {
   ins: T,
+  span: Span,
 }
 
 export type Ins = Execute | Assign;
@@ -34,6 +36,7 @@ export type Rvalue = Ref | Call | Binary | Unary;
 
 type RvalueKind<T extends string> = {
   kind: T,
+  span: Span,
 }
 
 export type Binary = RvalueKind<'binary'> & {
@@ -58,9 +61,10 @@ export type Const = RvalueKind<'const'> & {
   value: Primitive,
 };
 
-export function newConst(value: Primitive): Const {
+export function newConst(value: Primitive, span: Span): Const {
   return {
     kind: 'const',
+    span,
     value,
   };
 }

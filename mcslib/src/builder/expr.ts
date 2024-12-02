@@ -2,6 +2,7 @@ import { FnSig, McsFunction } from '@/fn.js';
 import { parseExpr, Term } from './expr/parse.js';
 import { lex } from './expr/lex.js';
 import { Expr, Call } from '@/ast.js';
+import { callSite } from '@/span.js';
 
 export function mcsExpr(
   arr: TemplateStringsArray,
@@ -28,6 +29,7 @@ export function mcsExpr(
   }
 
   return parseExpr({
+    span: callSite(),
     terms,
     index: 0,
   });
@@ -39,6 +41,7 @@ export function mcsCall<const Sig extends FnSig>(
 ): Call<Sig> {
   return {
     kind: 'call',
+    span: callSite(),
     fn,
     args,
   }

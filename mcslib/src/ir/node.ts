@@ -1,3 +1,4 @@
+import { unknownSpan } from '@/span.js';
 import { Ins } from '../ir.js';
 import { EndIns } from './end.js';
 
@@ -10,7 +11,7 @@ export type Node = {
  * create a new empty node with an end or unreachable end
  */
 export function emptyNode(
-  end: EndIns = { ins: 'unreachable' },
+  end: EndIns = { ins: 'unreachable', span: unknownSpan(), },
 ): Node {
   return {
     ins: [],
@@ -22,7 +23,7 @@ export function emptyNode(
  * Traverse every nodes in a graph once from the top
  * @param start node to start traverse
  */
-export function *traverseNode(
+export function* traverseNode(
   start: Node
 ): Generator<Node, void, void> {
   const set = new Set<Node>();

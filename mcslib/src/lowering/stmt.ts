@@ -22,7 +22,7 @@ class StmtLowVisitor implements StmtVisitor {
   visitLocal(stmt: Local): boolean {
     this.env.varResolver.register(
       stmt.id,
-      newStorage(this.env)
+      newStorage(this.env, stmt.span)
     );
 
     return true;
@@ -33,12 +33,14 @@ class StmtLowVisitor implements StmtVisitor {
       const ref = lowExpr(this.env, this.node, stmt.expr);
       this.node.end = {
         ins: 'ret',
+        span: stmt.span,
         ref,
       };
     } else {
       this.node.end = {
         ins: 'ret',
-        ref: newConst(DEFAULT_CONST.empty),
+        span: stmt.span,
+        ref: newConst(DEFAULT_CONST.empty, stmt.span),
       };
     }
 
@@ -52,6 +54,7 @@ class StmtLowVisitor implements StmtVisitor {
 
     this.node.ins.push({
       ins: 'assign',
+      span: stmt.span,
       index,
       rvalue: expr,
     });
@@ -62,14 +65,16 @@ class StmtLowVisitor implements StmtVisitor {
   visitIf(stmt: If): boolean {
     const next = emptyNode();
 
-    const ifNode = emptyNode({ ins: 'jmp', next });
+    const ifNode = emptyNode({ ins: 'jmp', span: stmt.span, next });
     lowStmt(this.env, ifNode, stmt.block).end = {
-      'ins': 'jmp',
+      ins: 'jmp',
+      span: stmt.span,
       next,
     };
 
     const switchIns: SwitchInt = {
       ins: 'switch_int',
+      span: stmt.span,
       ref: lowExpr(this.env, this.node, stmt.condition),
       table: [next],
       default: ifNode,
@@ -77,10 +82,11 @@ class StmtLowVisitor implements StmtVisitor {
     this.node.end = switchIns;
 
     if (stmt.else) {
-      const elseNode = emptyNode({ ins: 'jmp', next });
+      const elseNode = emptyNode({ ins: 'jmp', span: stmt.span, next });
       switchIns.table[0] = elseNode;
       lowStmt(this.env, elseNode, stmt.else).end = {
-        'ins': 'jmp',
+        ins: 'jmp',
+        span: stmt.span,
         next,
       };
     }
@@ -92,6 +98,7 @@ class StmtLowVisitor implements StmtVisitor {
   visitLoop(stmt: Loop): boolean {
     this.node = this.env.loop.enter(
       this.node,
+      stmt.span,
       (loop) => {
         return lowStmt(this.env, loop.loopStart, stmt.block);
       },
@@ -105,6 +112,7 @@ class StmtLowVisitor implements StmtVisitor {
     const loop = this.env.loop.get(stmt.label);
     this.node.end = {
       ins: 'jmp',
+      span: stmt.span,
       next: loop.nextNode,
     };
 
@@ -116,6 +124,7 @@ class StmtLowVisitor implements StmtVisitor {
     const loop = this.env.loop.get(stmt.label);
     this.node.end = {
       ins: 'jmp',
+      span: stmt.span,
       next: loop.loopStart,
     };
 
@@ -126,6 +135,7 @@ class StmtLowVisitor implements StmtVisitor {
   visitExecute(stmt: Execute): boolean {
     this.node.ins.push({
       ins: 'execute',
+      span: stmt.span,
       template: parseTemplate(this.env, this.node, stmt.template),
     });
 

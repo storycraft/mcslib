@@ -8,6 +8,7 @@ import { VarType } from './types.js';
 import { low } from './lowering.js';
 import { checkType } from './ast/pass/type-check.js';
 import { checkInit } from './ir/pass/init_check.js';
+import { Diagnostics } from './diagnostics.js';
 
 export type Export<Args extends VarType[]> = {
   name: string,
@@ -15,8 +16,13 @@ export type Export<Args extends VarType[]> = {
   args: [...{ [T in keyof Args]: string }],
 }
 
+export type CompileResult = {
+  fullName: string,
+  diagnostics: Diagnostics[],
+}
+
 export class Compiler {
-  private exportMap = new Set<string>();
+  private exportSet = new Set<string>();
   private compileMap = new Map<McsFunction, string>();
 
   constructor(
@@ -31,14 +37,14 @@ export class Compiler {
       fn,
       args,
     }: Export<Args>
-  ) {
+  ): Promise<CompileResult> {
     const fullName = `${this.dir.namespace}:${name}`;
-    if (this.exportMap.has(fullName)) {
+    if (this.exportSet.has(fullName)) {
       throw new Error(`Function named '${name}' already exists`);
     }
-    this.exportMap.add(fullName);
+    this.exportSet.add(fullName);
 
-    const inner = await this.compile(fn);
+    const { fullName: inner, diagnostics } = await this.compile(fn);
     const writer = await FunctionWriter.create(this.dir, name);
     try {
       if (fn.sig.args.length > 0) {
@@ -63,14 +69,19 @@ export class Compiler {
     } finally {
       await writer.close();
     }
+
+    return {
+      fullName,
+      diagnostics,
+    };
   }
 
   async compile<
     const Sig extends FnSig
-  >(f: McsFunction<Sig>): Promise<string> {
+  >(f: McsFunction<Sig>): Promise<CompileResult> {
     const cached = this.compileMap.get(f);
     if (cached != null) {
-      return cached;
+      return { fullName: cached, diagnostics: [] };
     }
     const id = mangle(f.sig, `fn${this.compileMap.size}`);
     const fullName = `${this.dir.namespace}:${id}`;
@@ -83,10 +94,10 @@ export class Compiler {
     {
       const diagnostics = checkType(tree);
       if (diagnostics.length > 0) {
-        throw AggregateError(
-          diagnostics.map(obj => obj.err),
-          'failed type checking'
-        );
+        return {
+          fullName: fullName,
+          diagnostics,
+        };
       }
     }
 
@@ -97,18 +108,29 @@ export class Compiler {
     {
       const diagnostics = checkInit(ir);
       if (diagnostics.length > 0) {
-        throw AggregateError(
-          diagnostics.map(obj => obj.err),
-          'failed initialization checking'
-        );
+        return {
+          fullName,
+          diagnostics,
+        }
       }
     }
 
-    const tasks: Promise<unknown>[] = [];
+    const tasks: Promise<CompileResult>[] = [];
     for (const depFn of ir.dependencies) {
       tasks.push(this.compile(depFn));
     }
-    await Promise.all(tasks);
+    {
+      const diagnostics: Diagnostics[] = [];
+      for (const result of await Promise.all(tasks)) {
+        diagnostics.push(...result.diagnostics);
+      }
+      if (diagnostics.length > 0) {
+        return {
+          fullName,
+          diagnostics,
+        };
+      }
+    }
 
     const writer = await FunctionWriter.create(this.dir, id);
     try {
@@ -121,6 +143,9 @@ export class Compiler {
       await writer.close();
     }
 
-    return fullName;
+    return {
+      fullName,
+      diagnostics: [],
+    };
   }
 }
