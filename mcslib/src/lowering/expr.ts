@@ -1,5 +1,5 @@
-import { Env, newStorage } from '../lowering.js';
-import { Binary, Call, Expr, Id, Literal, Unary } from '@/ast.js';
+import { Env, newStorage, parseTemplate } from '../lowering.js';
+import { Binary, Call, Data, Expr, Id, Literal, Output, Unary } from '@/ast.js';
 import { acceptExpr, ExprVisitor } from '@/ast/visit.js';
 import { Index, Ref } from '@/ir.js';
 import { Node } from '@/ir/node.js';
@@ -19,9 +19,7 @@ class ExprLowVisitor implements ExprVisitor {
   constructor(
     private readonly env: Env,
     private readonly node: Node,
-  ) {
-    
-  }
+  ) { }
 
   low(expr: Expr): Ref {
     acceptExpr(expr, this);
@@ -93,6 +91,38 @@ class ExprLowVisitor implements ExprVisitor {
     });
     this.env.dependencies.add(expr.fn);
 
+    this.ref = index;
+    return true;
+  }
+
+  visitOutput(expr: Output): boolean {
+    const index = newStorage(this.env, expr.span);
+    this.node.ins.push({
+      ins: 'assign',
+      span: expr.span,
+      index,
+      rvalue: {
+        kind: 'output',
+        span: expr.span,
+        template: parseTemplate(this.env, this.node, expr.template)
+      },
+    });
+    this.ref = index;
+    return true;
+  }
+
+  visitData(expr: Data): boolean {
+    const index = newStorage(this.env, expr.span);
+    this.node.ins.push({
+      ins: 'assign',
+      span: expr.span,
+      index,
+      rvalue: {
+        kind: 'data',
+        span: expr.span,
+        rest: parseTemplate(this.env, this.node, expr.rest)
+      },
+    });
     this.ref = index;
     return true;
   }
