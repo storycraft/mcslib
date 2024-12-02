@@ -1,10 +1,10 @@
-import { diagnostics, Diagnostics } from '@/diagnostics.js';
+import { diagnostic, Diagnostic } from '@/diagnostic.js';
 import { Index, IrFunction } from '@/ir.js';
 import { acceptRvalue, RvalueVisitor } from '../visit.js';
 import { childrenNodes, Node } from '../node.js';
 
-export function checkInit(ir: IrFunction): Diagnostics[] {
-  const messages: Diagnostics[] = [];
+export function checkInit(ir: IrFunction): Diagnostic[] {
+  const messages: Diagnostic[] = [];
   new Checker(
     {
       messages,
@@ -17,7 +17,7 @@ export function checkInit(ir: IrFunction): Diagnostics[] {
 }
 
 type Cx = {
-  messages: Diagnostics[],
+  messages: Diagnostic[],
   completeSet: Set<Node>,
 }
 
@@ -62,7 +62,7 @@ class Checker implements RvalueVisitor {
   visitIndex(rvalue: Index): boolean {
     if (rvalue.origin === 'local' && !this.statuses[rvalue.index]) {
       this.cx.messages.push(
-        diagnostics(
+        diagnostic(
           'error',
           `use of uninitialized variable index: ${rvalue.index}`,
           rvalue.span,

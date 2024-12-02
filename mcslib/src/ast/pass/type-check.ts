@@ -1,6 +1,6 @@
 import { Assign, Binary, Call, Expr, Id, If, Local, Return, Stmt, Unary } from '@/ast.js';
 import { acceptExpr, acceptStmt, ExprVisitor, StmtVisitor } from '@/ast/visit.js';
-import { diagnostics, Diagnostics } from '@/diagnostics.js';
+import { diagnostic, Diagnostic } from '@/diagnostic.js';
 import { Fn } from '@/fn.js';
 import { VarType } from '@/types.js';
 
@@ -9,7 +9,7 @@ import { VarType } from '@/types.js';
  * @param f Function to check
  * @returns Type diagnostics
  */
-export function checkType(f: Fn): Diagnostics[] {
+export function checkType(f: Fn): Diagnostic[] {
   const cx: Cx = {
     f,
     messages: [],
@@ -27,7 +27,7 @@ export function checkType(f: Fn): Diagnostics[] {
 
 type Cx = {
   f: Fn,
-  messages: Diagnostics[],
+  messages: Diagnostic[],
   vars: Map<number, VarType>,
 }
 
@@ -50,7 +50,7 @@ class StmtChecker implements StmtVisitor {
       const ty = new ExprChecker(this.cx).check(stmt.expr);
       if (ty !== this.cx.f.sig.returns) {
         this.cx.messages.push(
-          diagnostics(
+          diagnostic(
             'error',
             `invalid return value expected: ${this.cx.f.sig.returns} got: ${ty}`,
             stmt.span
@@ -60,7 +60,7 @@ class StmtChecker implements StmtVisitor {
     } else {
       if (this.cx.f.sig.returns !== 'empty') {
         this.cx.messages.push(
-          diagnostics(
+          diagnostic(
             'error',
             `cannot return without an expression on ${this.cx.f.sig.returns} return type`,
             stmt.span
@@ -80,7 +80,7 @@ class StmtChecker implements StmtVisitor {
 
     if (ty !== exprTy) {
       this.cx.messages.push(
-        diagnostics(
+        diagnostic(
           'error',
           `'${exprTy}' cannot be assigned to '${ty}'`,
           stmt.span,
@@ -94,7 +94,7 @@ class StmtChecker implements StmtVisitor {
   visitIf(stmt: If): boolean {
     if (new ExprChecker(this.cx).check(stmt.condition) !== 'number') {
       this.cx.messages.push(
-        diagnostics(
+        diagnostic(
           'error',
           `condition must be 'number' type`,
           stmt.span,
@@ -123,7 +123,7 @@ class ExprChecker implements ExprVisitor {
 
     if (leftTy !== 'number' || rightTy !== 'number') {
       this.cx.messages.push(
-        diagnostics(
+        diagnostic(
           'error',
           `cannot apply binary operator '${expr.op}' on type left: ${leftTy} right: ${rightTy}`,
           expr.span,
@@ -137,7 +137,7 @@ class ExprChecker implements ExprVisitor {
     const ty = this.check(expr.expr);
     if (ty !== 'number') {
       this.cx.messages.push(
-        diagnostics(
+        diagnostic(
           'error',
           `cannot apply unary operator '${expr.op}' on type: ${ty}`,
           expr.span,
@@ -151,7 +151,7 @@ class ExprChecker implements ExprVisitor {
   visitCall(expr: Call): boolean {
     if (expr.fn.sig.args.length !== expr.args.length) {
       this.cx.messages.push(
-        diagnostics(
+        diagnostic(
           'error',
           `required ${expr.fn.sig.args.length} arguments but ${expr.args.length} are supplied`,
           expr.span,
@@ -166,7 +166,7 @@ class ExprChecker implements ExprVisitor {
 
       if (ty != argTy) {
         this.cx.messages.push(
-          diagnostics(
+          diagnostic(
             'error',
             `expected type ${argTy} got ${ty} at argument pos: ${i}`,
             expr.span,
@@ -188,7 +188,7 @@ class ExprChecker implements ExprVisitor {
     const ty = this.cx.vars.get(id.id);
     if (ty == null) {
       this.cx.messages.push(
-        diagnostics(
+        diagnostic(
           'error',
           `unknown variable id: ${id.id}`,
           id.span,

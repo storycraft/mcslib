@@ -2,13 +2,13 @@ import { Span } from './span.js';
 
 export type Level = 'warn' | 'error';
 
-export type Diagnostics = {
+export type Diagnostic = {
   level: Level,
   message: string,
   span: Span,
 }
 
-export function diagnostics(level: Level, message: string, span: Span): Diagnostics {
+export function diagnostic(level: Level, message: string, span: Span): Diagnostic {
   return {
     level,
     message,

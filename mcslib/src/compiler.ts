@@ -8,7 +8,7 @@ import { VarType } from './types.js';
 import { low } from './lowering.js';
 import { checkType } from './ast/pass/type-check.js';
 import { checkInit } from './ir/pass/init_check.js';
-import { Diagnostics } from './diagnostics.js';
+import { Diagnostic } from './diagnostic.js';
 
 export type Export<Args extends VarType[]> = {
   name: string,
@@ -18,7 +18,7 @@ export type Export<Args extends VarType[]> = {
 
 export type CompileResult = {
   fullName: string,
-  diagnostics: Diagnostics[],
+  diagnostics: Diagnostic[],
 }
 
 export class Compiler {
@@ -27,9 +27,7 @@ export class Compiler {
 
   constructor(
     private dir: FunctionDir,
-  ) {
-
-  }
+  ) { }
 
   async export<const Args extends VarType[]>(
     {
@@ -120,7 +118,7 @@ export class Compiler {
       tasks.push(this.compile(depFn));
     }
     {
-      const diagnostics: Diagnostics[] = [];
+      const diagnostics: Diagnostic[] = [];
       for (const result of await Promise.all(tasks)) {
         diagnostics.push(...result.diagnostics);
       }
