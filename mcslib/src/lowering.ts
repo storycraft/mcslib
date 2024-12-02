@@ -1,8 +1,8 @@
 import { Fn, FnSig, McsFunction } from '@/fn.js';
-import { IrFunction, Ref, Index, newConst } from './ir.js';
+import { IrFunction, Index, newConst, ExecuteTemplate } from './ir.js';
 import { emptyNode, Node } from './ir/node.js';
 import { lowStmt } from './lowering/stmt.js';
-import { Expr, Id, Label } from './ast.js';
+import { CommandTemplate, Id, Label } from './ast.js';
 import { lowExpr } from './lowering/expr.js';
 import { Span } from './span.js';
 
@@ -67,21 +67,6 @@ export type Env = {
   nextLocalId: number,
 }
 
-export function refToIndex(env: Env, node: Node, ref: Ref): Index {
-  if (ref.kind === 'const') {
-    const index = newStorage(env, ref.span);
-    node.ins.push({
-      ins: 'assign',
-      span: ref.span,
-      index,
-      rvalue: ref,
-    });
-    return index;
-  } else {
-    return ref;
-  }
-}
-
 export function newStorage(env: Env, span: Span): Index {
   const index = env.nextLocalId++;
   return {
@@ -90,15 +75,6 @@ export function newStorage(env: Env, span: Span): Index {
     origin: 'local',
     index,
   };
-}
-
-export function newStorageInit(
-  env: Env,
-  node: Node,
-  expr: Expr,
-): Index {
-  const ref = lowExpr(env, node, expr);
-  return refToIndex(env, node, ref);
 }
 
 /**
@@ -204,4 +180,27 @@ export class LoopStack {
 
     return node;
   }
+}
+
+export function parseTemplate(
+  env: Env,
+  node: Node,
+  template: CommandTemplate
+): ExecuteTemplate {
+  const parts: ExecuteTemplate = [];
+  for (const part of template) {
+    switch (part.ty) {
+      case 'expr': {
+        parts.push({ ty: 'ref', ref: lowExpr(env, node, part.expr) });
+        break;
+      }
+
+      case 'text': {
+        parts.push(part);
+        break;
+      }
+    }
+  }
+
+  return parts;
 }
