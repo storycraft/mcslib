@@ -23,7 +23,7 @@ export type Assign = InsTy<'assign'> & {
 }
 
 export type Execute = InsTy<'execute'> & {
-  template: ExecuteTemplate
+  templates: ExecuteTemplate[],
 }
 
 export type ExecuteTemplate = ExecutePart[];

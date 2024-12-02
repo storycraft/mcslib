@@ -77,9 +77,11 @@ function place(
         }
 
         case 'execute': {
-          for (const part of ins.template) {
-            if (part.ty === 'ref') {
-              placeInLocal(cx, part.ref);
+          for (const template of ins.templates) {
+            for (const part of template) {
+              if (part.ty === 'ref') {
+                placeInLocal(cx, part.ref);
+              }
             }
           }
           break;

@@ -35,7 +35,7 @@ export type ExprStmt = AstKind<'expr'> & {
 }
 
 export type Execute = AstKind<'execute'> & {
-  template: CommandTemplate,
+  templates: CommandTemplate[],
 }
 
 export type CommandTemplate = CommandPart[];

@@ -136,7 +136,9 @@ class StmtLowVisitor implements StmtVisitor {
     this.node.ins.push({
       ins: 'execute',
       span: stmt.span,
-      template: parseTemplate(this.env, this.node, stmt.template),
+      templates: stmt.templates.map(
+        template => parseTemplate(this.env, this.node, template)
+      ),
     });
 
     return true;

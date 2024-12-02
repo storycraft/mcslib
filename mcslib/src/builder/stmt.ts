@@ -139,10 +139,10 @@ export function mcsStmt(expr: Expr) {
   });
 }
 
-export function mcsExecute(template: CommandTemplate) {
+export function mcsExecute(...templates: CommandTemplate[]) {
   blockScope.get().stmts.push({
     kind: 'execute',
-    template,
+    templates,
     span: callSite(1),
   });
 }
