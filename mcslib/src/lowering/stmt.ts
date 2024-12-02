@@ -1,10 +1,10 @@
-import { Env, newStorage } from '../lowering.js';
+import { Env, newStorage, parseTemplate } from '../lowering.js';
 import { lowExpr } from './expr.js';
 import { acceptStmt, StmtVisitor } from '@/ast/visit.js';
-import { Local, Return, If, Break, Continue, CommandTemplate, Stmt, Assign, Loop, Execute } from '@/ast.js';
+import { Local, Return, If, Break, Continue, Stmt, Assign, Loop, Execute } from '@/ast.js';
 import { emptyNode, Node } from '@/ir/node.js';
 import { SwitchInt } from '@/ir/end.js';
-import { ExecuteTemplate, newConst } from '@/ir.js';
+import { newConst } from '@/ir.js';
 import { DEFAULT_CONST } from '@/types.js';
 
 export function lowStmt(env: Env, node: Node, stmt: Stmt): Node {
@@ -143,27 +143,4 @@ class StmtLowVisitor implements StmtVisitor {
 
     return true;
   }
-}
-
-function parseTemplate(
-  env: Env,
-  node: Node,
-  template: CommandTemplate
-): ExecuteTemplate {
-  const parts: ExecuteTemplate = [];
-  for (const part of template) {
-    switch (part.ty) {
-      case 'expr': {
-        parts.push({ ty: 'ref', ref: lowExpr(env, node, part.expr) });
-        break;
-      }
-
-      case 'text': {
-        parts.push(part);
-        break;
-      }
-    }
-  }
-
-  return parts;
 }
