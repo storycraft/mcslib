@@ -1,4 +1,4 @@
-import { Binary, Call, Const, Index, Rvalue, Unary } from '@/ir.js';
+import { Binary, Call, Const, Data, Index, Output, Rvalue, Unary } from '@/ir.js';
 
 /**
  * Visitor interface for Rvalue.
@@ -11,6 +11,8 @@ export interface RvalueVisitor {
   visitCall?(rvalue: Call): boolean;
   visitConst?(rvalue: Const): boolean;
   visitIndex?(rvalue: Index): boolean;
+  visitOutput?(rvalue: Output): boolean;
+  visitData?(rvalue: Data): boolean;
 }
 
 export function acceptRvalue(rvalue: Rvalue, v: RvalueVisitor) {
@@ -46,6 +48,16 @@ export function acceptRvalue(rvalue: Rvalue, v: RvalueVisitor) {
 
     case 'index': {
       v.visitIndex?.(rvalue);
+      break;
+    }
+
+    case 'output': {
+      v.visitOutput?.(rvalue);
+      break;
+    }
+
+    case 'data': {
+      v.visitData?.(rvalue);
       break;
     }
   }

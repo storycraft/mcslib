@@ -1,7 +1,7 @@
 import { FnSig, McsFunction } from '@/fn.js';
 import { parseExpr, Term } from './expr/parse.js';
 import { lex } from './expr/lex.js';
-import { Expr, Call } from '@/ast.js';
+import { Expr, Call, CommandTemplate, Output, Data } from '@/ast.js';
 import { callSite } from '@/span.js';
 import { fnScope } from '@/builder.js';
 
@@ -43,6 +43,22 @@ export function mcsExpr(
   }
 
   return parseExpr(terms, span);
+}
+
+export function mcsOutput(template: CommandTemplate): Output {
+  return {
+    kind: 'output',
+    span: callSite(),
+    template,
+  };
+}
+
+export function mcsData(rest: CommandTemplate): Data {
+  return {
+    kind: 'data',
+    span: callSite(),
+    rest,
+  };
 }
 
 export function mcsCall<const Sig extends FnSig>(

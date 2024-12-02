@@ -32,7 +32,7 @@ type ExecutePartTy<T extends string> = { ty: T };
 type ExecuteTextPart = ExecutePartTy<'text'> & { text: string };
 type ExecuteRef = ExecutePartTy<'ref'> & { ref: Ref };
 
-export type Rvalue = Ref | Call | Binary | Unary;
+export type Rvalue = Ref | Call | Binary | Unary | Output | Data;
 
 type RvalueKind<T extends string> = {
   kind: T,
@@ -74,4 +74,12 @@ export type Origin = 'local' | 'argument';
 export type Index = RvalueKind<'index'> & {
   origin: Origin,
   index: number,
+}
+
+export type Output = RvalueKind<'output'> & {
+  template: ExecuteTemplate,
+}
+
+export type Data = RvalueKind<'data'> & {
+  rest: ExecuteTemplate,
 }

@@ -5,36 +5,36 @@ import { VarType } from './types.js'
 /**
  * identifier for ast types
  */
-type AstKind<T extends string> = {
+type Ast<T extends string> = {
   kind: T,
   span: Span,
 }
 
 export type Stmt = Block | Local | Assign | If | Loop | Continue | Break | Return | ExprStmt | Execute;
 
-export type Block = AstKind<'block'> & {
+export type Block = Ast<'block'> & {
   stmts: Stmt[],
 }
 
-export type Local = AstKind<'local'> & {
+export type Local = Ast<'local'> & {
   id: Id,
   ty: VarType,
 }
 
-export type Assign = AstKind<'assign'> & {
+export type Assign = Ast<'assign'> & {
   id: Id,
   expr: Expr,
 }
 
-export type Return = AstKind<'return'> & {
+export type Return = Ast<'return'> & {
   expr?: Expr,
 }
 
-export type ExprStmt = AstKind<'expr'> & {
+export type ExprStmt = Ast<'expr'> & {
   expr: Expr,
 }
 
-export type Execute = AstKind<'execute'> & {
+export type Execute = Ast<'execute'> & {
   templates: CommandTemplate[],
 }
 
@@ -44,13 +44,13 @@ type PartTy<T extends string> = { ty: T };
 type ExprPart = PartTy<'expr'> & { expr: Expr };
 type TextPart = PartTy<'text'> & { text: string };
 
-export type If = AstKind<'if'> & {
+export type If = Ast<'if'> & {
   condition: Expr,
   block: Block,
   else?: Block,
 }
 
-export type Loop = AstKind<'loop'> & {
+export type Loop = Ast<'loop'> & {
   label?: Label,
   block: Block,
 }
@@ -59,38 +59,46 @@ export type Label = {
   name: string,
 }
 
-export type Continue = AstKind<'continue'> & {
+export type Continue = Ast<'continue'> & {
   label?: Label,
 }
 
-export type Break = AstKind<'break'> & {
+export type Break = Ast<'break'> & {
   label?: Label,
 }
 
-export type Expr = Id | Binary | Unary | Literal | Call;
+export type Expr = Id | Binary | Unary | Literal | Call | Output | Data;
 
 declare const marker: unique symbol;
-export type Id<T = VarType> = AstKind<'id'> & {
+export type Id<T = VarType> = Ast<'id'> & {
   id: number,
   [marker]?: T,
 }
 
-export type Literal = AstKind<'literal'> & {
+export type Literal = Ast<'literal'> & {
   value: number,
 }
 
-export type Binary = AstKind<'binary'> & {
+export type Binary = Ast<'binary'> & {
   left: Expr,
   op: '+' | '-' | '*' | '/' | '%' | '==' | '!=' | '<=' | '>=' | '<' | '>' | '||' | '&&',
   right: Expr,
 }
 
-export type Unary = AstKind<'unary'> & {
+export type Unary = Ast<'unary'> & {
   op: '-' | '!',
   expr: Expr,
 }
 
-export type Call<Sig extends FnSig = FnSig> = AstKind<'call'> & {
+export type Call<Sig extends FnSig = FnSig> = Ast<'call'> & {
   fn: McsFunction<Sig>,
   args: Expr[],
+}
+
+export type Output = Ast<'output'> & {
+  template: CommandTemplate,
+}
+
+export type Data = Ast<'data'> & {
+  rest: CommandTemplate,
 }

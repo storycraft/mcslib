@@ -1,4 +1,4 @@
-import { Assign, Block, Break, Continue, Execute, If, Local, Loop, Return, Stmt, ExprStmt, Expr, Id, Literal, Call, Unary, Binary } from '@/ast.js';
+import { Assign, Block, Break, Continue, Execute, If, Local, Loop, Return, Stmt, ExprStmt, Expr, Id, Literal, Call, Unary, Binary, Output, Data } from '@/ast.js';
 
 /**
  * Visitor interface for statement ast.
@@ -84,11 +84,13 @@ export function acceptStmt(stmt: Stmt, v: StmtVisitor) {
  * Return true to stop traversing children
  */
 export interface ExprVisitor {
-  visitId?(expr: Id): boolean,
-  visitLiteral?(expr: Literal): boolean,
-  visitBinary?(expr: Binary): boolean,
-  visitUnary?(expr: Unary): boolean,
-  visitCall?(expr: Call): boolean,
+  visitId?(expr: Id): boolean;
+  visitLiteral?(expr: Literal): boolean;
+  visitBinary?(expr: Binary): boolean;
+  visitUnary?(expr: Unary): boolean;
+  visitCall?(expr: Call): boolean;
+  visitOutput?(expr: Output): boolean;
+  visitData?(expr: Data): boolean;
 }
 
 export function acceptExpr(expr: Expr, v: ExprVisitor) {
@@ -97,6 +99,7 @@ export function acceptExpr(expr: Expr, v: ExprVisitor) {
       v.visitId?.(expr);
       break;
     }
+
     case 'literal': {
       v.visitLiteral?.(expr);
       break;
@@ -123,6 +126,16 @@ export function acceptExpr(expr: Expr, v: ExprVisitor) {
           acceptExpr(arg, v);
         }
       }
+      break;
+    }
+
+    case 'output': {
+      v.visitOutput?.(expr);
+      break;
+    }
+
+    case 'data': {
+      v.visitData?.(expr);
       break;
     }
   }
