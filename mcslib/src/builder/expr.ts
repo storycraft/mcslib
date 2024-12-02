@@ -4,6 +4,7 @@ import { lex } from './expr/lex.js';
 import { Expr, Call, CommandTemplate, Output, Data } from '@/ast.js';
 import { callSite } from '@/span.js';
 import { fnScope } from '@/builder.js';
+import { VarType } from '@/types.js';
 
 export function mcsExpr(
   arr: TemplateStringsArray,
@@ -19,14 +20,14 @@ export function mcsExpr(
   }
 
   for (const value of lexResult.tokens) {
-    terms.push({ ty: 'token', value });
+    terms.push({ type: 'token', value });
   }
 
   const length = args.length;
   if (length > 0) {
     for (let i = 0; i < length; i++) {
       terms.push({
-        ty: 'expr',
+        type: 'expr',
         value: args[i],
       });
 
@@ -37,7 +38,7 @@ export function mcsExpr(
       }
 
       for (const value of lexResult.tokens) {
-        terms.push({ ty: 'token', value });
+        terms.push({ type: 'token', value });
       }
     }
   }
@@ -53,10 +54,11 @@ export function mcsOutput(template: CommandTemplate): Output {
   };
 }
 
-export function mcsData(rest: CommandTemplate): Data {
+export function mcsData(type: VarType, rest: CommandTemplate): Data {
   return {
     kind: 'data',
     span: callSite(),
+    type,
     rest,
   };
 }

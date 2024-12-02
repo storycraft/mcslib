@@ -189,9 +189,9 @@ export function parseTemplate(
 ): ExecuteTemplate {
   const parts: ExecuteTemplate = [];
   for (const part of template) {
-    switch (part.ty) {
+    switch (part.part) {
       case 'expr': {
-        parts.push({ ty: 'ref', ref: lowExpr(env, node, part.expr) });
+        parts.push({ part: 'ref', ref: lowExpr(env, node, part.expr) });
         break;
       }
 

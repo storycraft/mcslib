@@ -40,9 +40,9 @@ export type Execute = Ast<'execute'> & {
 
 export type CommandTemplate = CommandPart[];
 export type CommandPart = ExprPart | TextPart;
-type PartTy<T extends string> = { ty: T };
-type ExprPart = PartTy<'expr'> & { expr: Expr };
-type TextPart = PartTy<'text'> & { text: string };
+type Part<T extends string> = { part: T };
+type ExprPart = Part<'expr'> & { expr: Expr };
+type TextPart = Part<'text'> & { text: string };
 
 export type If = Ast<'if'> & {
   condition: Expr,
@@ -100,5 +100,6 @@ export type Output = Ast<'output'> & {
 }
 
 export type Data = Ast<'data'> & {
+  type: VarType,
   rest: CommandTemplate,
 }

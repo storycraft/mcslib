@@ -1,4 +1,4 @@
-import { Assign, Binary, Call, Expr, Id, If, Local, Return, Stmt, Unary } from '@/ast.js';
+import { Assign, Binary, Call, Data, Expr, Id, If, Local, Return, Stmt, Unary } from '@/ast.js';
 import { acceptExpr, acceptStmt, ExprVisitor, StmtVisitor } from '@/ast/visit.js';
 import { diagnostic, Diagnostic } from '@/diagnostic.js';
 import { Fn } from '@/fn.js';
@@ -107,14 +107,14 @@ class StmtChecker implements StmtVisitor {
 }
 
 class ExprChecker implements ExprVisitor {
-  private ty: VarType = 'empty';
+  private type: VarType = 'empty';
   constructor(
     private readonly cx: Cx
   ) { }
 
   check(expr: Expr): VarType {
     acceptExpr(expr, this);
-    return this.ty;
+    return this.type;
   }
 
   visitBinary(expr: Binary): boolean {
@@ -175,17 +175,22 @@ class ExprChecker implements ExprVisitor {
       }
     }
 
-    this.ty = expr.fn.sig.returns;
+    this.type = expr.fn.sig.returns;
     return true;
   }
 
   visitOutput(): boolean {
-    this.ty = 'number';
+    this.type = 'number';
+    return true;
+  }
+
+  visitData(expr: Data): boolean {
+    this.type = expr.type;
     return true;
   }
 
   visitLiteral(): boolean {
-    this.ty = 'number';
+    this.type = 'number';
     return true;
   }
 
@@ -200,7 +205,7 @@ class ExprChecker implements ExprVisitor {
         )
       );
     } else {
-      this.ty = ty;
+      this.type = ty;
     }
 
     return true;

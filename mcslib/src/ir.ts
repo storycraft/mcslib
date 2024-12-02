@@ -28,9 +28,9 @@ export type Execute = InsTy<'execute'> & {
 
 export type ExecuteTemplate = ExecutePart[];
 export type ExecutePart = ExecuteTextPart | ExecuteRef;
-type ExecutePartTy<T extends string> = { ty: T };
-type ExecuteTextPart = ExecutePartTy<'text'> & { text: string };
-type ExecuteRef = ExecutePartTy<'ref'> & { ref: Ref };
+type Part<T extends string> = { part: T };
+type ExecuteTextPart = Part<'text'> & { text: string };
+type ExecuteRef = Part<'ref'> & { ref: Ref };
 
 export type Rvalue = Ref | Call | Binary | Unary | Output | Data;
 

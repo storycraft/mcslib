@@ -23,7 +23,7 @@ async function walkIns(env: Env, ins: Ins, writer: FunctionWriter) {
 
     case 'execute': {
       const hasRefs = ins.templates.some(
-        template => template.some(({ ty }) => ty === 'ref')
+        template => template.some(({ part: ty }) => ty === 'ref')
       );
 
       if (hasRefs) {
@@ -58,7 +58,7 @@ async function writeTemplate(
   let macro = false;
   let cmd = '';
   for (const part of template) {
-    switch (part.ty) {
+    switch (part.part) {
       case 'ref': {
         const ref = part.ref;
 

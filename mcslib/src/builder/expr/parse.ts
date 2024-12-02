@@ -4,7 +4,7 @@ import { Span } from '@/span.js';
 import { BuilderError } from '@/builder.js';
 
 type Variant<T, V> = {
-  ty: T,
+  type: T,
   value: V,
 }
 
@@ -53,10 +53,10 @@ function expectToken(cx: ParseCx): Token {
     );
   }
 
-  if (term.ty !== 'token') {
+  if (term.type !== 'token') {
     throw new BuilderError(
       cx.span, 
-      `expected a token, got ${term.ty}. index: ${cx.index}`,
+      `expected a token, got ${term.type}. index: ${cx.index}`,
     );
   }
 
@@ -66,7 +66,7 @@ function expectToken(cx: ParseCx): Token {
 
 function peekToken(cx: ParseCx): Token | null {
   const term = cx.terms.at(cx.index);
-  if (term?.ty !== 'token') {
+  if (term?.type !== 'token') {
     return null;
   }
 
@@ -86,7 +86,7 @@ function parseCondition(cx: ParseCx): Expr {
   const left = parseEquation(cx);
 
   const term = cx.terms.at(cx.index);
-  if (term?.ty !== 'token') {
+  if (term?.type !== 'token') {
     return left;
   }
 
@@ -228,7 +228,7 @@ function parseTerm(cx: ParseCx): Expr {
     throw new BuilderError(cx.span, 'unexpected end of a parse buffer');
   }
 
-  if (term.ty === 'expr') {
+  if (term.type === 'expr') {
     cx.index++;
     return term.value;
   } else if (term.value.kind === 'number') {
@@ -243,6 +243,6 @@ function parseTerm(cx: ParseCx): Expr {
   const token = term.value;
   throw new BuilderError(
     cx.span,
-    `expected an expression, found ${term.ty} ${token.value}. index: ${cx.index}`
+    `expected an expression, found ${term.type} ${token.value}. index: ${cx.index}`
   );
 }

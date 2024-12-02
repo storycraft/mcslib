@@ -150,7 +150,7 @@ export function mcsExecute(...templates: CommandTemplate[]) {
 export function mcsCmd(arr: TemplateStringsArray, ...exprs: Expr[]): CommandTemplate {
   const template: CommandTemplate = [
     {
-      ty: 'text',
+      part: 'text',
       text: arr[0],
     },
   ];
@@ -159,13 +159,13 @@ export function mcsCmd(arr: TemplateStringsArray, ...exprs: Expr[]): CommandTemp
   if (length > 0) {
     for (let i = 0; i < length; i++) {
       template.push({
-        ty: 'expr',
+        part: 'expr',
         expr: exprs[i],
       });
 
       if (arr[i + 1] !== '') {
         template.push({
-          ty: 'text',
+          part: 'text',
           text: arr[i + 1],
         });
       }
