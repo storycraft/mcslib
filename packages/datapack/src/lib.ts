@@ -6,6 +6,7 @@ import { opendir } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { Readable, Writable } from 'node:stream';
 import { ZipFile } from 'yazl';
+import { DiagnosticPrinter } from './diagnostic.js';
 
 export class DatapackWriter {
   private readonly compiler: Compiler;
@@ -42,21 +43,22 @@ export class DatapackWriter {
     await new Promise(resolve => stream.once('close', resolve));
   }
 
-  async export<const Args extends VarType[]>(settings: Export<Args>): Promise<string> {
+  async export<const Args extends VarType[]>(settings: Export<Args>): Promise<boolean> {
     const {
-      fullName,
       diagnostics,
     } = await this.compiler.export(settings);
 
     if (diagnostics.length > 0) {
-      for (const diagnostic of diagnostics) {
-        console.error(diagnostic);
-      }
+      const printer = new DiagnosticPrinter();
+      printer.push(...diagnostics);
+      printer.print();
 
-      throw new Error('compile failed with errors', { cause: diagnostics });
+      if (diagnostics.some(({ level }) => level === 'error')) {
+        return false;
+      }
     }
 
-    return fullName;
+    return true;
   }
 
   async finish() {
