@@ -15,7 +15,7 @@ About language reference, see [reference.md](./reference.md) (in progress)
  - [x] Command template literal parser
  - [x] Execute commands using variable value
  - [x] Store command result into variable
- - [ ] Load score, nbt value into variable
+ - [ ] Load nbt value into variable
  - [ ] IR optimization (in progress)
    - [x] Loop optimization
  - [ ] Codegen optimization (in progress)
