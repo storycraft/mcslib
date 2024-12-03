@@ -52,7 +52,7 @@ export class FunctionWriter {
    */
   async createBranch(): Promise<FunctionWriter> {
     const nextBranchId = this.cx.nextBranchId++;
-    const name = `__${this.cx.fnName}_b${nextBranchId}`;
+    const name = `${this.cx.fnName}_b${nextBranchId}`;
 
     return new FunctionWriter(
       this.cx,
