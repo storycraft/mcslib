@@ -1,8 +1,7 @@
 import { FnSig, McsFunction } from '@/fn.js';
 import { FunctionDir, FunctionWriter } from './lib.js';
-import { emit } from './emit.js';
+import { emit, NAMESPACE, resolveRegister, STACK } from './emit.js';
 import { build } from './builder.js';
-import { NAMESPACE, resolveRegister, STACK } from './emit/intrinsics.js';
 import { mangle } from './compiler/mangle.js';
 import { VarType } from './types.js';
 import { low } from './lowering.js';
@@ -61,7 +60,7 @@ export class Compiler {
 
       if (fn.sig.returns === 'number') {
         await writer.write(
-          `return run data get storage ${NAMESPACE} ${resolveRegister(1)}`
+          `return run data get storage ${NAMESPACE} ${resolveRegister(0)}`
         );
       }
     } finally {

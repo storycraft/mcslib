@@ -1,20 +1,39 @@
 import { Rvalue, Index, IrFunction, Ref } from '@/ir.js';
 import { Node, traverseNode } from '@/ir/node.js';
 
-export type Location = None | R1 | R2 | Argument | Local;
+export type Location = None | Register | Argument | Local;
 
 type LocVariant<At extends string> = {
   at: At,
 }
 
 type None = LocVariant<'none'>;
-type R1 = LocVariant<'r1'>;
-type R2 = LocVariant<'r2'>;
+type Register = LocVariant<'register'> & {
+  index: number,
+}
 type Argument = LocVariant<'argument'> & {
   index: number,
 }
 type Local = LocVariant<'local'> & {
   index: number,
+}
+
+export const Location = {
+  none(): Location {
+    return { at: 'none' };
+  },
+
+  register(index: number): Location {
+    return { at: 'register', index };
+  },
+
+  argument(index: number): Location {
+    return { at: 'argument', index };
+  },
+
+  local(index: number): Location {
+    return { at: 'local', index };
+  },
 }
 
 export interface Alloc {
@@ -147,7 +166,7 @@ function replaceRefs(cx: Cx, first?: Ref, second?: Ref, ...rest: Ref[]) {
     }
 
     if (item.at === 'none' && lastAssignIndex === first.index) {
-      cx.locs[first.index] = { at: 'r1' };
+      cx.locs[first.index] = { at: 'register', index: 0 };
     } else if (item.at !== 'local') {
       cx.locs[first.index] = {
         at: 'local',
@@ -163,7 +182,7 @@ function replaceRefs(cx: Cx, first?: Ref, second?: Ref, ...rest: Ref[]) {
     }
 
     if (item.at === 'none' && lastAssignIndex === second.index) {
-      cx.locs[second.index] = { at: 'r2' };
+      cx.locs[second.index] = { at: 'register', index: 1 };
     } else if (item.at !== 'local') {
       cx.locs[second.index] = {
         at: 'local',
