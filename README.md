@@ -24,12 +24,22 @@ About language reference, see [reference.md](./reference.md) (in progress)
 
 ## Example
 ### example:draw_star
-Source codes in `examples/draw-star.ts`
+Demonstration of interoping between commands and the script
+
+Source code in `examples/draw-star.ts`
 ![Draw star example preview](./assets/draw_star.png)
 
 ### example:cube_particle
-Source codes in `examples/cube-particle.ts`
+Demonstration of running particle command using variable value
+
+Source code in `examples/cube-particle.ts`
 ![Cube particle example preview](./assets/cube_particle.png)
+
+### example:poll
+Demonstration of running command using command output
+
+Source code in `examples/poll.ts`
+![poll example preview](./assets/poll.png)
 
 Compile example datapack using
 ```bash
