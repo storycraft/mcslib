@@ -1,8 +1,7 @@
-import { Env, NAMESPACE, STACK, TrackedWriter } from '@/emit.js';
+import { Env, NAMESPACE, resolveRegister, resolveStack, STACK, TrackedWriter } from '@/emit.js';
 import { ExecuteTemplate, Rvalue, Ins } from '@/ir.js';
 import { EndIns } from '@/ir/end.js';
 import { Node } from '@/ir/node.js';
-import { FunctionWriter } from '@/lib.js';
 import { binary, call, unary } from './intrinsics.js';
 import { Location } from './alloc.js';
 
@@ -23,11 +22,7 @@ async function walkIns(env: Env, ins: Ins, writer: TrackedWriter) {
     }
 
     case 'execute': {
-      const hasRefs = ins.templates.some(
-        template => template.some(({ part: ty }) => ty === 'ref')
-      );
-
-      if (hasRefs) {
+      if (hasRef(...ins.templates)) {
         const executeWriter = await writer.branch();
         try {
           await writer.inner.write(
@@ -35,14 +30,14 @@ async function walkIns(env: Env, ins: Ins, writer: TrackedWriter) {
           );
 
           for (const template of ins.templates) {
-            await writeTemplate(env, template, executeWriter.inner);
+            await executeWriter.inner.write(formatTemplate(env, template));
           }
         } finally {
           await executeWriter.close();
         }
       } else {
         for (const template of ins.templates) {
-          await writeTemplate(env, template, writer.inner);
+          await writer.inner.write(formatTemplate(env, template));
         }
       }
 
@@ -51,13 +46,12 @@ async function walkIns(env: Env, ins: Ins, writer: TrackedWriter) {
   }
 }
 
-async function writeTemplate(
+function formatTemplate(
   env: Env,
   template: ExecuteTemplate,
-  writer: FunctionWriter
-) {
+  cmd = '',
+): string {
   let macro = false;
-  let cmd = '';
   for (const part of template) {
     switch (part.part) {
       case 'ref': {
@@ -71,10 +65,10 @@ async function writeTemplate(
           }
 
           const loc = env.alloc.resolve(ref);
-          if (loc.at !== 'local') {
+          if (loc.at !== 'local' && loc.at !== 'argument') {
             throw new Error('Execute ref must be allocated in local');
           }
-          cmd += `$(l${loc.index})`;
+          cmd += `$(${resolveStack(loc)})`;
         }
         break;
       }
@@ -86,13 +80,17 @@ async function writeTemplate(
     }
   }
 
-  if (cmd !== '') {
-    if (macro) {
-      await writer.write(`$${cmd}`);
-    } else {
-      await writer.write(cmd);
-    }
+  if (macro) {
+    return `$${cmd}`;
+  } else {
+    return cmd;
   }
+}
+
+function hasRef(...templates: ExecuteTemplate[]): boolean {
+  return templates.some(
+    template => template.some(({ part: ty }) => ty === 'ref')
+  );
 }
 
 async function walkExpr(env: Env, ins: Rvalue, writer: TrackedWriter) {
@@ -129,6 +127,27 @@ async function walkExpr(env: Env, ins: Rvalue, writer: TrackedWriter) {
       }
 
       await call(env, fullName, ins.args, writer.inner);
+      writer.invalidate(0);
+      break;
+    }
+
+    case 'output': {
+      let run: string;
+      if (hasRef(ins.template)) {
+        const executeWriter = await writer.branch();
+        try {
+          run = `function ${executeWriter.inner.namespace}:${executeWriter.inner.name} with storage ${NAMESPACE} ${STACK}[-1]`;
+          await executeWriter.inner.write(formatTemplate(env, ins.template, 'return run '));
+        } finally {
+          await executeWriter.close();
+        }
+      } else {
+        run = formatTemplate(env, ins.template);
+      }
+
+      await writer.inner.write(
+        `execute store result storage ${NAMESPACE} ${resolveRegister(0)} double 1 run ${run}`
+      );
       writer.invalidate(0);
       break;
     }

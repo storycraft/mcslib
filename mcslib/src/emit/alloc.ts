@@ -153,6 +153,15 @@ export function visitExpr(cx: Cx, ins: Rvalue) {
       replaceRefs(cx, ins);
       break;
     }
+
+    case 'output': {
+      for (const part of ins.template) {
+        if (part.part === 'ref') {
+          placeInLocal(cx, part.ref);
+        }
+      }
+      break;
+    }
   }
 }
 
@@ -208,7 +217,7 @@ function placeInLocal(cx: Cx, ref: Ref) {
     return;
   }
 
-  if (item.at === 'none') {
+  if (item.at !== 'local') {
     cx.locs[ref.index] = {
       at: 'local',
       index: cx.nextLocalId++,

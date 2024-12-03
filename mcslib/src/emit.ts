@@ -137,12 +137,25 @@ export function resolveLoc(loc: Location): string {
       return resolveRegister(loc.index);
     }
 
+    case 'argument':
+    case 'local': {
+      return `${STACK}[-1].${resolveStack(loc)}`;
+    }
+  }
+}
+
+export function resolveStack(loc: Location): string {
+  switch (loc.at) {
     case 'argument': {
-      return `${STACK}[-1].a${loc.index}`;
+      return `a${loc.index}`;
     }
 
     case 'local': {
-      return `${STACK}[-1].l${loc.index}`;
+      return `l${loc.index}`;
+    }
+
+    default: {
+      throw new Error(`Not a stack location at: ${loc.at}`);
     }
   }
 }
