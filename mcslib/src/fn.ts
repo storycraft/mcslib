@@ -20,10 +20,10 @@ export type FnSig<
 /**
  * Unique identifier for a function
  */
-export type McsFunction<Sig extends FnSig = FnSig> = {
-  span: Span,
-  sig: Sig,
-  buildFn: McsBuildFn<Sig>,
+export interface McsFunction<Sig extends FnSig = FnSig> {
+  readonly span: Span,
+  readonly sig: Sig,
+  readonly buildFn: McsBuildFn<Sig>,
 };
 
 export type McsBuildFn<Sig extends FnSig>
