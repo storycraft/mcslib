@@ -1,4 +1,4 @@
-import { defineMcsFunction, mcsExecute, mcsCmd, mcsOutput } from 'mcslib/builder.js';
+import { defineMcsFunction, mcsExecute, mcsCmd, mcsOutput, mcsData } from 'mcslib/builder.js';
 
 export const poll = defineMcsFunction(
   ['number', 'number'],

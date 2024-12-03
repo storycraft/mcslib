@@ -5,7 +5,6 @@ import { Local, Return, If, Break, Continue, Stmt, Assign, Loop, Execute } from 
 import { emptyNode, Node } from '@/ir/node.js';
 import { SwitchInt } from '@/ir/end.js';
 import { newConst } from '@/ir.js';
-import { DEFAULT_CONST } from '@/types.js';
 
 export function lowStmt(env: Env, node: Node, stmt: Stmt): Node {
   const visitor = new StmtLowVisitor(env, node);
@@ -40,7 +39,7 @@ class StmtLowVisitor implements StmtVisitor {
       this.node.end = {
         ins: 'ret',
         span: stmt.span,
-        ref: newConst(DEFAULT_CONST.empty, stmt.span),
+        ref: newConst(null, stmt.span),
       };
     }
 
