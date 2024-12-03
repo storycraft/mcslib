@@ -8,14 +8,13 @@ About language reference, see [reference.md](./reference.md) (in progress)
 
 ## Project milestone
  - [x] Expression template literal lexer and parser
+ - [ ] Reference types
  - [ ] Function, string, object, array types
- - [ ] Value types and reference types
  - [ ] Closure and coroutine
  - [x] IR lowering
  - [x] Command template literal parser
  - [x] Execute commands using variable value
  - [x] Store command result into variable
- - [ ] Load nbt value into variable
  - [ ] IR optimization (in progress)
    - [x] Loop optimization
  - [ ] Codegen optimization (in progress)
