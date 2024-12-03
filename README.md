@@ -14,7 +14,7 @@ About language reference, see [reference.md](./reference.md) (in progress)
  - [x] IR lowering
  - [x] Command template literal parser
  - [x] Execute commands using variable value
- - [ ] Store command result into variable
+ - [x] Store command result into variable
  - [ ] Load score, nbt value into variable
  - [ ] IR optimization (in progress)
    - [x] Loop optimization
