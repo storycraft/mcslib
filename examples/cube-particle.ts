@@ -1,8 +1,8 @@
 import { defineMcsFunction, mcsAssign, mcsCmd, mcsExecute, mcsExpr, mcsVar, mcsWhile } from 'mcslib/builder.js';
 
 export const cubeParticle = defineMcsFunction(
-  ['number', 'number', 'number', 'number'],
-  (width, length, height, density) => {
+  ['string', 'number', 'number', 'number', 'number'],
+  (particle, width, length, height, density) => {
     const xStart = mcsVar('number', mcsExpr`-${width} / 2`);
     const yStart = mcsVar('number', mcsExpr`-${height} / 2`);
     const zStart = mcsVar('number', mcsExpr`-${length} / 2`);
@@ -19,7 +19,7 @@ export const cubeParticle = defineMcsFunction(
             mcsExpr`${zStart} + ${z}`
           ];
           mcsExecute(
-            mcsCmd`particle minecraft:flame ~${pos[0]} ~${pos[1]} ~${pos[2]} 0 0 0 0 0 force`
+            mcsCmd`particle ${particle} ~${pos[0]} ~${pos[1]} ~${pos[2]} 0 0 0 0 0 force`
           );
 
           mcsAssign(z, mcsExpr`${z} + ${density}`);

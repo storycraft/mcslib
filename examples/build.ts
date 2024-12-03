@@ -22,7 +22,7 @@ if (
   await writer.export({
     name: 'cube_particle',
     fn: cubeParticle,
-    args: ['width', 'length', 'height', 'density'],
+    args: ['particle', 'width', 'length', 'height', 'density'],
   })
 ) {
   console.log(`exported cube_particle function`);
