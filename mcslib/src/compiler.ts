@@ -45,7 +45,22 @@ export class Compiler {
     const writer = await FunctionWriter.create(this.dir, name);
     try {
       if (fn.sig.args.length > 0) {
-        const obj = fn.sig.args.map((_, i) => `a${i}:$(${args[i]})d`).join(',');
+        const obj = fn.sig.args.map((_, i) => {
+          switch (fn.sig.args[i]) {
+            case 'number': {
+              return `a${i}:$(${args[i]})d`;
+            }
+
+            case 'string': {
+              return `a${i}:"$(${args[i]})"`;
+            }
+
+            case 'empty': {
+              return `a${i}:0`;
+            }
+          }
+
+        }).join(',');
         await writer.write(
           `$data modify storage ${NAMESPACE} ${STACK} append value {${obj}}`
         );
