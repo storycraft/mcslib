@@ -3,6 +3,6 @@ import { inspect } from 'node:util';
 import { draw_star } from './draw-star.js';
 import { Fn } from 'mcslib/fn.js';
 
-export const AST_FN: Fn = build(draw_star);
+export const AST_FN: Fn = build(draw_star).f;
 
 console.log(inspect(AST_FN, true, 20, true));
