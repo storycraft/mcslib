@@ -1,6 +1,6 @@
 import { FnSig, McsFunction } from '@/fn.js';
 import { Node } from './ir/node.js';
-import { Primitive } from './types.js';
+import { VarType } from './types.js';
 import { Span } from './span.js';
 
 export type IrFunction = {
@@ -58,13 +58,15 @@ export type Call = RvalueKind<'call'> & {
 export type Ref = Const | Index;
 
 export type Const = RvalueKind<'const'> & {
-  value: Primitive,
+  type: VarType,
+  value: string,
 };
 
-export function newConst(value: Primitive, span: Span): Const {
+export function newConst(type: VarType, value: string, span: Span): Const {
   return {
     kind: 'const',
     span,
+    type,
     value,
   };
 }

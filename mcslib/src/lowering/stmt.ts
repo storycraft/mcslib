@@ -39,7 +39,7 @@ class StmtLowVisitor implements StmtVisitor {
       this.node.end = {
         ins: 'ret',
         span: stmt.span,
-        ref: newConst(null, stmt.span),
+        ref: newConst('empty', '', stmt.span),
       };
     }
 

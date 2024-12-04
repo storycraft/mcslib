@@ -1,12 +1,10 @@
 import { diagnostic, Diagnostic } from '@/diagnostic.js';
 import { Span } from '@/span.js';
 
-export type Token = TokenKind<'string', string> | TokenKind<'number', number>;
-
-type TokenKind<T extends string, V> = {
-  kind: T,
-  value: V,
-}
+export type Token = {
+  kind: 'keyword' | 'number',
+  value: string,
+};
 
 type Result = {
   tokens: Token[],
@@ -88,7 +86,7 @@ const RULESET: LexFn[] = [
     if (hex) {
       return [
         hex[0].length,
-        { kind: 'number', value: Number.parseInt(hex[0].slice(2), 16) }
+        { kind: 'number', value: Number.parseInt(hex[0].slice(2), 16).toString() }
       ]
     }
 
@@ -96,7 +94,7 @@ const RULESET: LexFn[] = [
     if (bin) {
       return [
         bin[0].length,
-        { kind: 'number', value: Number.parseInt(bin[0].slice(2), 2) }
+        { kind: 'number', value: Number.parseInt(bin[0].slice(2), 2).toString() }
       ]
     }
 
@@ -104,16 +102,16 @@ const RULESET: LexFn[] = [
     if (dec) {
       return [
         dec[0].length,
-        { kind: 'number', value: Number.parseFloat(dec[0]) }
+        { kind: 'number', value: dec[0] }
       ]
     }
 
     return null;
   },
   (sub) => {
-    for (const keyword of KEYWORDS) {
-      if (sub.startsWith(keyword)) {
-        return [keyword.length, { kind: 'string', value: keyword }];
+    for (const value of KEYWORDS) {
+      if (sub.startsWith(value)) {
+        return [value.length, { kind: 'keyword', value }];
       }
     }
 

@@ -184,7 +184,7 @@ class ExprChecker implements ExprVisitor {
     return true;
   }
 
-  visitLiteral(): boolean {
+  visitNumber(): boolean {
     this.type = 'number';
     return true;
   }

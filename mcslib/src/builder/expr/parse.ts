@@ -27,12 +27,12 @@ export function parseExpr(
   });
 }
 
-function expectStringTokenVal(cx: ParseCx, val: string) {
+function expectKeywordToken(cx: ParseCx, val: string) {
   const token = expectToken(cx);
-  if (token.kind !== 'string') {
+  if (token.kind !== 'keyword') {
     throw new BuilderError(
       cx.span,
-      `expected string token '${val}', got ${token.kind} kind at index: ${cx.index}`
+      `expected keyword '${val}', got ${token.kind} kind at index: ${cx.index}`
     );
   }
 
@@ -73,9 +73,9 @@ function peekToken(cx: ParseCx): Token | null {
   return term.value;
 }
 
-function peekStringToken(cx: ParseCx): string | null {
+function peekKeyword(cx: ParseCx): string | null {
   const token = peekToken(cx);
-  if (token?.kind !== 'string') {
+  if (token?.kind !== 'keyword') {
     return null;
   }
 
@@ -108,7 +108,7 @@ function parseCondition(cx: ParseCx): Expr {
 function parseEquation(cx: ParseCx): Expr {
   const left = parsePolynomial(cx);
 
-  const op = peekStringToken(cx);
+  const op = peekKeyword(cx);
   if (
     op === '=='
     || op === '!='
@@ -133,7 +133,7 @@ function parseEquation(cx: ParseCx): Expr {
 function parsePolynomial(cx: ParseCx): Expr {
   const left = parseMonomial(cx);
 
-  const op = peekStringToken(cx);
+  const op = peekKeyword(cx);
   if (op !== '+' && op !== '-') {
     return left;
   }
@@ -151,7 +151,7 @@ function parsePolynomial(cx: ParseCx): Expr {
 function parseMonomial(cx: ParseCx): Expr {
   const left = parseFactor(cx);
 
-  const op = peekStringToken(cx);
+  const op = peekKeyword(cx);
   if (op !== '*' && op !== '/' && op !== '%') {
     return left;
   }
@@ -167,7 +167,7 @@ function parseMonomial(cx: ParseCx): Expr {
 }
 
 function parseFactor(cx: ParseCx): Expr {
-  const str = peekStringToken(cx);
+  const str = peekKeyword(cx);
   if (str === '(') {
     return parseParen(cx);
   } else if (str === '!') {
@@ -180,12 +180,12 @@ function parseFactor(cx: ParseCx): Expr {
 }
 
 function parseParen(cx: ParseCx): Expr {
-  expectStringTokenVal(cx, '(');
+  expectKeywordToken(cx, '(');
   const terms = [];
 
   const length = cx.terms.length;
   for (; cx.index < length; cx.index++) {
-    const str = peekStringToken(cx);
+    const str = peekKeyword(cx);
     if (str == ')') {
       cx.index++;
       return parseCondition({
@@ -202,7 +202,7 @@ function parseParen(cx: ParseCx): Expr {
 }
 
 function parseNot(cx: ParseCx): Unary {
-  expectStringTokenVal(cx, '!');
+  expectKeywordToken(cx, '!');
   return {
     kind: 'unary',
     span: cx.span,
@@ -212,7 +212,7 @@ function parseNot(cx: ParseCx): Unary {
 }
 
 function parseNeg(cx: ParseCx): Unary {
-  expectStringTokenVal(cx, '-');
+  expectKeywordToken(cx, '-');
   return {
     kind: 'unary',
     span: cx.span,
@@ -234,7 +234,7 @@ function parseTerm(cx: ParseCx): Expr {
   } else if (term.value.kind === 'number') {
     cx.index++;
     return {
-      kind: 'literal',
+      kind: 'number',
       span: cx.span,
       value: term.value.value,
     };

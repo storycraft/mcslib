@@ -101,7 +101,7 @@ async function walkExpr(env: Env, ins: Rvalue, writer: TrackedWriter) {
     }
 
     case 'const': {
-      await writer.copyConst(ins.value, Location.register(0));
+      await writer.copyConst(ins.type, ins.value, Location.register(0));
       break;
     }
 
@@ -187,7 +187,11 @@ async function walkEndIns(env: Env, ins: EndIns, writer: TrackedWriter) {
           }
 
           const name = await env.nodeMap.branch(env, target, writer);
-          await writer.copyConst(i, Location.register(1));
+          await writer.copyConst(
+            'number',
+            i.toString(),
+            Location.register(1)
+          );
           await writer.inner.write(
             `execute if predicate mcs_intrinsic:eq run return run function ${namespace}:${name}`
           );

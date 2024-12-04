@@ -3,9 +3,8 @@
  */
 export type VarType = VarDataType;
 
+export type VarRefType = `ref<${VarDataType}>`;
 export type VarDataType = 'number' | 'string' | 'empty';
-
-export type Primitive = number | string | Record<string, unknown> | null | Primitive[];
 
 export function wrapTyped(type: VarType, value: string): string {
   switch (type) {
@@ -14,11 +13,21 @@ export function wrapTyped(type: VarType, value: string): string {
     }
 
     case 'number': {
-      return `${value}d`;
+      return Serialize.number(value);
     }
 
     case 'string': {
-      return `"${value}"`;
+      return Serialize.string(value);
     }
   }
 }
+
+export const Serialize = {
+  number(value: string): string {
+    return `${value}d`
+  },
+
+  string(value: string): string {
+    return `"${value}"`;
+  }
+};

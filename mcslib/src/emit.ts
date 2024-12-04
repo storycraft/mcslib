@@ -3,7 +3,7 @@ import { FunctionWriter } from './lib.js';
 import { Alloc, alloc, Location } from './emit/alloc.js';
 import { NodeMap, walkNode } from './emit/node.js';
 import { McsFunction } from './fn.js';
-import { Primitive } from './types.js';
+import { VarType, wrapTyped } from './types.js';
 
 export const NAMESPACE = 'mcs:system';
 export const REGISTERS = 'registers';
@@ -52,7 +52,7 @@ export class TrackedWriter {
 
   async copyRef(alloc: Alloc, from: Ref, to: Location) {
     if (from.kind === 'const') {
-      return this.copyConst(from.value, to);
+      return this.copyConst(from.type, from.value, to);
     } else {
       return this.copy(alloc.resolve(from), to);
     }
@@ -76,14 +76,14 @@ export class TrackedWriter {
     );
   }
 
-  async copyConst(value: Primitive, to: Location) {
-    if (value != null) {
+  async copyConst(type: VarType, value: string, to: Location) {
+    if (type !== 'empty') {
       if (to.at === 'register') {
         this.invalidate(to.index);
       }
 
       await this.inner.write(
-        `data modify storage ${NAMESPACE} ${resolveLoc(to)} set value ${serializeValue(value)}`
+        `data modify storage ${NAMESPACE} ${resolveLoc(to)} set value ${wrapTyped(type, value)}`
       );
     }
   }
@@ -162,12 +162,4 @@ export function resolveStack(loc: Location): string {
 
 export function resolveRegister(register: number): string {
   return `${REGISTERS}.r${register + 1}`;
-}
-
-export function serializeValue(value: Primitive) {
-  if (typeof value === 'number') {
-    return `${value}d`;
-  } else {
-    return JSON.stringify(value);
-  }
 }

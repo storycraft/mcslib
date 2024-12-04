@@ -19,7 +19,7 @@ export function low(f: Fn): IrFunction {
     last.end = {
       ins: 'ret',
       span: f.block.span,
-      ref: newConst(null, f.block.span),
+      ref: newConst('empty', '', f.block.span),
     };
   }
 
