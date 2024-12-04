@@ -32,7 +32,7 @@ type Part<T extends string> = { part: T };
 type ExecuteTextPart = Part<'text'> & { text: string };
 type ExecuteRef = Part<'ref'> & { ref: Ref };
 
-export type Rvalue = Ref | Call | Binary | Unary | Output | Data;
+export type Rvalue = Ref | Call | Binary | Unary | Output;
 
 type RvalueKind<T extends string> = {
   kind: T,
@@ -78,8 +78,4 @@ export type Index = RvalueKind<'index'> & {
 
 export type Output = RvalueKind<'output'> & {
   template: ExecuteTemplate,
-}
-
-export type Data = RvalueKind<'data'> & {
-  rest: ExecuteTemplate,
 }

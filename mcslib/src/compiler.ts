@@ -3,7 +3,7 @@ import { FunctionDir, FunctionWriter } from './lib.js';
 import { emit, NAMESPACE, resolveRegister, STACK } from './emit.js';
 import { build } from './builder.js';
 import { mangle } from './compiler/mangle.js';
-import { VarType } from './types.js';
+import { VarType, wrapTyped } from './types.js';
 import { low } from './lowering.js';
 import { checkType } from './ast/pass/type-check.js';
 import { checkInit } from './ir/pass/init_check.js';
@@ -44,25 +44,20 @@ export class Compiler {
     const { fullName: inner, diagnostics } = await this.compile(fn);
     const writer = await FunctionWriter.create(this.dir, name);
     try {
-      if (fn.sig.args.length > 0) {
-        const obj = fn.sig.args.map((_, i) => {
-          switch (fn.sig.args[i]) {
-            case 'number': {
-              return `a${i}:$(${args[i]})d`;
-            }
+      const length = fn.sig.args.length;
+      if (length > 0) {
+        const keys: string[] = [];
+        for (let i = 0; i < length; i++) {
+          const type = fn.sig.args[i];
+          const name = args[i];
 
-            case 'string': {
-              return `a${i}:"$(${args[i]})"`;
-            }
-
-            case 'empty': {
-              return `a${i}:0`;
-            }
+          if (type !== 'empty') {
+            keys.push(`a${i}:${wrapTyped(type, `$(${name})`)}`);
           }
+        }
 
-        }).join(',');
         await writer.write(
-          `$data modify storage ${NAMESPACE} ${STACK} append value {${obj}}`
+          `$data modify storage ${NAMESPACE} ${STACK} append value {${keys.join(',')}}`
         );
       } else {
         await writer.write(

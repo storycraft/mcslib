@@ -1,4 +1,4 @@
-import { Assign, Block, Break, Continue, Execute, If, Local, Loop, Return, Stmt, ExprStmt, Expr, Id, Literal, Call, Unary, Binary, Output, Data } from '@/ast.js';
+import { Assign, Block, Break, Continue, Execute, If, Local, Loop, Return, Stmt, ExprStmt, Expr, Id, Literal, Call, Unary, Binary, Output } from '@/ast.js';
 
 /**
  * Visitor interface for statement ast.
@@ -90,7 +90,6 @@ export interface ExprVisitor {
   visitUnary?(expr: Unary): boolean;
   visitCall?(expr: Call): boolean;
   visitOutput?(expr: Output): boolean;
-  visitData?(expr: Data): boolean;
 }
 
 export function acceptExpr(expr: Expr, v: ExprVisitor) {
@@ -131,11 +130,6 @@ export function acceptExpr(expr: Expr, v: ExprVisitor) {
 
     case 'output': {
       v.visitOutput?.(expr);
-      break;
-    }
-
-    case 'data': {
-      v.visitData?.(expr);
       break;
     }
   }

@@ -67,7 +67,7 @@ export type Break = Ast<'break'> & {
   label?: Label,
 }
 
-export type Expr = Id | Binary | Unary | Literal | Call | Output | Data;
+export type Expr = Id | Binary | Unary | Literal | Call | Output;
 
 declare const marker: unique symbol;
 export type Id<T = VarType> = Ast<'id'> & {
@@ -97,9 +97,4 @@ export type Call<Sig extends FnSig = FnSig> = Ast<'call'> & {
 
 export type Output = Ast<'output'> & {
   template: CommandTemplate,
-}
-
-export type Data = Ast<'data'> & {
-  type: VarType,
-  rest: CommandTemplate,
 }
