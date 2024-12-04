@@ -46,7 +46,7 @@ export function initialState(): RegState {
  */
 export class TrackedWriter {
   constructor(
-    private readonly state: RegState,
+    private state: RegState,
     public readonly inner: FunctionWriter,
   ) { }
 
@@ -86,6 +86,10 @@ export class TrackedWriter {
         `data modify storage ${NAMESPACE} ${resolveLoc(to)} set value ${wrapTyped(type, value)}`
       );
     }
+  }
+
+  invalidateAll() {
+    this.state = initialState();
   }
 
   invalidate(loc: Location) {

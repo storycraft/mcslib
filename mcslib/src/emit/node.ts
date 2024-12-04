@@ -133,7 +133,7 @@ async function assignRvalue(
       }
 
       await call(env, fullName, rvalue.args, writer.inner);
-      writer.invalidate(Location.register(0));
+      writer.invalidateAll();
       await writer.copy(Location.register(0), to);
       break;
     }
