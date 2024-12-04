@@ -256,7 +256,9 @@ export class NodeMap {
       return name;
     }
 
-    const writer = await parentWriter.branch();
+    const writer = new TrackedWriter(
+      await parentWriter.inner.createBranch()
+    );
     this.map.set(node, writer.inner.name);
     try {
       await walkNode(env, node, writer);

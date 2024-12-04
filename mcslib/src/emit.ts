@@ -26,7 +26,7 @@ export async function emit(
     linkMap,
   };
 
-  await walkNode(env, ir.node, new TrackedWriter(initialState(), writer));
+  await walkNode(env, ir.node, new TrackedWriter(writer));
 }
 
 export type Env = {
@@ -46,8 +46,8 @@ export function initialState(): RegState {
  */
 export class TrackedWriter {
   constructor(
-    private state: RegState,
     public readonly inner: FunctionWriter,
+    private state: RegState = initialState(),
   ) { }
 
   async copyRef(alloc: Alloc, from: Ref, to: Location) {
@@ -59,13 +59,13 @@ export class TrackedWriter {
   }
 
   async copy(from: Location, to: Location) {
-    if (!this.diff(from, to)) {
+    if (this.same(from, to)) {
       return;
     }
 
     if (to.at === 'register') {
       const loc = this.state.at(to.index);
-      if (loc && !this.diff(from, loc)) {
+      if (loc && this.same(from, loc)) {
         return;
       }
       this.state[to.index] = from;
@@ -78,9 +78,7 @@ export class TrackedWriter {
 
   async copyConst(type: VarType, value: string, to: Location) {
     if (type !== 'empty') {
-      if (to.at === 'register') {
-        this.invalidate(to);
-      }
+      this.invalidate(to);
 
       await this.inner.write(
         `data modify storage ${NAMESPACE} ${resolveLoc(to)} set value ${wrapTyped(type, value)}`
@@ -103,29 +101,24 @@ export class TrackedWriter {
   }
 
   /**
-   * Check if two locations are pointing different.
+   * Check if two locations are pointing same.
    * 
-   * @returns true if different, false otherwise
+   * @returns true if same, false otherwise
    */
-  private diff(loc1: Location, loc2: Location): boolean {
+  private same(loc1: Location, loc2: Location): boolean {
     if (loc1.at === 'none' && loc2.at === 'none') {
-      return false;
+      return true;
     }
 
-    if (
-      loc1.at === 'register' && loc2.at === 'register'
-      || loc1.at === 'argument' && loc2.at === 'argument'
-      || loc1.at === 'local' && loc2.at === 'local'
-    ) {
-      return loc1.index !== loc2.index;
+    if (loc1.at !== 'none' && loc1.at === loc2.at) {
+      return loc1.index === loc2.index;
     }
 
-    return true;
+    return false;
   }
 
   async branch(): Promise<TrackedWriter> {
     return new TrackedWriter(
-      [...this.state],
       await this.inner.createBranch(),
     )
   }
