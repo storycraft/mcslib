@@ -189,6 +189,11 @@ class ExprChecker implements ExprVisitor {
     return true;
   }
 
+  visitString(): boolean {
+    this.type = 'string';
+    return true;
+  }
+
   visitId(id: Id): boolean {
     const ty = this.cx.vars.get(id.id);
     if (ty == null) {

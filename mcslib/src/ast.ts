@@ -67,7 +67,7 @@ export type Break = Ast<'break'> & {
   label?: Label,
 }
 
-export type Expr = Id | Binary | Unary | Number | Call | Output;
+export type Expr = Id | Binary | Unary | Call | Output | Const;
 
 declare const marker: unique symbol;
 export type Id<T = VarType> = Ast<'id'> & {
@@ -75,7 +75,13 @@ export type Id<T = VarType> = Ast<'id'> & {
   [marker]?: T,
 }
 
-export type Number = Ast<'number'> & {
+export type Const = ConstNumber | ConstString;
+
+export type ConstNumber = Ast<'number'> & {
+  value: string,
+}
+
+export type ConstString = Ast<'string'> & {
   value: string,
 }
 
