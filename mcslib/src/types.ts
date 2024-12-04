@@ -4,12 +4,12 @@
 export type VarType = VarDataType;
 
 export type VarRefType = `ref<${VarDataType}>`;
-export type VarDataType = 'number' | 'string' | 'empty';
+export type VarDataType = 'number' | 'string' | 'object' | 'empty';
 
 export function wrapTyped(type: VarType, value: string): string {
   switch (type) {
     case 'empty': {
-      return value;
+      return '0';
     }
 
     case 'number': {
@@ -18,6 +18,10 @@ export function wrapTyped(type: VarType, value: string): string {
 
     case 'string': {
       return Serialize.string(value);
+    }
+
+    case 'object': {
+      return value;
     }
   }
 }

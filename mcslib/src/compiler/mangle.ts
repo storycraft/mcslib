@@ -4,6 +4,7 @@ import { VarType } from '@/types.js';
 const MANGLE_MAP: Record<VarType, string> = {
   'number': 'n',
   'string': 's',
+  'object': 'o',
   'empty': 'v',
 }
 
