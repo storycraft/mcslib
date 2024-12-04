@@ -1,4 +1,4 @@
-import { Assign, Binary, Call, Expr, Id, If, Local, Return, Stmt, Unary } from '@/ast.js';
+import { Assign, Binary, Call, Expr, Id, If, Literal, Local, Return, Stmt, Unary } from '@/ast.js';
 import { acceptExpr, acceptStmt, ExprVisitor, StmtVisitor } from '@/ast/visit.js';
 import { diagnostic, Diagnostic } from '@/diagnostic.js';
 import { Fn } from '@/fn.js';
@@ -184,13 +184,8 @@ class ExprChecker implements ExprVisitor {
     return true;
   }
 
-  visitNumber(): boolean {
-    this.type = 'number';
-    return true;
-  }
-
-  visitString(): boolean {
-    this.type = 'string';
+  visitLiteral(expr: Literal): boolean {
+    this.type = expr.type;
     return true;
   }
 
