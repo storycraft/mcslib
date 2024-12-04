@@ -1,4 +1,4 @@
-import { Env, NAMESPACE, resolveRegister, resolveStack, STACK, TrackedWriter } from '@/emit.js';
+import { Env, NAMESPACE, resolveLoc, resolveStack, STACK, TrackedWriter } from '@/emit.js';
 import { ExecuteTemplate, Rvalue, Ins } from '@/ir.js';
 import { EndIns } from '@/ir/end.js';
 import { Node } from '@/ir/node.js';
@@ -16,8 +16,7 @@ export async function walkNode(env: Env, node: Node, writer: TrackedWriter) {
 async function walkIns(env: Env, ins: Ins, writer: TrackedWriter) {
   switch (ins.ins) {
     case 'assign': {
-      await walkExpr(env, ins.rvalue, writer);
-      await writer.copy(Location.register(0), env.alloc.resolve(ins.index));
+      await assignRvalue(env, ins.rvalue, env.alloc.resolve(ins.index), writer);
       break;
     }
 
@@ -93,62 +92,70 @@ function hasRef(...templates: ExecuteTemplate[]): boolean {
   );
 }
 
-async function walkExpr(env: Env, ins: Rvalue, writer: TrackedWriter) {
-  switch (ins.kind) {
+async function assignRvalue(
+  env: Env,
+  rvalue: Rvalue,
+  to: Location,
+  writer: TrackedWriter
+) {
+  switch (rvalue.kind) {
     case 'index': {
-      await writer.copy(env.alloc.resolve(ins), Location.register(0));
+      await writer.copy(env.alloc.resolve(rvalue), to);
       break;
     }
 
     case 'const': {
-      await writer.copyConst(ins.type, ins.value, Location.register(0));
+      await writer.copyConst(rvalue.type, rvalue.value, to);
       break;
     }
 
     case 'binary': {
-      await writer.copyRef(env.alloc, ins.left, Location.register(0));
-      await writer.copyRef(env.alloc, ins.right, Location.register(1));
-      await binary(ins.op, writer.inner);
-      writer.invalidate(0);
+      await writer.copyRef(env.alloc, rvalue.left, Location.register(0));
+      await writer.copyRef(env.alloc, rvalue.right, Location.register(1));
+      await binary(rvalue.op, writer.inner);
+      writer.invalidate(Location.register(0));
+      await writer.copy(Location.register(0), to);
       break;
     }
 
     case 'unary': {
-      await writer.copyRef(env.alloc, ins.operand, Location.register(0));
-      await unary(ins.op, writer.inner);
-      writer.invalidate(0);
+      await writer.copyRef(env.alloc, rvalue.operand, Location.register(0));
+      await unary(rvalue.op, writer.inner);
+      writer.invalidate(Location.register(0));
+      await writer.copy(Location.register(0), to);
       break;
     }
 
     case 'call': {
-      const fullName = env.linkMap.get(ins.f);
+      const fullName = env.linkMap.get(rvalue.f);
       if (fullName == null) {
-        throw new Error(`Function ${ins.f.buildFn} cannot be found from the link map`);
+        throw new Error(`Function ${rvalue.f.buildFn} cannot be found from the link map`);
       }
 
-      await call(env, fullName, ins.args, writer.inner);
-      writer.invalidate(0);
+      await call(env, fullName, rvalue.args, writer.inner);
+      writer.invalidate(Location.register(0));
+      await writer.copy(Location.register(0), to);
       break;
     }
 
     case 'output': {
       let run: string;
-      if (hasRef(ins.template)) {
+      if (hasRef(rvalue.template)) {
         const executeWriter = await writer.branch();
         try {
           run = `function ${executeWriter.inner.namespace}:${executeWriter.inner.name} with storage ${NAMESPACE} ${STACK}[-1]`;
-          await executeWriter.inner.write(formatTemplate(env, ins.template, 'return run '));
+          await executeWriter.inner.write(formatTemplate(env, rvalue.template, 'return run '));
         } finally {
           await executeWriter.close();
         }
       } else {
-        run = formatTemplate(env, ins.template);
+        run = formatTemplate(env, rvalue.template);
       }
 
       await writer.inner.write(
-        `execute store result storage ${NAMESPACE} ${resolveRegister(0)} double 1 run ${run}`
+        `execute store result storage ${NAMESPACE} ${resolveLoc(to)} double 1 run ${run}`
       );
-      writer.invalidate(0);
+      writer.invalidate(to);
       break;
     }
 

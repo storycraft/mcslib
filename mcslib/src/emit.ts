@@ -79,7 +79,7 @@ export class TrackedWriter {
   async copyConst(type: VarType, value: string, to: Location) {
     if (type !== 'empty') {
       if (to.at === 'register') {
-        this.invalidate(to.index);
+        this.invalidate(to);
       }
 
       await this.inner.write(
@@ -88,9 +88,9 @@ export class TrackedWriter {
     }
   }
 
-  invalidate(register: number) {
-    if (!(this.state.at(register)?.at === 'none')) {
-      this.state[register] = Location.none();
+  invalidate(loc: Location) {
+    if (loc.at === 'register' && !(this.state.at(loc.index)?.at === 'none')) {
+      this.state[loc.index] = Location.none();
     }
   }
 
