@@ -234,7 +234,8 @@ function parseTerm(cx: ParseCx): Expr {
   } else if (term.value.kind === 'number') {
     cx.index++;
     return {
-      kind: 'number',
+      kind: 'literal',
+      type: 'number',
       span: cx.span,
       value: term.value.value,
     };

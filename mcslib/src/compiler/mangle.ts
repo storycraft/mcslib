@@ -2,9 +2,13 @@ import { FnSig } from '@/fn.js';
 import { VarType } from '@/types.js';
 
 const MANGLE_MAP: Record<VarType, string> = {
-  'number': 'n',
+  'number': 'd',
   'string': 's',
-  'object': 'o',
+  'compound': 'c',
+  'list': 'l',
+  'int_array': 'ai',
+  'byte_array': 'ab',
+  'long_array': 'al',
   'empty': 'v',
 }
 

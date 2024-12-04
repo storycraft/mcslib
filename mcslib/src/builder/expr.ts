@@ -1,7 +1,7 @@
 import { FnSig, McsFunction } from '@/fn.js';
 import { parseExpr, Term } from './expr/parse.js';
 import { lex } from './expr/lex.js';
-import { Expr, Call, CommandTemplate, Output, ConstString } from '@/ast.js';
+import { Expr, Call, CommandTemplate, Output, Literal } from '@/ast.js';
 import { callSite } from '@/span.js';
 import { fnScope } from '@/builder.js';
 
@@ -45,12 +45,39 @@ export function mcsExpr(
   return parseExpr(terms, span);
 }
 
-export function mcsString(value: string): ConstString {
-  return {
-    kind: 'string',
-    span: callSite(),
-    value,
-  };
+export function mcsLit(
+  value: boolean | number | string
+): Literal {
+  const span = callSite();
+
+  switch (typeof value) {
+    case 'boolean': {
+      return {
+        kind: 'literal',
+        span,
+        type: 'number',
+        value: value ? '1' : '0',
+      };
+    }
+
+    case 'number': {
+      return {
+        kind: 'literal',
+        span,
+        type: 'number',
+        value: value.toString(),
+      };
+    }
+
+    case 'string': {
+      return {
+        kind: 'literal',
+        span,
+        type: 'string',
+        value,
+      };
+    }
+  }
 }
 
 export function mcsOutput(template: CommandTemplate): Output {

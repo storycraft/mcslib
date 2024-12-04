@@ -1,5 +1,5 @@
 import { Env, newStorage, parseTemplate } from '../lowering.js';
-import { Binary, Call, Expr, Id, ConstNumber, Output, Unary, ConstString } from '@/ast.js';
+import { Binary, Call, Expr, Id, Literal, Output, Unary } from '@/ast.js';
 import { acceptExpr, ExprVisitor } from '@/ast/visit.js';
 import { Index, Ref } from '@/ir.js';
 import { Node } from '@/ir/node.js';
@@ -112,21 +112,11 @@ class ExprLowVisitor implements ExprVisitor {
     return true;
   }
 
-  visitNumber(expr: ConstNumber): boolean {
+  visitLiteral(expr: Literal): boolean {
     this.ref = {
       kind: 'const',
       span: expr.span,
-      type: 'number',
-      value: expr.value,
-    };
-    return true;
-  }
-
-  visitString(expr: ConstString): boolean {
-    this.ref = {
-      kind: 'const',
-      span: expr.span,
-      type: 'string',
+      type: expr.type,
       value: expr.value,
     };
     return true;

@@ -4,7 +4,8 @@
 export type VarType = VarDataType;
 
 export type VarRefType = `ref<${VarDataType}>`;
-export type VarDataType = 'number' | 'string' | 'object' | 'empty';
+export type VarDataType = 'empty' | 'number' | 'string' | 'compound' | VarArrayType | 'list';
+export type VarArrayType = 'byte_array' | 'int_array' | 'long_array';
 
 export function wrapTyped(type: VarType, value: string): string {
   switch (type) {
@@ -20,7 +21,7 @@ export function wrapTyped(type: VarType, value: string): string {
       return Serialize.string(value);
     }
 
-    case 'object': {
+    default: {
       return value;
     }
   }
