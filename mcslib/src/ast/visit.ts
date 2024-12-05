@@ -114,7 +114,7 @@ export function acceptExpr(expr: Expr, v: ExprVisitor) {
 
     case 'unary': {
       if (!v.visitUnary?.(expr)) {
-        acceptExpr(expr.expr, v);
+        acceptExpr(expr.operand, v);
       }
       break;
     }

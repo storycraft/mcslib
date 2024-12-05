@@ -207,7 +207,7 @@ function parseNot(cx: ParseCx): Unary {
     kind: 'unary',
     span: cx.span,
     op: '!',
-    expr: parseCondition(cx),
+    operand: parseCondition(cx),
   };
 }
 
@@ -217,7 +217,7 @@ function parseNeg(cx: ParseCx): Unary {
     kind: 'unary',
     span: cx.span,
     op: '-',
-    expr: parseFactor(cx),
+    operand: parseFactor(cx),
   };
 }
 
@@ -237,7 +237,7 @@ function parseTerm(cx: ParseCx): Expr {
       kind: 'literal',
       type: 'number',
       span: cx.span,
-      value: term.value.value,
+      value: Number.parseFloat(term.value.value),
     };
   }
 

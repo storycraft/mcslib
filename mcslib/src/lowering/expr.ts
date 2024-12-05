@@ -50,7 +50,7 @@ class ExprLowVisitor implements ExprVisitor {
   }
 
   visitUnary(expr: Unary): boolean {
-    const ref = this.low(expr.expr);
+    const ref = this.low(expr.operand);
     const index = newStorage(this.env, expr.span);
     this.node.ins.push({
       ins: 'assign',
@@ -117,7 +117,7 @@ class ExprLowVisitor implements ExprVisitor {
       kind: 'const',
       span: expr.span,
       type: expr.type,
-      value: expr.value,
+      value: expr.value.toString(),
     };
     return true;
   }

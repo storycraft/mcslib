@@ -75,9 +75,14 @@ export type Id<T = VarType> = Ast<'id'> & {
   [marker]?: T,
 }
 
-export type Literal = Ast<'literal'> & {
-  type: VarType,
-  value: string,
+export type Literal = Ast<'literal'> & (
+  LiteralVariant<'number', number>
+  | LiteralVariant<'string', string>
+);
+
+type LiteralVariant<T extends VarType, V> = {
+  type: T,
+  value: V,
 }
 
 export type Binary = Ast<'binary'> & {
@@ -88,7 +93,7 @@ export type Binary = Ast<'binary'> & {
 
 export type Unary = Ast<'unary'> & {
   op: '-' | '!',
-  expr: Expr,
+  operand: Expr,
 }
 
 export type Call<Sig extends FnSig = FnSig> = Ast<'call'> & {

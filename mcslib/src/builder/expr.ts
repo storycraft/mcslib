@@ -56,7 +56,7 @@ export function mcsLit(
         kind: 'literal',
         span,
         type: 'number',
-        value: value ? '1' : '0',
+        value: 1,
       };
     }
 
@@ -65,7 +65,7 @@ export function mcsLit(
         kind: 'literal',
         span,
         type: 'number',
-        value: value.toString(),
+        value: value,
       };
     }
 

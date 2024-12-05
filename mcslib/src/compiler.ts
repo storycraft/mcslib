@@ -8,6 +8,7 @@ import { low } from './lowering.js';
 import { checkType } from './ast/pass/type-check.js';
 import { checkInit } from './ir/pass/init_check.js';
 import { Diagnostic } from './diagnostic.js';
+import { fold } from './ast/pass/const-fold.js';
 
 export type Export<Args extends VarType[]> = {
   name: string,
@@ -114,6 +115,9 @@ export class Compiler {
         };
       }
     }
+
+    // Constant folding
+    fold(tree.block);
 
     // Ir lowering
     const ir = low(tree);

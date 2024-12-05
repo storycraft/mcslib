@@ -90,7 +90,7 @@ export function mcsWhile(condition: Expr, f: () => void, label?: string) {
       kind: 'unary',
       span: callSite(1),
       op: '!',
-      expr: condition,
+      operand: condition,
     }, () => {
       mcsBreak();
     });
