@@ -112,16 +112,14 @@ async function assignRvalue(
     case 'binary': {
       await writer.copyRef(env.alloc, rvalue.left, Location.register(0));
       await writer.copyRef(env.alloc, rvalue.right, Location.register(1));
-      await binary(rvalue.op, writer.inner);
-      writer.invalidate(Location.register(0));
+      await binary(rvalue.op, writer);
       await writer.copy(Location.register(0), to);
       break;
     }
 
     case 'unary': {
       await writer.copyRef(env.alloc, rvalue.operand, Location.register(0));
-      await unary(rvalue.op, writer.inner);
-      writer.invalidate(Location.register(0));
+      await unary(rvalue.op, writer);
       await writer.copy(Location.register(0), to);
       break;
     }
@@ -132,8 +130,7 @@ async function assignRvalue(
         throw new Error(`Function ${rvalue.f.buildFn} cannot be found from the link map`);
       }
 
-      await call(env, fullName, rvalue.args, writer.inner);
-      writer.invalidateAll();
+      await call(env, fullName, rvalue.args, writer);
       await writer.copy(Location.register(0), to);
       break;
     }
