@@ -12,9 +12,11 @@
     "start:default": "tsx examples/${npm_config_example}",
     "build": "pnpm -r build",
     "check": "pnpm -r check",
-    "lint": "eslint"
+    "lint": "eslint",
+    "ci:publish": "pnpm publish -r"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.10",
     "@eslint/js": "9.16.0",
     "@types/eslint__js": "^8.42.3",
     "@types/node": "^22.10.1",
