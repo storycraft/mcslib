@@ -25,8 +25,8 @@ jobs:
     - name: Install dependencies
       run: pnpm install
 
-    - name: Check syntax & type error
-      run: pnpm check
+    - name: Build project, check syntax and type errors
+      run: pnpm build
 
-    - name: Run linter
+    - name: Check lint
       run: pnpm lint

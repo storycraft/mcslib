@@ -12,8 +12,7 @@
     "start:default": "tsx examples/${npm_config_example}",
     "build": "pnpm -r build",
     "check": "pnpm -r check",
-    "lint": "eslint",
-    "fix": "eslint --fix"
+    "lint": "eslint"
   },
   "devDependencies": {
     "@eslint/js": "9.14.0",
