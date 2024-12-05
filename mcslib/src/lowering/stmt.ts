@@ -57,13 +57,24 @@ class StmtLowVisitor implements StmtVisitor {
       index,
       rvalue: expr,
     });
-
     return true;
   }
 
   visitIf(stmt: If): boolean {
-    const next = emptyNode();
+    const condition = stmt.condition;
+    if (condition.kind === 'literal') {
+      if (condition.value === 0) {
+        if (stmt.else) {
+          acceptStmt(stmt.else, this);
+        }
+      } else {
+        acceptStmt(stmt.block, this);
+      }
 
+      return true;
+    }
+
+    const next = emptyNode();
     const ifNode = emptyNode({ ins: 'jmp', span: stmt.span, next });
     lowStmt(this.env, ifNode, stmt.block).end = {
       ins: 'jmp',
@@ -74,7 +85,7 @@ class StmtLowVisitor implements StmtVisitor {
     const switchIns: SwitchInt = {
       ins: 'switch_int',
       span: stmt.span,
-      ref: lowExpr(this.env, this.node, stmt.condition),
+      ref: lowExpr(this.env, this.node, condition),
       table: [next],
       default: ifNode,
     };

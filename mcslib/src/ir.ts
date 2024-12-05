@@ -40,15 +40,15 @@ type RvalueKind<T extends string> = {
 }
 
 export type Binary = RvalueKind<'binary'> & {
-  op: '+' | '-' | '*' | '/' | '%' | '&&' | '||' | '>' | '<' | '>=' | '<=' | '==' | '!=',
+  op: '+' | 'concat' | '-' | '*' | '/' | '%' | '&&' | '||' | '>' | '<' | '>=' | '<=' | '==' | '!=',
   left: Ref,
   right: Ref,
-};
+}
 
 export type Unary = RvalueKind<'unary'> & {
   op: '-' | '!',
   operand: Ref,
-};
+}
 
 export type Call = RvalueKind<'call'> & {
   args: Ref[],

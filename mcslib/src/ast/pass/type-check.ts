@@ -121,7 +121,15 @@ class ExprChecker implements ExprVisitor {
     const rightTy = this.check(expr.right);
     const leftTy = this.check(expr.left);
 
-    if (leftTy !== 'number' || rightTy !== 'number') {
+    if (
+      (
+        expr.op === '-'
+        || expr.op === '*'
+        || expr.op === '/'
+        || expr.op === '%'
+      )
+      && (leftTy !== 'number' || rightTy !== 'number')
+    ) {
       this.cx.messages.push(
         diagnostic(
           'error',
@@ -134,8 +142,8 @@ class ExprChecker implements ExprVisitor {
   }
 
   visitUnary(expr: Unary): boolean {
-    const ty = this.check(expr.expr);
-    if (ty !== 'number') {
+    const ty = this.check(expr.operand);
+    if (expr.op === '-' && ty !== 'number') {
       this.cx.messages.push(
         diagnostic(
           'error',
