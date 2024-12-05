@@ -15,19 +15,19 @@
     "lint": "eslint"
   },
   "devDependencies": {
-    "@eslint/js": "9.14.0",
+    "@eslint/js": "9.16.0",
     "@types/eslint__js": "^8.42.3",
-    "@types/node": "^22.9.3",
-    "eslint": "9.14.0",
-    "pnpm": "^9.14.3",
+    "@types/node": "^22.10.1",
+    "eslint": "9.16.0",
+    "pnpm": "^9.14.4",
     "run-script-os": "^1.1.6",
-    "typescript": "catalog:",
     "tsx": "^4.19.2",
-    "typescript-eslint": "^8.14.0"
+    "typescript": "catalog:",
+    "typescript-eslint": "^8.17.0"
   },
   "dependencies": {
-    "mcslib": "workspace:*",
-    "@mcslib/datapack": "workspace:*"
+    "@mcslib/datapack": "workspace:*",
+    "mcslib": "workspace:*"
   },
   "packageManager": "pnpm@9.14.3"
 }
