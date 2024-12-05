@@ -17,8 +17,10 @@ About language reference, see [reference.md](./reference.md) (in progress)
  - [x] Store command result into variable
  - [ ] IR optimization (in progress)
    - [x] Loop optimization
+   - [x] Branch prediction
+   - [x] Constant folding
  - [ ] Codegen optimization (in progress)
-   - [x] Optimized memory allocation
+   - [x] Optimized memory placement
    - [ ] Dead code elimination (partial)
 
 ## Example
