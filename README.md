@@ -25,7 +25,7 @@ About language reference, see [reference.md](./reference.md) (in progress)
 
 ## Example
 ### example:draw_star
-Demonstration of interoping between commands and the script
+Demonstration of string concatenation
 
 Source code in `examples/draw-star.ts`
 ![Draw star example preview](./assets/draw_star.png)
