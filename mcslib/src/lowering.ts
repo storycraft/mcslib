@@ -21,7 +21,7 @@ export function low(f: Fn, resolver: TypeResolver): IrFunction {
       {
         kind: 'index',
         span: arg.span,
-        origin: 'local',
+        origin: 'argument',
         index,
       },
     );
