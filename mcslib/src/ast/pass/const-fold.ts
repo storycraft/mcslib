@@ -22,6 +22,8 @@ class StmtOptimizer implements StmtVisitor {
     if (expr.kind === 'literal') {
       this.propagateMap.set(stmt.id.id, expr);
       stmt.expr = expr;
+    } else {
+      this.propagateMap.delete(stmt.id.id);
     }
 
     return true;
