@@ -169,7 +169,7 @@ class Checker implements StmtVisitor, ExprVisitor {
   }
 
   visitId(id: Id): boolean {
-    const ty = this.checkExpr(id);
+    const ty = this.cx.resolver.resolve(id);
     if (ty == null) {
       this.cx.messages.push(
         diagnostic(
