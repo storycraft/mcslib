@@ -1,1 +1,1 @@
-data modify storage mcs:system registers.r1 set value "$(r1)$(r2)"
+$data modify storage mcs:system registers.r1 set value "$(r1)$(r2)"
