@@ -2,7 +2,7 @@ import { Env, NAMESPACE, resolveLoc, resolveStack, STACK, TrackedWriter } from '
 import { ExecuteTemplate, Rvalue, Ins } from '@/ir.js';
 import { EndIns } from '@/ir/end.js';
 import { Node } from '@/ir/node.js';
-import { binary, call, unary } from './intrinsics.js';
+import { binary, call, unary } from './rvalue.js';
 import { Location } from './alloc.js';
 
 export async function walkNode(env: Env, node: Node, writer: TrackedWriter) {

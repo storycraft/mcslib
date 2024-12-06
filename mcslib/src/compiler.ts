@@ -9,6 +9,7 @@ import { checkType } from './ast/pass/type-check.js';
 import { checkInit } from './ir/pass/init_check.js';
 import { Diagnostic } from './diagnostic.js';
 import { fold } from './ast/pass/const-fold.js';
+import { newResolver } from './ast/type-resolver.js';
 
 export type Export<Args extends VarType[]> = {
   name: string,
@@ -104,10 +105,11 @@ export class Compiler {
       };
     }
     const tree = buildRes.f;
+    const typeResolver = newResolver(tree);
 
     // Perform type checking
     {
-      const diagnostics = checkType(buildRes.f);
+      const diagnostics = checkType(buildRes.f, typeResolver);
       if (diagnostics.length > 0) {
         return {
           fullName,
@@ -120,7 +122,7 @@ export class Compiler {
     fold(tree.block);
 
     // Ir lowering
-    const ir = low(tree);
+    const ir = low(tree, typeResolver);
 
     // Perform init checking
     {

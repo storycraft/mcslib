@@ -5,16 +5,26 @@ import { lowStmt } from './lowering/stmt.js';
 import { CommandTemplate, Id, Label } from './ast.js';
 import { lowExpr } from './lowering/expr.js';
 import { Span } from './span.js';
+import { TypeResolver } from './ast/type-resolver.js';
 
 /**
  * create intermediate representation of a function
  * @param f function to low
+ * @param resolver Type resolver of the function
  * @returns ir of the function
  */
-export function low(f: Fn): IrFunction {
-  const [env, ir] = initIr(f);
-  const last = lowStmt(env, ir.node, f.block);
+export function low(f: Fn, resolver: TypeResolver): IrFunction {
+  const env: Env = {
+    sig: f.sig,
+    resolver,
+    varMap: new VarMap(),
+    loop: new LoopStack(),
+    dependencies: new Set<McsFunction>(),
+    nextLocalId: 0,
+  };
+  const node = emptyNode();
 
+  const last = lowStmt(env, node, f.block);
   if (last.end.ins === 'unreachable' && env.sig.returns === 'empty') {
     last.end = {
       ins: 'ret',
@@ -23,45 +33,18 @@ export function low(f: Fn): IrFunction {
     };
   }
 
-  ir.locals = env.nextLocalId;
-  return ir;
-}
-
-
-function initIr(f: Fn): [Env, IrFunction] {
-  const env: Env = {
+  return {
     sig: f.sig,
-    varResolver: new VarResolver(),
-    loop: new LoopStack(),
-    dependencies: new Set<McsFunction>(),
-    nextLocalId: 0,
-  };
-
-  const length = f.args.length;
-  for (let i = 0; i < length; i++) {
-    const arg = f.args[i];
-    env.varResolver.register(
-      arg,
-      {
-        kind: 'index',
-        span: arg.span,
-        origin: 'argument',
-        index: i,
-      }
-    );
-  }
-
-  return [env, {
-    sig: f.sig,
-    locals: 0,
-    node: emptyNode(),
+    locals: env.nextLocalId,
+    node: node,
     dependencies: env.dependencies,
-  }];
+  };
 }
 
 export type Env = {
   sig: FnSig,
-  varResolver: VarResolver,
+  resolver: TypeResolver,
+  varMap: VarMap,
   loop: LoopStack,
   dependencies: Set<McsFunction>,
   nextLocalId: number,
@@ -95,7 +78,7 @@ export function newStorage(env: Env, span: Span): Index {
 /**
  * Map var id to ir index
  */
-export class VarResolver {
+export class VarMap {
   private readonly map = new Map<number, Index>();
 
   register(id: Id, index: Index) {
@@ -106,7 +89,7 @@ export class VarResolver {
     this.map.set(id.id, index);
   }
 
-  resolve(id: Id): Index {
+  get(id: Id): Index {
     const item = this.map.get(id.id);
     if (item == null) {
       throw new Error(`local variable id: ${id.id} is not defined`);

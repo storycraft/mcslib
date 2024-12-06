@@ -1,7 +1,8 @@
-import { Assign, Binary, Call, Expr, Id, If, Literal, Local, Return, Stmt, Unary } from '@/ast.js';
+import { Assign, Binary, Call, Expr, Id, If, Return, Stmt, Unary } from '@/ast.js';
 import { acceptExpr, acceptStmt, ExprVisitor, StmtVisitor } from '@/ast/visit.js';
 import { diagnostic, Diagnostic } from '@/diagnostic.js';
 import { Fn } from '@/fn.js';
+import { TypeResolver } from '../type-resolver.js';
 import { VarType } from '@/types.js';
 
 /**
@@ -9,45 +10,40 @@ import { VarType } from '@/types.js';
  * @param f Function to check
  * @returns Type diagnostics
  */
-export function checkType(f: Fn): Diagnostic[] {
+export function checkType(f: Fn, resolver: TypeResolver): Diagnostic[] {
   const cx: Cx = {
     f,
+    resolver,
     messages: [],
-    vars: new Map<number, VarType>(),
   };
 
-  const length = f.args.length;
-  for (let i = 0; i < length; i++) {
-    cx.vars.set(f.args[i].id, f.sig.args[i]);
-  }
-
-  new StmtChecker(cx).check(f.block);
+  new Checker(cx).checkStmt(f.block);
   return cx.messages;
 }
 
 type Cx = {
   f: Fn,
+  resolver: TypeResolver,
   messages: Diagnostic[],
-  vars: Map<number, VarType>,
 }
 
-class StmtChecker implements StmtVisitor {
+class Checker implements StmtVisitor, ExprVisitor {
   constructor(
     private readonly cx: Cx
   ) { }
 
-  check(stmt: Stmt) {
+  checkStmt(stmt: Stmt) {
     acceptStmt(stmt, this);
   }
 
-  visitLocal(stmt: Local): boolean {
-    this.cx.vars.set(stmt.id.id, stmt.ty);
-    return true;
+  checkExpr(expr: Expr): VarType | undefined {
+    acceptExpr(expr, this);
+    return this.cx.resolver.resolve(expr);
   }
 
   visitReturn(stmt: Return): boolean {
     if (stmt.expr) {
-      const ty = new ExprChecker(this.cx).check(stmt.expr);
+      const ty = this.checkExpr(stmt.expr);
       if (ty !== this.cx.f.sig.returns) {
         this.cx.messages.push(
           diagnostic(
@@ -73,10 +69,8 @@ class StmtChecker implements StmtVisitor {
   }
 
   visitAssign(stmt: Assign): boolean {
-    const checker = new ExprChecker(this.cx);
-
-    const ty = checker.check(stmt.id);
-    const exprTy = checker.check(stmt.expr);
+    const ty = this.checkExpr(stmt.id);
+    const exprTy = this.checkExpr(stmt.expr);
 
     if (ty !== exprTy) {
       this.cx.messages.push(
@@ -92,7 +86,7 @@ class StmtChecker implements StmtVisitor {
   }
 
   visitIf(stmt: If): boolean {
-    if (new ExprChecker(this.cx).check(stmt.condition) !== 'number') {
+    if (this.checkExpr(stmt.condition) !== 'number') {
       this.cx.messages.push(
         diagnostic(
           'error',
@@ -104,22 +98,10 @@ class StmtChecker implements StmtVisitor {
 
     return true;
   }
-}
-
-class ExprChecker implements ExprVisitor {
-  private type: VarType = 'empty';
-  constructor(
-    private readonly cx: Cx
-  ) { }
-
-  check(expr: Expr): VarType {
-    acceptExpr(expr, this);
-    return this.type;
-  }
 
   visitBinary(expr: Binary): boolean {
-    const rightTy = this.check(expr.right);
-    const leftTy = this.check(expr.left);
+    const rightTy = this.checkExpr(expr.right);
+    const leftTy = this.checkExpr(expr.left);
 
     if (
       (
@@ -142,7 +124,7 @@ class ExprChecker implements ExprVisitor {
   }
 
   visitUnary(expr: Unary): boolean {
-    const ty = this.check(expr.operand);
+    const ty = this.checkExpr(expr.operand);
     if (expr.op === '-' && ty !== 'number') {
       this.cx.messages.push(
         diagnostic(
@@ -170,7 +152,7 @@ class ExprChecker implements ExprVisitor {
     const length = expr.args.length;
     for (let i = 0; i < length; i++) {
       const argTy = expr.fn.sig.args[i];
-      const ty = this.check(expr.args[i]);
+      const ty = this.checkExpr(expr.args[i]);
 
       if (ty != argTy) {
         this.cx.messages.push(
@@ -183,22 +165,11 @@ class ExprChecker implements ExprVisitor {
       }
     }
 
-    this.type = expr.fn.sig.returns;
-    return true;
-  }
-
-  visitOutput(): boolean {
-    this.type = 'number';
-    return true;
-  }
-
-  visitLiteral(expr: Literal): boolean {
-    this.type = expr.type;
     return true;
   }
 
   visitId(id: Id): boolean {
-    const ty = this.cx.vars.get(id.id);
+    const ty = this.checkExpr(id);
     if (ty == null) {
       this.cx.messages.push(
         diagnostic(
@@ -207,8 +178,6 @@ class ExprChecker implements ExprVisitor {
           id.span,
         )
       );
-    } else {
-      this.type = ty;
     }
 
     return true;

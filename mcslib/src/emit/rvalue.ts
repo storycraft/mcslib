@@ -1,94 +1,101 @@
 import { Env, NAMESPACE, REGISTERS, resolveLoc, resolveRegister, STACK, TrackedWriter } from '@/emit.js';
-import { Binary, Ref, Unary } from '@/ir.js';
+import { BinaryOp, Ref, UnaryOp } from '@/ir.js';
 import { Location } from './alloc.js';
 
-export async function binary(op: Binary['op'], writer: TrackedWriter) {
+export async function binary(op: BinaryOp, writer: TrackedWriter) {
   switch (op) {
-    case '+': {
+    case 'add': {
       await writer.inner.write(
         `function mcs_intrinsic:add with storage ${NAMESPACE} ${REGISTERS}`
       );
       break;
     }
 
-    case '-': {
+    case 'concat': {
+      await writer.inner.write(
+        `function mcs_intrinsic:concat with storage ${NAMESPACE} ${REGISTERS}`
+      );
+      break;
+    }
+
+    case 'sub': {
       await writer.inner.write(
         `function mcs_intrinsic:sub with storage ${NAMESPACE} ${REGISTERS}`
       );
       break;
     }
 
-    case '*': {
+    case 'mul': {
       await writer.inner.write(
         `function mcs_intrinsic:mul with storage ${NAMESPACE} ${REGISTERS}`
       );
       break;
     }
 
-    case '/': {
+    case 'div': {
       await writer.inner.write(
         `function mcs_intrinsic:div with storage ${NAMESPACE} ${REGISTERS}`
       );
       break;
     }
 
-    case '%': {
+    case 'rem': {
       await writer.inner.write(
         `function mcs_intrinsic:remi with storage ${NAMESPACE} ${REGISTERS}`
       );
       break;
     }
 
-    case '==': {
+    case 'eq': {
       await writer.inner.write(
         `execute store success storage ${NAMESPACE} ${resolveRegister(0)} double 1 if predicate mcs_intrinsic:eq`
       );
       break;
     }
 
-    case '!=': {
+    case 'ne': {
       await writer.inner.write(
         `execute store success storage ${NAMESPACE} ${resolveRegister(0)} double 1 unless predicate mcs_intrinsic:eq`
       );
       break;
     }
 
-    case '>': {
+    case 'gt': {
       await writer.inner.write(
         `execute store success storage ${NAMESPACE} ${resolveRegister(0)} double 1 unless predicate mcs_intrinsic:loe`
       );
       break;
     }
 
-    case '<': {
+    case 'lt': {
       await writer.inner.write(
         `execute store success storage ${NAMESPACE} ${resolveRegister(0)} double 1 unless predicate mcs_intrinsic:goe`
       );
       break;
     }
 
-    case '>=': {
+    case 'goe': {
       await writer.inner.write(
         `execute store success storage ${NAMESPACE} ${resolveRegister(0)} double 1 if predicate mcs_intrinsic:goe`
       );
       break;
     }
 
-    case '<=': {
+    case 'loe': {
       await writer.inner.write(
         `execute store success storage ${NAMESPACE} ${resolveRegister(0)} double 1 if predicate mcs_intrinsic:loe`
       );
       break;
     }
 
-    case '&&': {
+    case 'and': {
       await writer.inner.write(
         `execute store success storage ${NAMESPACE} ${resolveRegister(0)} double 1 unless predicate mcs_intrinsic:zero unless predicate mcs_intrinsic:zero_r2`
       );
       break;
     }
 
-    case '||': {
+    case 'or': {
       await writer.inner.write(
         `execute store success storage ${NAMESPACE} ${resolveRegister(0)} double 1 unless predicate mcs_intrinsic:zero`
       );
@@ -102,16 +109,16 @@ export async function binary(op: Binary['op'], writer: TrackedWriter) {
   writer.invalidate(Location.register(0));
 }
 
-export async function unary(op: Unary['op'], writer: TrackedWriter) {
+export async function unary(op: UnaryOp, writer: TrackedWriter) {
   switch (op) {
-    case '-': {
+    case 'neg': {
       await writer.inner.write(
         `function mcs_intrinsic:neg with storage ${NAMESPACE} ${REGISTERS}`
       );
       break;
     }
 
-    case '!': {
+    case 'not': {
       await writer.inner.write(
         `execute store success storage ${NAMESPACE} ${resolveRegister(0)} double 1 if predicate mcs_intrinsic:zero`
       );

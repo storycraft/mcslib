@@ -32,7 +32,7 @@ type Part<T extends string> = { part: T };
 type ExecuteTextPart = Part<'text'> & { text: string };
 type ExecuteRef = Part<'ref'> & { ref: Ref };
 
-export type Rvalue = Ref | Call | Binary | Unary | Output;
+export type Rvalue = Ref | Binary | Unary | Call | Output;
 
 type RvalueKind<T extends string> = {
   kind: T,
@@ -40,15 +40,31 @@ type RvalueKind<T extends string> = {
 }
 
 export type Binary = RvalueKind<'binary'> & {
-  op: '+' | 'concat' | '-' | '*' | '/' | '%' | '&&' | '||' | '>' | '<' | '>=' | '<=' | '==' | '!=',
+  op: BinaryOp,
   left: Ref,
   right: Ref,
 }
+export type BinaryOp =
+  'add'
+  | 'concat'
+  | 'sub'
+  | 'mul'
+  | 'div'
+  | 'rem'
+  | 'and'
+  | 'or'
+  | 'gt'
+  | 'lt'
+  | 'goe'
+  | 'loe'
+  | 'eq'
+  | 'ne';
 
 export type Unary = RvalueKind<'unary'> & {
-  op: '-' | '!',
+  op: UnaryOp,
   operand: Ref,
 }
+export type UnaryOp = 'neg' | 'not';
 
 export type Call = RvalueKind<'call'> & {
   args: Ref[],

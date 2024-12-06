@@ -1,7 +1,7 @@
 import { Env, parseTemplate, rvalueToRef } from '../lowering.js';
 import { Binary, Call, Expr, Id, Literal, Output, Unary } from '@/ast.js';
 import { acceptExpr, ExprVisitor } from '@/ast/visit.js';
-import { Ref } from '@/ir.js';
+import { BinaryOp, Ref, UnaryOp } from '@/ir.js';
 import { Node } from '@/ir/node.js';
 import { unknownSpan } from '@/span.js';
 
@@ -31,10 +31,82 @@ class ExprLowVisitor implements ExprVisitor {
     const right = this.low(expr.right);
     const left = this.low(expr.left);
 
+    let op: BinaryOp;
+    switch (expr.op) {
+      case '+': {
+        if (this.env.resolver.resolve(expr) === 'number') {
+          op = 'add';
+        } else {
+          op = 'concat';
+        }
+        break;
+      }
+
+      case '-': {
+        op = 'sub';
+        break;
+      }
+
+      case '*': {
+        op = 'mul';
+        break;
+      }
+
+      case '/': {
+        op = 'div';
+        break;
+      }
+
+      case '%': {
+        op = 'rem';
+        break;
+      }
+
+      case '>': {
+        op = 'gt';
+        break;
+      }
+
+      case '<': {
+        op = 'lt';
+        break;
+      }
+
+      case '>=': {
+        op = 'goe';
+        break;
+      }
+
+      case '<=': {
+        op = 'loe';
+        break;
+      }
+
+      case '&&': {
+        op = 'and';
+        break;
+      }
+
+      case '||': {
+        op = 'or';
+        break;
+      }
+
+      case '==': {
+        op = 'eq';
+        break;
+      }
+
+      case '!=': {
+        op = 'ne';
+        break;
+      }
+    }
+
     this.ref = rvalueToRef(this.env, this.node, {
       kind: 'binary',
       span: expr.span,
-      op: expr.op,
+      op,
       left,
       right
     });
@@ -42,10 +114,23 @@ class ExprLowVisitor implements ExprVisitor {
   }
 
   visitUnary(expr: Unary): boolean {
+    let op: UnaryOp;
+    switch (expr.op) {
+      case '-': {
+        op = 'neg';
+        break;
+      }
+
+      case '!': {
+        op = 'not';
+        break;
+      }
+    }
+
     this.ref = rvalueToRef(this.env, this.node, {
       kind: 'unary',
       span: expr.span,
-      op: expr.op,
+      op,
       operand: this.low(expr.operand),
     });
     return true;
@@ -91,7 +176,7 @@ class ExprLowVisitor implements ExprVisitor {
   }
 
   visitId(expr: Id): boolean {
-    this.ref = this.env.varResolver.resolve(expr);
+    this.ref = this.env.varMap.get(expr);
     return true;
   }
 }

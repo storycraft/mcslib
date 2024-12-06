@@ -19,7 +19,7 @@ class StmtLowVisitor implements StmtVisitor {
   ) { }
 
   visitLocal(stmt: Local): boolean {
-    this.env.varResolver.register(
+    this.env.varMap.register(
       stmt.id,
       newStorage(this.env, stmt.span)
     );
@@ -48,7 +48,7 @@ class StmtLowVisitor implements StmtVisitor {
   }
 
   visitAssign(stmt: Assign): boolean {
-    const index = this.env.varResolver.resolve(stmt.id);
+    const index = this.env.varMap.get(stmt.id);
     const expr = lowExpr(this.env, this.node, stmt.expr);
 
     this.node.ins.push({
