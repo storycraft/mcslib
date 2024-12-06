@@ -22,19 +22,17 @@ export const index4 = defineMcsFunction(
 
 export const draw_star = defineMcsFunction(['number'], (n) => {
   const y = mcsVar('number', mcsExpr`0`);
-  const str = mcsVar('string');
   mcsWhile(mcsExpr`${y} < ${n}`, () => {
-    mcsAssign(str, mcsLit(''));
-
+    const line = mcsVar('string', mcsLit(''));
     const x = mcsVar('number', mcsExpr`0`);
     mcsWhile(mcsExpr`${x} < ${n}`, () => {
       mcsIf(
         mcsExpr`${mcsCall(index4, [n, x, y])} == 1`,
         () => {
-          mcsAssign(str, mcsExpr`${str} + ${mcsLit('§00')}`);
+          mcsAssign(line, mcsExpr`${line} + ${mcsLit('§00')}`);
         },
         () => {
-          mcsAssign(str, mcsExpr`${str} + ${mcsLit('§d#')}`);
+          mcsAssign(line, mcsExpr`${line} + ${mcsLit('§d#')}`);
         }
       )
 
@@ -42,7 +40,7 @@ export const draw_star = defineMcsFunction(['number'], (n) => {
     });
 
     mcsExecute(
-      mcsCmd`tellraw @s {"text":"${str}"}`
+      mcsCmd`tellraw @s {"text":"${line}"}`
     );
     mcsAssign(y, mcsExpr`${y} + 1`);
   });
