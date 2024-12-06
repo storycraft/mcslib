@@ -1,7 +1,7 @@
-import { Env, newStorage, parseTemplate } from '../lowering.js';
+import { Env, parseTemplate, rvalueToRef } from '../lowering.js';
 import { Binary, Call, Expr, Id, Literal, Output, Unary } from '@/ast.js';
 import { acceptExpr, ExprVisitor } from '@/ast/visit.js';
-import { Index, Ref } from '@/ir.js';
+import { Ref } from '@/ir.js';
 import { Node } from '@/ir/node.js';
 import { unknownSpan } from '@/span.js';
 
@@ -31,84 +31,52 @@ class ExprLowVisitor implements ExprVisitor {
     const right = this.low(expr.right);
     const left = this.low(expr.left);
 
-    const index = newStorage(this.env, expr.span);
-    this.node.ins.push({
-      ins: 'assign',
+    this.ref = rvalueToRef(this.env, this.node, {
+      kind: 'binary',
       span: expr.span,
-      index,
-      rvalue: {
-        kind: 'binary',
-        span: expr.span,
-        op: expr.op,
-        left,
-        right
-      },
+      op: expr.op,
+      left,
+      right
     });
-
-    this.ref = index;
     return true;
   }
 
   visitUnary(expr: Unary): boolean {
-    const ref = this.low(expr.operand);
-    const index = newStorage(this.env, expr.span);
-    this.node.ins.push({
-      ins: 'assign',
+    this.ref = rvalueToRef(this.env, this.node, {
+      kind: 'unary',
       span: expr.span,
-      index,
-      rvalue: {
-        kind: 'unary',
-        span: expr.span,
-        op: expr.op,
-        operand: ref
-      },
+      op: expr.op,
+      operand: this.low(expr.operand),
     });
-    this.ref = index;
     return true;
   }
 
   visitCall(expr: Call): boolean {
-    const args = new Array<Index>(expr.args.length);
+    const args = new Array<Ref>(expr.args.length);
     const length = expr.args.length;
     for (let i = 0; i < length; i++) {
-      const rvalue = this.low(expr.args[i]);
-      const index = newStorage(this.env, rvalue.span);
-
-      this.node.ins.push({
-        ins: 'assign',
-        span: expr.span,
-        index,
-        rvalue,
-      });
-      args[i] = index;
+      args[i] = rvalueToRef(
+        this.env,
+        this.node,
+        this.low(expr.args[i])
+      );
     }
-
-    const index = newStorage(this.env, expr.span);
-    this.node.ins.push({
-      ins: 'assign',
-      span: expr.span,
-      index,
-      rvalue: { kind: 'call', span: expr.span, args, f: expr.fn },
-    });
     this.env.dependencies.add(expr.fn);
 
-    this.ref = index;
+    this.ref = rvalueToRef(
+      this.env,
+      this.node,
+      { kind: 'call', span: expr.span, args, f: expr.fn },
+    );
     return true;
   }
 
   visitOutput(expr: Output): boolean {
-    const index = newStorage(this.env, expr.span);
-    this.node.ins.push({
-      ins: 'assign',
+    this.ref = rvalueToRef(this.env, this.node, {
+      kind: 'output',
       span: expr.span,
-      index,
-      rvalue: {
-        kind: 'output',
-        span: expr.span,
-        template: parseTemplate(this.env, this.node, expr.template)
-      },
+      template: parseTemplate(this.env, this.node, expr.template)
     });
-    this.ref = index;
     return true;
   }
 

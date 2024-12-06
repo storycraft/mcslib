@@ -1,5 +1,5 @@
 import { Fn, FnSig, McsFunction } from '@/fn.js';
-import { IrFunction, Index, newConst, ExecuteTemplate } from './ir.js';
+import { IrFunction, Index, newConst, ExecuteTemplate, Rvalue, Ref } from './ir.js';
 import { emptyNode, Node } from './ir/node.js';
 import { lowStmt } from './lowering/stmt.js';
 import { CommandTemplate, Id, Label } from './ast.js';
@@ -67,6 +67,21 @@ export type Env = {
   nextLocalId: number,
 }
 
+export function rvalueToRef(env: Env, node: Node, rvalue: Rvalue): Ref {
+  if (rvalue.kind === 'index' || rvalue.kind === 'const') {
+    return rvalue;
+  }
+
+  const index = newStorage(env, rvalue.span);
+  node.ins.push({
+    ins: 'assign',
+    span: rvalue.span,
+    index,
+    rvalue,
+  });
+  return index;
+}
+
 export function newStorage(env: Env, span: Span): Index {
   const index = env.nextLocalId++;
   return {
@@ -91,7 +106,7 @@ export class VarResolver {
     this.map.set(id.id, index);
   }
 
-  resolve(id: Id): Index  {
+  resolve(id: Id): Index {
     const item = this.map.get(id.id);
     if (item == null) {
       throw new Error(`local variable id: ${id.id} is not defined`);
