@@ -14,13 +14,26 @@ import { TypeResolver } from './ast/type-resolver.js';
  * @returns ir of the function
  */
 export function low(f: Fn, resolver: TypeResolver): IrFunction {
+  const varMap = new VarMap();
+  f.args.forEach((arg, index) => {
+    varMap.register(
+      arg,
+      {
+        kind: 'index',
+        span: arg.span,
+        origin: 'local',
+        index,
+      },
+    );
+  });
+
   const env: Env = {
     sig: f.sig,
     resolver,
-    varMap: new VarMap(),
+    varMap,
     loop: new LoopStack(),
     dependencies: new Set<McsFunction>(),
-    nextLocalId: 0,
+    nextLocalId: f.args.length,
   };
   const node = emptyNode();
 
