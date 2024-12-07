@@ -1,6 +1,7 @@
 import { AstType } from '@/ast/type.js';
 import { Primitive } from './base.js';
 import { mcsIntrinsic, mcsVar } from '../stmt.js';
+import { Expr } from '@/ast.js';
 
 export class McsNumber extends Primitive {
   static readonly type: AstType = 'number';
@@ -44,6 +45,18 @@ export class McsNumber extends Primitive {
     const result = mcsVar(McsNumber);
     mcsIntrinsic('abs', false, ['number'], [this], result);
 
+    return result;
+  }
+
+  max(other: Expr): McsNumber {
+    const result = mcsVar(McsNumber);
+    mcsIntrinsic('max', false, ['number', 'number'], [this, other], result);
+    return result;
+  }
+
+  min(other: Expr): McsNumber {
+    const result = mcsVar(McsNumber);
+    mcsIntrinsic('min', false, ['number', 'number'], [this, other], result);
     return result;
   }
 }

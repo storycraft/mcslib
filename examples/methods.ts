@@ -12,6 +12,8 @@ export const numberMethods = defineMcsFunction(
       mcsCmd`say abs: ${num.abs()}`,
       mcsCmd`say recip: ${num.recip()}`,
       mcsCmd`say sign: ${num.sign()}`,
+      mcsCmd`say max(5): ${num.max(mcsLit(5))}`,
+      mcsCmd`say min(5): ${num.min(mcsLit(5))}`,
     );
   }
 );
