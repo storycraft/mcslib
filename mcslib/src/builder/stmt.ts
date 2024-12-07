@@ -1,22 +1,20 @@
 import { BLOCK_SCOPE, FN_SCOPE } from '../builder.js';
 import { Break, CommandTemplate, Continue, Expr, Id, If, Loop } from '@/ast.js';
 import { callSite } from '@/span.js';
-import { VarType } from '@/types.js';
+import { VarType } from './var.js';
 
-export function mcsVar<const T extends VarType>(ty: T, init?: Expr): Id<T> {
+export function mcsVar<
+  const T extends Id,
+>(constructor: VarType<T>, init?: Expr): T {
   const span = callSite(1);
-  const id: Id<T> = {
-    kind: 'id',
-    span,
-    id: FN_SCOPE.get().varCounter++,
-  };
 
+  const id = new constructor(FN_SCOPE.get().varCounter++, span);
   const stmts = BLOCK_SCOPE.get().stmts;
   stmts.push({
     kind: 'local',
     span,
     id,
-    ty,
+    type: constructor.type,
   });
   if (init) {
     stmts.push({

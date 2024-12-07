@@ -3,13 +3,14 @@ import { FunctionDir, FunctionWriter } from './lib.js';
 import { emit, NAMESPACE, resolveRegister, STACK } from './emit.js';
 import { build } from './builder.js';
 import { mangle } from './compiler/mangle.js';
-import { VarType, wrapTyped } from './types.js';
+import { wrapTyped } from './ast/type.js';
 import { low } from './lowering.js';
 import { checkType } from './ast/pass/type-check.js';
 import { checkInit } from './ir/pass/init_check.js';
 import { Diagnostic } from './diagnostic.js';
 import { fold } from './ast/pass/const-fold.js';
 import { newResolver } from './ast/type-resolver.js';
+import { VarType } from './builder/var.js';
 
 export type Export<Args extends VarType[]> = {
   name: string,
@@ -50,11 +51,11 @@ export class Compiler {
       if (length > 0) {
         const keys: string[] = [];
         for (let i = 0; i < length; i++) {
-          const type = fn.sig.args[i];
+          const constructor = fn.sig.args[i];
           const name = args[i];
 
-          if (type !== 'empty') {
-            keys.push(`a${i}:${wrapTyped(type, `$(${name})`)}`);
+          if (constructor.type !== 'empty') {
+            keys.push(`a${i}:${wrapTyped(constructor.type, `$(${name})`)}`);
           }
         }
 
@@ -70,7 +71,7 @@ export class Compiler {
         `function ${inner}`
       );
 
-      if (fn.sig.returns === 'number') {
+      if (fn.sig.returns.type === 'number') {
         await writer.write(
           `return run data get storage ${NAMESPACE} ${resolveRegister(0)}`
         );

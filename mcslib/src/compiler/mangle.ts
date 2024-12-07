@@ -1,7 +1,8 @@
 import { FnSig } from '@/fn.js';
-import { VarType } from '@/types.js';
+import { AstType } from '@/ast/type.js';
+import { VarType } from '@/builder/var.js';
 
-const MANGLE_MAP: Record<VarType, string> = {
+const MANGLE_MAP: Record<AstType, string> = {
   'number': 'd',
   'string': 's',
   'compound': 'c',
@@ -16,8 +17,10 @@ export function mangle<
   Args extends VarType[],
   Ret extends VarType,
 >(sig: FnSig<Args, Ret>, name: string): string {
-  const args = sig.args.map(ty => MANGLE_MAP[ty]).join('');
-  const ret = MANGLE_MAP[sig.returns];
+  const args = sig.args.map(
+    constructor => MANGLE_MAP[constructor.type]
+  ).join('');
+  const ret = MANGLE_MAP[sig.returns.type];
 
   return `mcslib/${args}_${name}_${ret}`;
 }

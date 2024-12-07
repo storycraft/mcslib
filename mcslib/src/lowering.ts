@@ -38,7 +38,7 @@ export function low(f: Fn, resolver: TypeResolver): IrFunction {
   const node = emptyNode();
 
   const last = lowStmt(env, node, f.block);
-  if (last.end.ins === 'unreachable' && env.sig.returns === 'empty') {
+  if (last.end.ins === 'unreachable' && env.sig.returns.type === 'empty') {
     last.end = {
       ins: 'ret',
       span: f.block.span,

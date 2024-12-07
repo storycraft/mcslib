@@ -1,5 +1,5 @@
 import { Expr, Call, Literal, Id, Binary } from '@/ast.js';
-import { VarType } from '@/types.js';
+import { AstType } from '@/ast/type.js';
 import { ExprVisitor, acceptExpr, acceptStmt } from './visit.js';
 import { Fn } from '@/fn.js';
 
@@ -8,7 +8,7 @@ export interface TypeResolver {
    * Resolve expression type
    * @param expr Expression to resolve
    */
-  resolve(expr: Expr): VarType | undefined;
+  resolve(expr: Expr): AstType | undefined;
 }
 
 /**
@@ -17,15 +17,15 @@ export interface TypeResolver {
  * @returns 
  */
 export function newResolver(f: Fn): TypeResolver {
-  const vars = new Map<number, VarType>();
+  const vars = new Map<number, AstType>();
 
   const length = f.sig.args.length;
   for (let i = 0; i < length; i++) {
-    vars.set(f.args[i].id, f.sig.args[i]);
+    vars.set(f.args[i].id, f.sig.args[i].type);
   }
   acceptStmt(f.block, {
     visitLocal(stmt) {
-      vars.set(stmt.id.id, stmt.ty);
+      vars.set(stmt.id.id, stmt.type);
       return true;
     },
   });
@@ -34,13 +34,13 @@ export function newResolver(f: Fn): TypeResolver {
 }
 
 class ExprResolver implements TypeResolver, ExprVisitor {
-  private type: VarType | undefined;
+  private type: AstType | undefined;
 
   constructor(
-    private readonly vars: Map<number, VarType>
+    private readonly vars: Map<number, AstType>
   ) { }
 
-  resolve(expr: Expr): VarType | undefined {
+  resolve(expr: Expr): AstType | undefined {
     acceptExpr(expr, this);
     return this.type;
   }
@@ -58,7 +58,7 @@ class ExprResolver implements TypeResolver, ExprVisitor {
   }
 
   visitCall(expr: Call): boolean {
-    this.type = expr.fn.sig.returns;
+    this.type = expr.fn.sig.returns.type;
     return true;
   }
 

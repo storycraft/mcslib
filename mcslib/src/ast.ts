@@ -1,6 +1,6 @@
 import { FnSig, McsFunction } from './fn.js';
 import { Span } from './span.js';
-import { VarType } from './types.js'
+import { AstType } from './ast/type.js'
 
 /**
  * identifier for ast types
@@ -18,7 +18,7 @@ export type Block = Ast<'block'> & {
 
 export type Local = Ast<'local'> & {
   id: Id,
-  ty: VarType,
+  type: AstType,
 }
 
 export type Assign = Ast<'assign'> & {
@@ -69,10 +69,8 @@ export type Break = Ast<'break'> & {
 
 export type Expr = Id | Binary | Unary | Call | Output | Literal;
 
-declare const marker: unique symbol;
-export type Id<T = VarType> = Ast<'id'> & {
+export type Id = Ast<'id'> & {
   id: number,
-  [marker]?: T,
 }
 
 export type Literal = Ast<'literal'> & (
@@ -80,7 +78,7 @@ export type Literal = Ast<'literal'> & (
   | LiteralVariant<'string', string>
 );
 
-type LiteralVariant<T extends VarType, V> = {
+type LiteralVariant<T extends AstType, V> = {
   type: T,
   value: V,
 }

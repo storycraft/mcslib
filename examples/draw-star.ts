@@ -1,9 +1,10 @@
 // Port of baekjoon #2447 c solution
 
 import { mcsAssign, mcsVar, mcsReturn, mcsWhile, mcsExpr, defineMcsFunction, mcsIf, mcsExecute, mcsCall, mcsCmd, mcsLit } from 'mcslib/builder.js';
+import { McsNumber, McsString } from 'mcslib/builder/primitive.js';
 
 export const index4 = defineMcsFunction(
-  ['number', 'number', 'number'], (n, x, y) => {
+  [McsNumber, McsNumber, McsNumber], (n, x, y) => {
     mcsWhile(mcsExpr`${n} >= 1`, () => {
       mcsIf(
         mcsExpr`(${x} / ${n}) % 3 == 1 && (${y} / ${n}) % 3 == 1`,
@@ -17,14 +18,14 @@ export const index4 = defineMcsFunction(
 
     mcsReturn(mcsExpr`0`);
   },
-  'number'
+  McsNumber
 );
 
-export const draw_star = defineMcsFunction(['number'], (n) => {
-  const y = mcsVar('number', mcsExpr`0`);
+export const draw_star = defineMcsFunction([McsNumber], (n) => {
+  const y = mcsVar(McsNumber, mcsExpr`0`);
   mcsWhile(mcsExpr`${y} < ${n}`, () => {
-    const line = mcsVar('string', mcsLit(''));
-    const x = mcsVar('number', mcsExpr`0`);
+    const line = mcsVar(McsString, mcsLit(''));
+    const x = mcsVar(McsNumber, mcsExpr`0`);
     mcsWhile(mcsExpr`${x} < ${n}`, () => {
       mcsIf(
         mcsExpr`${mcsCall(index4, [n, x, y])} == 1`,

@@ -1,13 +1,17 @@
 /**
- * possible variable types
+ * Ast type representation
  */
-export type VarType = VarDataType;
+export type AstType =
+  'empty'
+  | 'number'
+  | 'string'
+  | 'compound'
+  | 'byte_array'
+  | 'int_array'
+  | 'long_array'
+  | 'list';
 
-export type VarRefType = `ref<${VarDataType}>`;
-export type VarDataType = 'empty' | 'number' | 'string' | 'compound' | VarArrayType | 'list';
-export type VarArrayType = 'byte_array' | 'int_array' | 'long_array';
-
-export function wrapTyped(type: VarType, value: string): string {
+export function wrapTyped(type: AstType, value: string): string {
   switch (type) {
     case 'empty': {
       return '0';

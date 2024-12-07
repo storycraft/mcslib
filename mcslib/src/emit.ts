@@ -3,7 +3,7 @@ import { FunctionWriter } from './lib.js';
 import { Alloc, alloc, Location } from './emit/alloc.js';
 import { NodeMap, walkNode } from './emit/node.js';
 import { McsFunction } from './fn.js';
-import { VarType, wrapTyped } from './types.js';
+import { AstType, wrapTyped } from './ast/type.js';
 
 export const NAMESPACE = 'mcs:system';
 export const REGISTERS = 'registers';
@@ -76,7 +76,7 @@ export class TrackedWriter {
     );
   }
 
-  async copyConst(type: VarType, value: string, to: Location) {
+  async copyConst(type: AstType, value: string, to: Location) {
     if (type !== 'empty') {
       this.invalidate(to);
 

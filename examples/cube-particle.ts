@@ -1,17 +1,18 @@
 import { defineMcsFunction, mcsAssign, mcsCmd, mcsExecute, mcsExpr, mcsVar, mcsWhile } from 'mcslib/builder.js';
+import { McsNumber, McsString } from 'mcslib/builder/primitive.js';
 
 export const cubeParticle = defineMcsFunction(
-  ['string', 'number', 'number', 'number', 'number'],
+  [McsString, McsNumber, McsNumber, McsNumber, McsNumber],
   (particle, width, length, height, density) => {
-    const xStart = mcsVar('number', mcsExpr`-${width} / 2`);
-    const yStart = mcsVar('number', mcsExpr`-${height} / 2`);
-    const zStart = mcsVar('number', mcsExpr`-${length} / 2`);
+    const xStart = mcsVar(McsNumber, mcsExpr`-${width} / 2`);
+    const yStart = mcsVar(McsNumber, mcsExpr`-${height} / 2`);
+    const zStart = mcsVar(McsNumber, mcsExpr`-${length} / 2`);
 
-    const y = mcsVar('number', mcsExpr`0`);
+    const y = mcsVar(McsNumber, mcsExpr`0`);
     mcsWhile(mcsExpr`${y} <= ${height}`, () => {
-      const x = mcsVar('number', mcsExpr`0`);
+      const x = mcsVar(McsNumber, mcsExpr`0`);
       mcsWhile(mcsExpr`${x} <= ${width}`, () => {
-        const z = mcsVar('number', mcsExpr`0`);
+        const z = mcsVar(McsNumber, mcsExpr`0`);
         mcsWhile(mcsExpr`${z} <= ${length}`, () => {
           const pos = [
             mcsExpr`${xStart} + ${x}`,

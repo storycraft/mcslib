@@ -3,7 +3,7 @@ import { acceptExpr, acceptStmt, ExprVisitor, StmtVisitor } from '@/ast/visit.js
 import { diagnostic, Diagnostic } from '@/diagnostic.js';
 import { Fn } from '@/fn.js';
 import { TypeResolver } from '../type-resolver.js';
-import { VarType } from '@/types.js';
+import { AstType } from '@/ast/type.js';
 
 /**
  * Perform type checking
@@ -36,7 +36,7 @@ class Checker implements StmtVisitor, ExprVisitor {
     acceptStmt(stmt, this);
   }
 
-  checkExpr(expr: Expr): VarType | undefined {
+  checkExpr(expr: Expr): AstType | undefined {
     acceptExpr(expr, this);
     return this.cx.resolver.resolve(expr);
   }
@@ -44,7 +44,7 @@ class Checker implements StmtVisitor, ExprVisitor {
   visitReturn(stmt: Return): boolean {
     if (stmt.expr) {
       const ty = this.checkExpr(stmt.expr);
-      if (ty !== this.cx.f.sig.returns) {
+      if (ty !== this.cx.f.sig.returns.type) {
         this.cx.messages.push(
           diagnostic(
             'error',
@@ -54,7 +54,7 @@ class Checker implements StmtVisitor, ExprVisitor {
         );
       }
     } else {
-      if (this.cx.f.sig.returns !== 'empty') {
+      if (this.cx.f.sig.returns.type !== 'empty') {
         this.cx.messages.push(
           diagnostic(
             'error',
@@ -151,7 +151,7 @@ class Checker implements StmtVisitor, ExprVisitor {
 
     const length = expr.args.length;
     for (let i = 0; i < length; i++) {
-      const argTy = expr.fn.sig.args[i];
+      const argTy = expr.fn.sig.args[i].type;
       const ty = this.checkExpr(expr.args[i]);
 
       if (ty != argTy) {
