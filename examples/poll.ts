@@ -6,7 +6,7 @@ export const poll = defineMcsFunction(
   (start, end) => {
     const prefix = mcsVar(McsString, mcsLit('polled'));
     mcsExecute(
-      mcsCmd`say ${prefix.length()} '${mcsOutput(mcsCmd`random value ${start}..${end}`)}' from range ${start}..${end}`
+      mcsCmd`say ${prefix} '${mcsOutput(mcsCmd`random value ${start}..${end}`)}' from range ${start}..${end}`
     );
   }
 );
