@@ -3,6 +3,7 @@ import { cubeParticle } from './cube-particle.js';
 import { DatapackWriter } from '@mcslib/datapack';
 import { createReadStream, createWriteStream } from 'fs';
 import { poll } from './poll.js';
+import { numberMethods, stringMethods } from './methods.js';
 
 const path = 'example_pack.zip';
 const writer = new DatapackWriter('example', createWriteStream(path));
@@ -36,6 +37,26 @@ if (
   })
 ) {
   console.log(`exported poll function`);
+}
+
+if (
+  await writer.export({
+    name: 'string_methods',
+    fn: stringMethods,
+    args: ['string'],
+  })
+) {
+  console.log(`exported string_methods function`);
+}
+
+if (
+  await writer.export({
+    name: 'number_methods',
+    fn: numberMethods,
+    args: ['number'],
+  })
+) {
+  console.log(`exported number_methods function`);
 }
 
 await writer.finish();
