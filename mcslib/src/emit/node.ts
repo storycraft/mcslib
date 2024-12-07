@@ -208,7 +208,7 @@ async function walkEndIns(env: Env, ins: EndIns, writer: TrackedWriter) {
 
     case 'ret': {
       await writer.copyRef(env.alloc, ins.ref, Location.register(0));
-      if (env.alloc.stackSize > 0) {
+      if (env.alloc.stackSize > 0 || env.alloc.arguments > 0) {
         await writer.inner.write(
           `data remove storage ${NAMESPACE} ${STACK}[-1]`
         );

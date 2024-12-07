@@ -37,6 +37,7 @@ export const Location = {
 }
 
 export interface Alloc {
+  readonly arguments: number,
   readonly stackSize: number,
   resolve(index: Index): Location;
 }
@@ -52,6 +53,7 @@ export function alloc(ir: IrFunction): Alloc {
   const [stackSize, locals] = place(ir.locals, ir.node);
   return {
     stackSize,
+    arguments: ir.sig.args.length,
     resolve({
       origin,
       index
