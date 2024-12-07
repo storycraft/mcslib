@@ -1,4 +1,4 @@
-import { blockScope, fnScope } from '../builder.js';
+import { BLOCK_SCOPE, FN_SCOPE } from '../builder.js';
 import { Break, CommandTemplate, Continue, Expr, Id, If, Loop } from '@/ast.js';
 import { callSite } from '@/span.js';
 import { VarType } from '@/types.js';
@@ -8,10 +8,10 @@ export function mcsVar<const T extends VarType>(ty: T, init?: Expr): Id<T> {
   const id: Id<T> = {
     kind: 'id',
     span,
-    id: fnScope.get().varCounter++,
+    id: FN_SCOPE.get().varCounter++,
   };
 
-  const stmts = blockScope.get().stmts;
+  const stmts = BLOCK_SCOPE.get().stmts;
   stmts.push({
     kind: 'local',
     span,
@@ -31,7 +31,7 @@ export function mcsVar<const T extends VarType>(ty: T, init?: Expr): Id<T> {
 }
 
 export function mcsAssign(id: Id, expr: Expr) {
-  blockScope.get().stmts.push({
+  BLOCK_SCOPE.get().stmts.push({
     kind: 'assign',
     span: callSite(1),
     id,
@@ -52,15 +52,15 @@ export function mcsIf(condition: Expr, f: () => void, elseF?: () => void) {
     },
   };
 
-  blockScope.get().stmts.push(stmt);
-  blockScope.with({ stmts: stmt.block.stmts }, f);
+  BLOCK_SCOPE.get().stmts.push(stmt);
+  BLOCK_SCOPE.with({ stmts: stmt.block.stmts }, f);
   if (elseF) {
     stmt.else = {
       kind: 'block',
       span,
       stmts: [],
     };
-    blockScope.with({ stmts: stmt.else.stmts }, elseF);
+    BLOCK_SCOPE.with({ stmts: stmt.else.stmts }, elseF);
   }
 }
 
@@ -80,8 +80,8 @@ export function mcsLoop(f: () => void, label?: string) {
     stmt.label = { name: label };
   }
 
-  blockScope.get().stmts.push(stmt);
-  blockScope.with({ stmts: stmt.block.stmts }, f);
+  BLOCK_SCOPE.get().stmts.push(stmt);
+  BLOCK_SCOPE.with({ stmts: stmt.block.stmts }, f);
 }
 
 export function mcsWhile(condition: Expr, f: () => void, label?: string) {
@@ -108,7 +108,7 @@ export function mcsContinue(label?: string) {
     stmt.label = { name: label };
   }
 
-  blockScope.get().stmts.push(stmt);
+  BLOCK_SCOPE.get().stmts.push(stmt);
 }
 
 export function mcsBreak(label?: string) {
@@ -120,11 +120,11 @@ export function mcsBreak(label?: string) {
     stmt.label = { name: label };
   }
 
-  blockScope.get().stmts.push(stmt);
+  BLOCK_SCOPE.get().stmts.push(stmt);
 }
 
 export function mcsReturn(expr?: Expr) {
-  blockScope.get().stmts.push({
+  BLOCK_SCOPE.get().stmts.push({
     kind: 'return',
     expr,
     span: callSite(1),
@@ -132,7 +132,7 @@ export function mcsReturn(expr?: Expr) {
 }
 
 export function mcsStmt(expr: Expr) {
-  blockScope.get().stmts.push({
+  BLOCK_SCOPE.get().stmts.push({
     kind: 'expr',
     expr,
     span: callSite(1),
@@ -140,7 +140,7 @@ export function mcsStmt(expr: Expr) {
 }
 
 export function mcsExecute(...templates: CommandTemplate[]) {
-  blockScope.get().stmts.push({
+  BLOCK_SCOPE.get().stmts.push({
     kind: 'execute',
     templates,
     span: callSite(1),

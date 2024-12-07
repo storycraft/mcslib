@@ -17,9 +17,8 @@ export type BlockScope = {
   stmts: Stmt[],
 }
 
-export const fnScope: Store<FnScope> = create();
-
-export const blockScope: Store<BlockScope> = create();
+export const FN_SCOPE: Store<FnScope> = create();
+export const BLOCK_SCOPE: Store<BlockScope> = create();
 
 export function defineMcsFunction<const Args extends VarType[]>(
   args: Args,
@@ -79,11 +78,11 @@ export function build<const Sig extends FnSig>(fn: McsFunction<Sig>): Result<Sig
   };
 
   const diagnostics: Diagnostic[] = [];
-  fnScope.with({
+  FN_SCOPE.with({
     varCounter: fn.sig.args.length,
     diagnostics,
   }, () => {
-    blockScope.with({ stmts: f.block.stmts }, () => {
+    BLOCK_SCOPE.with({ stmts: f.block.stmts }, () => {
       try {
         fn.buildFn(...f.args);
       } catch (e) {

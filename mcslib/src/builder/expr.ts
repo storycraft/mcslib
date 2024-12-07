@@ -3,14 +3,14 @@ import { parseExpr, Term } from './expr/parse.js';
 import { lex } from './expr/lex.js';
 import { Expr, Call, CommandTemplate, Output, Literal } from '@/ast.js';
 import { callSite } from '@/span.js';
-import { fnScope } from '@/builder.js';
+import { FN_SCOPE } from '@/builder.js';
 
 export function mcsExpr(
   arr: TemplateStringsArray,
   ...args: Expr[]
 ): Expr {
   const span = callSite(1);
-  const diagnostics = fnScope.get().diagnostics;
+  const diagnostics = FN_SCOPE.get().diagnostics;
   const terms: Term[] = [];
 
   const lexResult = lex(arr[0], span);
