@@ -21,7 +21,7 @@
     "@types/eslint__js": "^8.42.3",
     "@types/node": "^22.10.1",
     "eslint": "9.16.0",
-    "pnpm": "^9.14.4",
+    "pnpm": "^9.15.0",
     "run-script-os": "^1.1.6",
     "tsx": "^4.19.2",
     "typescript": "catalog:",

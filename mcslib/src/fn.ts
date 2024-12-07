@@ -1,13 +1,15 @@
-import { Id, Block } from '@/ast.js';
+import { Block } from '@/ast.js';
 import { Span } from './span.js';
 import { VarType } from './builder/var.js';
 
 export type Fn<Sig extends FnSig = FnSig> = {
   span: Span,
-  args: Id[],
+  args: CallArgs<Sig['args']>,
   sig: Sig,
   block: Block,
 }
+
+export type CallArgs<Args extends VarType[]> = [...{ [I in keyof Args]: InstanceType<Args[I]> }];
 
 export type FnSig<
   Args extends VarType[] = VarType[],
@@ -23,10 +25,9 @@ export type FnSig<
 export interface McsFunction<Sig extends FnSig = FnSig> {
   readonly span: Span,
   readonly sig: Sig,
-  readonly buildFn: McsBuildFn<Sig>,
+  readonly buildFn: McsBuildFn<Sig['args']>,
 };
 
-export type McsBuildFn<Sig extends FnSig>
-  = Sig extends FnSig<infer Args> ? (
-    ...args: [...{ [I in keyof Args]: InstanceType<Args[I]> }]
-  ) => void : never;
+export type McsBuildFn<Args extends VarType[]> = (
+  ...args: [...{ [I in keyof Args]: InstanceType<Args[I]> }]
+) => void;
