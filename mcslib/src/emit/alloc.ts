@@ -105,6 +105,14 @@ function place(
           }
           break;
         }
+
+        case 'intrinsic': {
+          replaceRefs(cx, ...ins.args);
+          if (ins.out?.origin === 'local') {
+            cx.assignments.push(ins.out.index);
+          }
+          break;
+        }
       }
     }
 
