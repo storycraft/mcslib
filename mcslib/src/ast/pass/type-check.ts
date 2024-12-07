@@ -1,4 +1,4 @@
-import { Assign, Binary, Call, Expr, Id, If, Return, Stmt, Unary } from '@/ast.js';
+import { Assign, Binary, Call, Expr, Id, If, Intrinsic, Return, Stmt, Unary } from '@/ast.js';
 import { acceptExpr, acceptStmt, ExprVisitor, StmtVisitor } from '@/ast/visit.js';
 import { diagnostic, Diagnostic } from '@/diagnostic.js';
 import { Fn } from '@/fn.js';
@@ -96,6 +96,24 @@ class Checker implements StmtVisitor, ExprVisitor {
       );
     }
 
+    return true;
+  }
+
+  visitIntrinsic(stmt: Intrinsic): boolean {
+    const length = stmt.arg_types.length;
+    for (let i = 0; i < length; i++) {
+      const exprTy = this.checkExpr(stmt.args[i]);
+      const expectedTy = stmt.arg_types[i];
+      if (this.checkExpr(stmt.args[i]) !== expectedTy) {
+        this.cx.messages.push(
+          diagnostic(
+            'error',
+            `expected '${expectedTy}' got '${exprTy}'`,
+            stmt.span,
+          )
+        );
+      }
+    }
     return true;
   }
 

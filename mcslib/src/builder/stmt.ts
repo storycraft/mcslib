@@ -2,6 +2,7 @@ import { BLOCK_SCOPE, FN_SCOPE } from '../builder.js';
 import { Break, CommandTemplate, Continue, Expr, Id, If, Loop } from '@/ast.js';
 import { callSite } from '@/span.js';
 import { VarType } from './var.js';
+import { AstType } from '@/ast/type.js';
 
 export function mcsVar<
   const T extends Id,
@@ -176,6 +177,7 @@ export function mcsCmd(arr: TemplateStringsArray, ...exprs: Expr[]): CommandTemp
 export function mcsIntrinsic(
   name: string,
   macro: boolean,
+  arg_types: AstType[],
   args: Expr[],
   out?: Id
 ) {
@@ -184,6 +186,7 @@ export function mcsIntrinsic(
     span: callSite(1),
     name,
     macro,
+    arg_types,
     args,
     out,
   });

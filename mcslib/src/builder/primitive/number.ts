@@ -7,42 +7,42 @@ export class McsNumber extends Primitive {
 
   floor(): McsNumber {
     const result = mcsVar(McsNumber);
-    mcsIntrinsic('floor', false, [this], result);
+    mcsIntrinsic('floor', false, ['number'], [this], result);
 
     return result;
   }
 
   round(): McsNumber {
     const result = mcsVar(McsNumber);
-    mcsIntrinsic('round', true, [this], result);
+    mcsIntrinsic('round', true, ['number'], [this], result);
 
     return result;
   }
 
   ceil(): McsNumber {
     const result = mcsVar(McsNumber);
-    mcsIntrinsic('ceil', true, [this], result);
+    mcsIntrinsic('ceil', true, ['number'], [this], result);
 
     return result;
   }
 
   recip(): McsNumber {
     const result = mcsVar(McsNumber);
-    mcsIntrinsic('recip', true, [this], result);
+    mcsIntrinsic('recip', true, ['number'], [this], result);
 
     return result;
   }
 
   sign(): McsNumber {
     const result = mcsVar(McsNumber);
-    mcsIntrinsic('sign', false, [this], result);
+    mcsIntrinsic('sign', false, ['number'], [this], result);
 
     return result;
   }
 
   abs(): McsNumber {
     const result = mcsVar(McsNumber);
-    mcsIntrinsic('abs', false, [this], result);
+    mcsIntrinsic('abs', false, ['number'], [this], result);
 
     return result;
   }

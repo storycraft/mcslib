@@ -1,4 +1,4 @@
-import { defineMcsFunction, mcsExecute, mcsCmd } from 'mcslib/builder.js';
+import { defineMcsFunction, mcsExecute, mcsCmd, mcsExpr, mcsLit } from 'mcslib/builder.js';
 import { McsNumber, McsString } from 'mcslib/builder/primitive.js';
 
 export const numberMethods = defineMcsFunction(
@@ -22,6 +22,8 @@ export const stringMethods = defineMcsFunction(
     mcsExecute(
       mcsCmd`say string: ${str}`,
       mcsCmd`say length: ${str.length}`,
+      mcsCmd`say slice(0, 5): ${str.slice(mcsLit(0), mcsLit(5))}`,
+      mcsCmd`say slice(6): ${str.slice(mcsLit(6))}`
     );
   }
 );

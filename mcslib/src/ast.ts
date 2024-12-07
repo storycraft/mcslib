@@ -72,6 +72,7 @@ export type Intrinsic = Ast<'intrinsic'> & {
   macro: boolean,
   out?: Id,
   args: Expr[],
+  arg_types: AstType[],
 }
 
 export type Expr = Id | Binary | Unary | Call | Output | Literal;
