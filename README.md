@@ -10,6 +10,7 @@ About language reference, see [reference.md](./reference.md) (in progress)
  - [x] Expression template literal lexer and parser
  - [x] Number type
  - [x] String type
+ - [x] Builtin types and methods(static dispatch)
  - [ ] Reference types
  - [ ] Function, object, array types
  - [ ] Closure and coroutine
@@ -26,6 +27,12 @@ About language reference, see [reference.md](./reference.md) (in progress)
    - [ ] Dead code elimination (partial)
 
 ## Example
+Compile example datapack using
+```bash
+npm start --example=build
+```
+Run datapack with `intrinsics_datapack`
+
 ### example:draw_star
 Demonstration of string concatenation
 
@@ -44,11 +51,11 @@ Demonstration of running command using command output
 Source code in `examples/poll.ts`
 ![poll example preview](./assets/poll.png)
 
-Compile example datapack using
-```bash
-npm start --example=build
-```
-Run datapack with `intrinsics_datapack`
+### example:string_methods, example:number_methods
+Demonstration of running builtin methods
+
+Source code in `examples/methods.ts`
+![poll example preview](./assets/methods.png)
 
 ## License
 mcslib and project resources are licensed under MIT license
