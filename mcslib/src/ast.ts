@@ -1,6 +1,6 @@
 import { FnSig, McsFunction } from './fn.js';
 import { Span } from './span.js';
-import { AstType } from './ast/type.js'
+import { AstType } from './ast/type.js';
 
 /**
  * identifier for ast types
@@ -10,7 +10,7 @@ type Ast<T extends string> = {
   span: Span,
 }
 
-export type Stmt = Block | Local | Assign | If | Loop | Continue | Break | Return | ExprStmt | Execute;
+export type Stmt = Block | Local | Assign | If | Loop | Continue | Break | Return | ExprStmt | Execute | Intrinsic;
 
 export type Block = Ast<'block'> & {
   stmts: Stmt[],
@@ -67,6 +67,13 @@ export type Break = Ast<'break'> & {
   label?: Label,
 }
 
+export type Intrinsic = Ast<'intrinsic'> & {
+  name: string,
+  macro: boolean,
+  out?: Id,
+  args: Expr[],
+}
+
 export type Expr = Id | Binary | Unary | Call | Output | Literal;
 
 export type Id = Ast<'id'> & {
@@ -96,7 +103,7 @@ export type Unary = Ast<'unary'> & {
 
 export type Call<Sig extends FnSig = FnSig> = Ast<'call'> & {
   fn: McsFunction<Sig>,
-  args: Sig extends FnSig<infer Args> ? {[K in keyof Args]: Expr} : never,
+  args: Sig extends FnSig<infer Args> ? { [K in keyof Args]: Expr } : never,
 }
 
 export type Output = Ast<'output'> & {

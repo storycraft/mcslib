@@ -172,3 +172,19 @@ export function mcsCmd(arr: TemplateStringsArray, ...exprs: Expr[]): CommandTemp
 
   return template;
 }
+
+export function mcsIntrinsic(
+  name: string,
+  macro: boolean,
+  args: Expr[],
+  out?: Id
+) {
+  BLOCK_SCOPE.get().stmts.push({
+    kind: 'intrinsic',
+    span: callSite(1),
+    name,
+    macro,
+    args,
+    out,
+  });
+}

@@ -1,7 +1,7 @@
 import { Env, newStorage, parseTemplate } from '../lowering.js';
 import { lowExpr } from './expr.js';
 import { acceptStmt, StmtVisitor } from '@/ast/visit.js';
-import { Local, Return, If, Break, Continue, Stmt, Assign, Loop, Execute } from '@/ast.js';
+import { Local, Return, If, Break, Continue, Stmt, Assign, Loop, Execute, Intrinsic } from '@/ast.js';
 import { emptyNode, Node } from '@/ir/node.js';
 import { SwitchInt } from '@/ir/end.js';
 import { newConst } from '@/ir.js';
@@ -151,6 +151,18 @@ class StmtLowVisitor implements StmtVisitor {
       ),
     });
 
+    return true;
+  }
+
+  visitIntrinsic(stmt: Intrinsic): boolean {
+    this.node.ins.push({
+      ins: 'intrinsic',
+      span: stmt.span,
+      name: stmt.name,
+      macro: stmt.macro,
+      out: stmt.out ? this.env.varMap.get(stmt.out) : undefined,
+      args: stmt.args.map(expr => lowExpr(this.env, this.node, expr)),
+    });
     return true;
   }
 }

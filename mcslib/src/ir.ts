@@ -15,7 +15,7 @@ export type InsTy<T extends string> = {
   span: Span,
 }
 
-export type Ins = Execute | Assign;
+export type Ins = Execute | Assign | Intrinsic;
 
 export type Assign = InsTy<'assign'> & {
   index: Index,
@@ -31,6 +31,13 @@ export type ExecutePart = ExecuteTextPart | ExecuteRef;
 type Part<T extends string> = { part: T };
 type ExecuteTextPart = Part<'text'> & { text: string };
 type ExecuteRef = Part<'ref'> & { ref: Ref };
+
+export type Intrinsic = InsTy<'intrinsic'> & {
+  name: string,
+  macro: boolean,
+  args: Ref[],
+  out?: Index,
+}
 
 export type Rvalue = Ref | Binary | Unary | Call | Output;
 

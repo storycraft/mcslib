@@ -34,15 +34,18 @@ class Checker implements RvalueVisitor {
     this.cx.completeSet.add(node);
 
     for (const ins of node.ins) {
-      if (ins.ins !== 'assign') {
-        continue;
-      }
+      if (ins.ins === 'assign') {
+        const index = ins.index.index;
+        acceptRvalue(ins.rvalue, this);
 
-      const index = ins.index.index;
-      acceptRvalue(ins.rvalue, this);
-
-      if (!this.statuses[index]) {
-        this.statuses[index] = true;
+        if (!this.statuses[index]) {
+          this.statuses[index] = true;
+        }
+      } else if (ins.ins === 'intrinsic' && ins.out) {
+        const index = ins.out.index;
+        if (!this.statuses[index]) {
+          this.statuses[index] = true;
+        }
       }
     }
 

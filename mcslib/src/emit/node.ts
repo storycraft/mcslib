@@ -1,4 +1,4 @@
-import { Env, NAMESPACE, resolveLoc, resolveStack, STACK, TrackedWriter } from '@/emit.js';
+import { Env, NAMESPACE, REGISTERS, resolveLoc, resolveStack, STACK, TrackedWriter } from '@/emit.js';
 import { ExecuteTemplate, Rvalue, Ins } from '@/ir.js';
 import { EndIns } from '@/ir/end.js';
 import { Node } from '@/ir/node.js';
@@ -40,6 +40,29 @@ async function walkIns(env: Env, ins: Ins, writer: TrackedWriter) {
         }
       }
 
+      break;
+    }
+
+    case 'intrinsic': {
+      let cmd = `function mcs_intrinsic:${ins.name}`;
+
+      const length = ins.args.length;
+      if (length > 0) {
+        for (let i = 0; i < length; i++) {
+          const arg = ins.args[i];
+          await writer.copyRef(env.alloc, arg, Location.register(i));
+        }
+
+        if (ins.macro) {
+          cmd += ` with storage ${NAMESPACE} ${REGISTERS}`;
+        }
+      }
+
+      await writer.inner.write(cmd);
+      if (ins.out) {
+        await writer.copy(Location.register(0), env.alloc.resolve(ins.out));
+        writer.invalidate(Location.register(0));
+      }
       break;
     }
   }
