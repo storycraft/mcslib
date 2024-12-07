@@ -6,6 +6,7 @@ import { Fn, CallArgs, FnSig, McsBuildFn, McsFunction } from './fn.js';
 import { callSite, Span } from './span.js';
 import { create, Store } from './store.js';
 
+export * from './builder/fn.js';
 export * from './builder/stmt.js';
 export * from './builder/expr.js';
 
@@ -39,7 +40,7 @@ export function defineMcsFunction<
 
 export function defineMcsFunction(
   args: VarType[],
-  buildFn: McsBuildFn<typeof args>,
+  buildFn: McsBuildFn,
   returns: VarType = McsEmpty,
 ): McsFunction {
   return {

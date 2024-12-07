@@ -25,9 +25,10 @@ export type FnSig<
 export interface McsFunction<Sig extends FnSig = FnSig> {
   readonly span: Span,
   readonly sig: Sig,
-  readonly buildFn: McsBuildFn<Sig['args']>,
+  // prevent from Args being invariance
+  readonly buildFn: Sig extends FnSig<infer Args> ? McsBuildFn<Args> : never,
 };
 
-export type McsBuildFn<Args extends VarType[]> = (
-  ...args: [...{ [I in keyof Args]: InstanceType<Args[I]> }]
+export type McsBuildFn<in Args extends VarType[] = VarType[]> = (
+  ...args: { [I in keyof Args]: InstanceType<Args[I]> }
 ) => void;

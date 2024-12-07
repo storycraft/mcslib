@@ -90,7 +90,7 @@ export function mcsOutput(template: CommandTemplate): Output {
 
 export function mcsCall<const Sig extends FnSig>(
   fn: McsFunction<Sig>,
-  args: Expr[],
+  args: Call<Sig>['args'],
 ): Call<Sig> {
   return {
     kind: 'call',

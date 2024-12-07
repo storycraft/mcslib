@@ -15,7 +15,7 @@ import { VarType } from './builder/var.js';
 export type Export<Args extends VarType[]> = {
   name: string,
   fn: McsFunction<FnSig<Args>>,
-  args: [...{ [T in keyof Args]: string }],
+  args: { [T in keyof Args]: string },
 }
 
 export type CompileResult = {

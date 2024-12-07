@@ -96,7 +96,7 @@ export type Unary = Ast<'unary'> & {
 
 export type Call<Sig extends FnSig = FnSig> = Ast<'call'> & {
   fn: McsFunction<Sig>,
-  args: Expr[],
+  args: Sig extends FnSig<infer Args> ? {[K in keyof Args]: Expr} : never,
 }
 
 export type Output = Ast<'output'> & {
