@@ -1,6 +1,6 @@
 {
   "name": "@mcslib/builder",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Minecraft command script builder",
   "type": "module",
   "types": "build/lib.d.ts",

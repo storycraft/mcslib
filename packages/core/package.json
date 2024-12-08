@@ -1,6 +1,6 @@
 {
   "name": "@mcslib/core",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Minecraft command script core",
   "type": "module",
   "types": "build/lib.d.ts",
