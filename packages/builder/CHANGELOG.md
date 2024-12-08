@@ -1,4 +1,4 @@
-# mcslib
+# @mcslib/builder
 
 ## 0.7.0
 
@@ -9,11 +9,4 @@
 ### Patch Changes
 
 - Updated dependencies [67f484c]
-  - @mcslib/builder@0.7.0
   - @mcslib/core@0.7.0
-
-## 0.6.0
-
-### Minor Changes
-
-- e20a534: v0.6.0

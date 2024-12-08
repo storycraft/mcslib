@@ -1,7 +1,7 @@
 {
   "name": "@mcslib/datapack",
   "description": "Compile MCS functions and pack into a datapack file",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "type": "module",
   "types": "build/lib.d.ts",
   "main": "build/lib.js",
