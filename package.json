@@ -13,7 +13,7 @@
     "build": "pnpm -r build",
     "check": "pnpm -r check",
     "lint": "eslint",
-    "ci:publish": "pnpm publish -r"
+    "ci:publish": "pnpm publish -r --access public"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.10",
