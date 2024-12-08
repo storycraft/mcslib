@@ -1,4 +1,4 @@
-import { Span } from '@/span.js';
+import { Span } from '@mcslib/core';
 import { Id } from '@/ast.js';
 
 export abstract class Primitive implements Id {

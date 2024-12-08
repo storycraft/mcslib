@@ -2,8 +2,8 @@ import { IrFunction, Ref } from '@/ir.js';
 import { FunctionWriter } from './lib.js';
 import { Alloc, alloc, Location } from './emit/alloc.js';
 import { NodeMap, walkNode } from './emit/node.js';
-import { McsFunction } from './fn.js';
-import { AstType, wrapTyped } from './ast/type.js';
+import { McsFunction } from '@mcslib/builder/fn.js';
+import { AstType, wrapTyped } from '@mcslib/builder/ast/type.js';
 
 export const NAMESPACE = 'mcs:system';
 export const REGISTERS = 'registers';

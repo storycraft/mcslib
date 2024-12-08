@@ -1,7 +1,7 @@
 import { Expr, Unary } from '@/ast.js';
 import { Token } from './lex.js';
-import { Span } from '@/span.js';
-import { BuilderError } from '@/builder.js';
+import { Span } from '@mcslib/core';
+import { BuilderError } from '@/lib.js';
 
 type Variant<T, V> = {
   type: T,

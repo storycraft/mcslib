@@ -2,14 +2,14 @@ import { FnSig, McsFunction } from '@/fn.js';
 import { parseExpr, Term } from './expr/parse.js';
 import { lex } from './expr/lex.js';
 import { Expr, Call, CommandTemplate, Output, Literal } from '@/ast.js';
-import { callSite } from '@/span.js';
-import { FN_SCOPE } from '@/builder.js';
+import { Span } from '@mcslib/core';
+import { FN_SCOPE } from '@/lib.js';
 
 export function mcsExpr(
   arr: TemplateStringsArray,
   ...args: Expr[]
 ): Expr {
-  const span = callSite(1);
+  const span = Span.callSite(1);
   const diagnostics = FN_SCOPE.get().diagnostics;
   const terms: Term[] = [];
 
@@ -48,7 +48,7 @@ export function mcsExpr(
 export function mcsLit(
   value: boolean | number | string
 ): Literal {
-  const span = callSite();
+  const span = Span.callSite();
 
   switch (typeof value) {
     case 'boolean': {
@@ -83,7 +83,7 @@ export function mcsLit(
 export function mcsOutput(template: CommandTemplate): Output {
   return {
     kind: 'output',
-    span: callSite(),
+    span: Span.callSite(),
     template,
   };
 }
@@ -94,7 +94,7 @@ export function mcsCall<const Sig extends FnSig>(
 ): Call<Sig> {
   return {
     kind: 'call',
-    span: callSite(1),
+    span: Span.callSite(1),
     fn,
     args,
   }

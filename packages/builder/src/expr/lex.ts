@@ -1,5 +1,4 @@
-import { diagnostic, Diagnostic } from '@/diagnostic.js';
-import { Span } from '@/span.js';
+import { Span, diagnostic, Diagnostic } from '@mcslib/core';
 
 export type Token = {
   kind: 'keyword' | 'number',

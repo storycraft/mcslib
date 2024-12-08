@@ -1,4 +1,4 @@
-import { diagnostic, Diagnostic } from '@/diagnostic.js';
+import { diagnostic, Diagnostic } from '@mcslib/core';
 import { Index, IrFunction } from '@/ir.js';
 import { acceptRvalue, RvalueVisitor } from '../visit.js';
 import { childrenNodes, Node } from '../node.js';

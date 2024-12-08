@@ -1,5 +1,5 @@
-import { defineMcsFunction, mcsAssign, mcsCmd, mcsExecute, mcsExpr, mcsVar, mcsWhile } from 'mcslib/builder.js';
-import { McsNumber, McsString } from 'mcslib/builder/primitive.js';
+import { defineMcsFunction, mcsAssign, mcsCmd, mcsExecute, mcsExpr, mcsVar, mcsWhile } from '@mcslib/builder';
+import { McsNumber, McsString } from '@mcslib/builder/primitive.js';
 
 export const cubeParticle = defineMcsFunction(
   [McsString, McsNumber, McsNumber, McsNumber, McsNumber],

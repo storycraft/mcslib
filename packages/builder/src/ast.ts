@@ -1,5 +1,5 @@
 import { FnSig, McsFunction } from './fn.js';
-import { Span } from './span.js';
+import { Span } from '@mcslib/core';
 import { AstType } from './ast/type.js';
 
 /**

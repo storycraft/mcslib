@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@mcslib/datapack": "workspace:*",
+    "@mcslib/builder": "workspace:*",
     "mcslib": "workspace:*"
   },
   "packageManager": "pnpm@9.14.3"

@@ -1,7 +1,7 @@
 {
   "name": "mcslib",
   "version": "0.6.0",
-  "description": "Minecraft command script library",
+  "description": "Minecraft command script compiler",
   "type": "module",
   "types": "build/lib.d.ts",
   "main": "build/lib.js",
@@ -25,6 +25,7 @@
     "typescript": "catalog:"
   },
   "dependencies": {
-    "stacktracey": "^2.1.8"
+    "@mcslib/core": "workspace:^",
+    "@mcslib/builder": "workspace:^"
   }
 }

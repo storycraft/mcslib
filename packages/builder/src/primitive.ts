@@ -1,4 +1,4 @@
-import { AstType } from '@/ast/type.js';
+import { AstType } from './ast/type.js';
 import { Primitive } from './primitive/base.js';
 
 export * from './primitive/number.js';

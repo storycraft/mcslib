@@ -14,6 +14,9 @@ importers:
 
   .:
     dependencies:
+      '@mcslib/builder':
+        specifier: workspace:*
+        version: link:packages/builder
       '@mcslib/datapack':
         specifier: workspace:*
         version: link:packages/datapack
@@ -54,6 +57,35 @@ importers:
 
   mcslib:
     dependencies:
+      '@mcslib/builder':
+        specifier: workspace:^
+        version: link:../packages/builder
+      '@mcslib/core':
+        specifier: workspace:^
+        version: link:../packages/core
+    devDependencies:
+      tsc-alias:
+        specifier: ^1.8.10
+        version: 1.8.10
+      typescript:
+        specifier: 'catalog:'
+        version: 5.7.2
+
+  packages/builder:
+    dependencies:
+      '@mcslib/core':
+        specifier: workspace:^
+        version: link:../core
+    devDependencies:
+      tsc-alias:
+        specifier: ^1.8.10
+        version: 1.8.10
+      typescript:
+        specifier: 'catalog:'
+        version: 5.7.2
+
+  packages/core:
+    dependencies:
       stacktracey:
         specifier: ^2.1.8
         version: 2.1.8
@@ -67,6 +99,12 @@ importers:
 
   packages/datapack:
     dependencies:
+      '@mcslib/builder':
+        specifier: workspace:^
+        version: link:../builder
+      '@mcslib/core':
+        specifier: workspace:^
+        version: link:../core
       chalk:
         specifier: ^5.3.0
         version: 5.3.0

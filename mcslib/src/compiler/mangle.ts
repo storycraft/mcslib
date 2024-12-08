@@ -1,6 +1,6 @@
-import { FnSig } from '@/fn.js';
-import { AstType } from '@/ast/type.js';
-import { VarType } from '@/builder/var.js';
+import { FnSig } from '@mcslib/builder/fn.js';
+import { AstType } from '@mcslib/builder/ast/type.js';
+import { VarType } from '@mcslib/builder/var.js';
 
 const MANGLE_MAP: Record<AstType, string> = {
   'number': 'd',

@@ -1,16 +1,16 @@
-import { FnSig, McsFunction } from '@/fn.js';
+import { FnSig, McsFunction } from '@mcslib/builder/fn.js';
 import { FunctionDir, FunctionWriter } from './lib.js';
 import { emit, NAMESPACE, resolveRegister, STACK } from './emit.js';
-import { build } from './builder.js';
+import { build } from '@mcslib/builder';
 import { mangle } from './compiler/mangle.js';
-import { wrapTyped } from './ast/type.js';
+import { wrapTyped } from '@mcslib/builder/ast/type.js';
 import { low } from './lowering.js';
-import { checkType } from './ast/pass/type-check.js';
+import { checkType } from './lowering/pass/type-check.js';
 import { checkInit } from './ir/pass/init_check.js';
-import { Diagnostic } from './diagnostic.js';
-import { fold } from './ast/pass/const-fold.js';
-import { newResolver } from './ast/type-resolver.js';
-import { VarType } from './builder/var.js';
+import { Diagnostic } from '@mcslib/core';
+import { fold } from './lowering/pass/const-fold.js';
+import { newResolver } from '@mcslib/builder/ast/type-resolver.js';
+import { VarType } from '@mcslib/builder/var.js';
 
 export type Export<Args extends VarType[]> = {
   name: string,

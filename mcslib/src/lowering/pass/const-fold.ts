@@ -1,6 +1,6 @@
-import { Assign, Binary, Block, Call, Expr, ExprStmt, Id, If, Literal, Loop, Return, Stmt, Unary } from '@/ast.js';
-import { acceptExpr, acceptStmt, ExprVisitor, StmtVisitor } from '@/ast/visit.js';
-import { Span } from '@/span.js';
+import { Assign, Binary, Block, Call, Expr, ExprStmt, Id, If, Literal, Loop, Return, Stmt, Unary } from '@mcslib/builder/ast.js';
+import { acceptExpr, acceptStmt, ExprVisitor, StmtVisitor } from '@mcslib/builder/ast/visit.js';
+import { Span } from '@mcslib/core';
 
 export function fold(block: Block) {
   StmtOptimizer.optimize(block);

@@ -1,11 +1,11 @@
-import { Fn, FnSig, McsFunction } from '@/fn.js';
-import { IrFunction, Index, newConst, ExecuteTemplate, Rvalue, Ref } from './ir.js';
-import { emptyNode, Node } from './ir/node.js';
+import { Fn, FnSig, McsFunction } from '@mcslib/builder/fn.js';
+import { IrFunction, Index, newConst, ExecuteTemplate, Rvalue, Ref } from 'mcslib/ir.js';
+import { emptyNode, Node } from 'mcslib/ir/node.js';
 import { lowStmt } from './lowering/stmt.js';
-import { CommandTemplate, Id, Label } from './ast.js';
+import { CommandTemplate, Id, Label } from '@mcslib/builder/ast.js';
 import { lowExpr } from './lowering/expr.js';
-import { Span } from './span.js';
-import { TypeResolver } from './ast/type-resolver.js';
+import { Span } from '@mcslib/core';
+import { TypeResolver } from '@mcslib/builder/ast/type-resolver.js';
 
 /**
  * create intermediate representation of a function

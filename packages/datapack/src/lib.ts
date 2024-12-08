@@ -6,7 +6,7 @@ import { join, relative } from 'node:path';
 import { Readable, Writable } from 'node:stream';
 import { ZipFile } from 'yazl';
 import { DiagnosticPrinter } from './diagnostic.js';
-import { VarType } from 'mcslib/builder/var.js';
+import { VarType } from '@mcslib/builder/var.js';
 
 export class DatapackWriter {
   private readonly compiler: Compiler;

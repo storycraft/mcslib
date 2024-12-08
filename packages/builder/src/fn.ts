@@ -1,8 +1,39 @@
-import { Expr, Call } from '@/ast.js';
-import { FnSig, McsFunction } from '@/fn.js';
-import { callSite } from '@/span.js';
+import { Expr, Call, Block } from './ast.js';
+import { Span } from '@mcslib/core';
 import { McsEmpty } from './primitive.js';
 import { VarType } from './var.js';
+
+
+export type Fn<Sig extends FnSig = FnSig> = {
+  span: Span,
+  args: CallArgs<Sig['args']>,
+  sig: Sig,
+  block: Block,
+}
+
+export type CallArgs<Args extends VarType[]> = [...{ [I in keyof Args]: InstanceType<Args[I]> }];
+
+export type FnSig<
+  Args extends VarType[] = VarType[],
+  Ret extends VarType = VarType,
+> = {
+  args: Args,
+  returns: Ret,
+}
+
+/**
+ * Unique identifier for a function
+ */
+export interface McsFunction<Sig extends FnSig = FnSig> {
+  readonly span: Span,
+  readonly sig: Sig,
+  // prevent from Args being invariance
+  readonly buildFn: Sig extends FnSig<infer Args> ? McsBuildFn<Args> : never,
+};
+
+export type McsBuildFn<in Args extends VarType[] = VarType[]> = (
+  ...args: { [I in keyof Args]: InstanceType<Args[I]> }
+) => void;
 
 export type McsMethodBuildFn<
   in Class extends VarType = VarType,
@@ -53,7 +84,7 @@ export function defineMcsMethod<
   buildFn: McsMethodBuildFn,
   returns: VarType = McsEmpty,
 ): McsMethod<Class> {
-  const span = callSite(1);
+  const span = Span.callSite(1);
 
   const fn: McsFunction<MethodSig<Class>> = {
     span,
@@ -69,7 +100,7 @@ export function defineMcsMethod<
   return function (this: InstanceType<VarType>, ...args) {
     return {
       kind: 'call',
-      span: callSite(1),
+      span: Span.callSite(1),
       args: [this, ...args],
       fn,
     };

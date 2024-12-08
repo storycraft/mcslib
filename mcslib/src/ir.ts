@@ -1,7 +1,7 @@
-import { FnSig, McsFunction } from '@/fn.js';
+import { FnSig, McsFunction } from '@mcslib/builder/fn.js';
 import { Node } from './ir/node.js';
-import { AstType } from './ast/type.js';
-import { Span } from './span.js';
+import { AstType } from '@mcslib/builder/ast/type.js';
+import { Span } from '@mcslib/core';
 
 export type IrFunction = {
   sig: FnSig,

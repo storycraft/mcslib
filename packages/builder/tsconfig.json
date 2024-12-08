@@ -3,7 +3,13 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "build",
-    "noEmit": false
+    "incremental": true,
+    "tsBuildInfoFile": "./build/tsc-cache.tsbuildinfo",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+    }
   },
   "include": [
     "./src"

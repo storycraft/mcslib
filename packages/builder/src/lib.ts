@@ -1,14 +1,13 @@
 import { Stmt } from './ast.js';
-import { McsEmpty } from './builder/primitive.js';
-import { VarType } from './builder/var.js';
-import { diagnostic, Diagnostic } from './diagnostic.js';
+import { McsEmpty } from './primitive.js';
+import { VarType } from './var.js';
 import { Fn, CallArgs, FnSig, McsBuildFn, McsFunction } from './fn.js';
-import { callSite, Span } from './span.js';
+import { diagnostic, Diagnostic, Span } from '@mcslib/core';
 import { create, Store } from './store.js';
 
-export * from './builder/fn.js';
-export * from './builder/stmt.js';
-export * from './builder/expr.js';
+export * from './fn.js';
+export * from './stmt.js';
+export * from './expr.js';
 
 export type FnScope = {
   varCounter: number,
@@ -44,7 +43,7 @@ export function defineMcsFunction(
   returns: VarType = McsEmpty,
 ): McsFunction {
   return {
-    span: callSite(1),
+    span: Span.callSite(1),
     sig: {
       args,
       returns,
@@ -66,7 +65,7 @@ export class BuilderError {
 }
 
 export function build<const Sig extends FnSig>(fn: McsFunction<Sig>): Result<Sig> {
-  const span = callSite(1);
+  const span = Span.callSite(1);
 
   const f: Fn<Sig> = {
     span,

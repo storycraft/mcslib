@@ -1,7 +1,7 @@
 // Port of baekjoon #2447 c solution
 
-import { mcsAssign, mcsVar, mcsReturn, mcsWhile, mcsExpr, defineMcsFunction, mcsIf, mcsExecute, mcsCall, mcsCmd, mcsLit } from 'mcslib/builder.js';
-import { McsNumber, McsString } from 'mcslib/builder/primitive.js';
+import { mcsAssign, mcsVar, mcsReturn, mcsWhile, mcsExpr, defineMcsFunction, mcsIf, mcsExecute, mcsCall, mcsCmd, mcsLit } from '@mcslib/builder';
+import { McsNumber, McsString } from '@mcslib/builder/primitive.js';
 
 export const index4 = defineMcsFunction(
   [McsNumber, McsNumber, McsNumber], (n, x, y) => {

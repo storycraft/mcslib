@@ -1,9 +1,9 @@
 import { Env, parseTemplate, rvalueToRef } from '../lowering.js';
-import { Binary, Call, Expr, Id, Literal, Output, Unary } from '@/ast.js';
-import { acceptExpr, ExprVisitor } from '@/ast/visit.js';
-import { BinaryOp, Ref, UnaryOp } from '@/ir.js';
-import { Node } from '@/ir/node.js';
-import { unknownSpan } from '@/span.js';
+import { Binary, Call, Expr, Id, Literal, Output, Unary } from '@mcslib/builder/ast.js';
+import { acceptExpr, ExprVisitor } from '@mcslib/builder/ast/visit.js';
+import { BinaryOp, Ref, UnaryOp } from 'mcslib/ir.js';
+import { Node } from 'mcslib/ir/node.js';
+import { Span } from '@mcslib/core';
 
 export function lowExpr(env: Env, node: Node, expr: Expr): Ref {
   return new ExprLowVisitor(env, node).low(expr);
@@ -12,7 +12,7 @@ export function lowExpr(env: Env, node: Node, expr: Expr): Ref {
 class ExprLowVisitor implements ExprVisitor {
   private ref: Ref = {
     kind: 'const',
-    span: unknownSpan(),
+    span: Span.unknown(),
     type: 'empty',
     value: '',
   };

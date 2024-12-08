@@ -1,13 +1,13 @@
-import { BLOCK_SCOPE, FN_SCOPE } from '../builder.js';
-import { Break, CommandTemplate, Continue, Expr, Id, If, Loop } from '@/ast.js';
-import { callSite } from '@/span.js';
+import { BLOCK_SCOPE, FN_SCOPE } from './lib.js';
+import { Break, CommandTemplate, Continue, Expr, Id, If, Loop } from './ast.js';
+import { Span } from '@mcslib/core';
 import { VarType } from './var.js';
-import { AstType } from '@/ast/type.js';
+import { AstType } from './ast/type.js';
 
 export function mcsVar<
   const T extends Id,
 >(constructor: VarType<T>, init?: Expr): T {
-  const span = callSite(1);
+  const span = Span.callSite(1);
 
   const id = new constructor(FN_SCOPE.get().varCounter++, span);
   const stmts = BLOCK_SCOPE.get().stmts;
@@ -32,14 +32,14 @@ export function mcsVar<
 export function mcsAssign(id: Id, expr: Expr) {
   BLOCK_SCOPE.get().stmts.push({
     kind: 'assign',
-    span: callSite(1),
+    span: Span.callSite(1),
     id,
     expr,
   });
 }
 
 export function mcsIf(condition: Expr, f: () => void, elseF?: () => void) {
-  const span = callSite(1);
+  const span = Span.callSite(1);
   const stmt: If = {
     kind: 'if',
     span,
@@ -64,7 +64,7 @@ export function mcsIf(condition: Expr, f: () => void, elseF?: () => void) {
 }
 
 export function mcsLoop(f: () => void, label?: string) {
-  const span = callSite(1);
+  const span = Span.callSite(1);
   const stmt: Loop = {
     kind: 'loop',
     span,
@@ -87,7 +87,7 @@ export function mcsWhile(condition: Expr, f: () => void, label?: string) {
   mcsLoop(() => {
     mcsIf({
       kind: 'unary',
-      span: callSite(1),
+      span: Span.callSite(1),
       op: '!',
       operand: condition,
     }, () => {
@@ -101,7 +101,7 @@ export function mcsWhile(condition: Expr, f: () => void, label?: string) {
 export function mcsContinue(label?: string) {
   const stmt: Continue = {
     kind: 'continue',
-    span: callSite(1),
+    span: Span.callSite(1),
   };
   if (label) {
     stmt.label = { name: label };
@@ -113,7 +113,7 @@ export function mcsContinue(label?: string) {
 export function mcsBreak(label?: string) {
   const stmt: Break = {
     kind: 'break',
-    span: callSite(1),
+    span: Span.callSite(1),
   };
   if (label) {
     stmt.label = { name: label };
@@ -126,7 +126,7 @@ export function mcsReturn(expr?: Expr) {
   BLOCK_SCOPE.get().stmts.push({
     kind: 'return',
     expr,
-    span: callSite(1),
+    span: Span.callSite(1),
   });
 }
 
@@ -134,7 +134,7 @@ export function mcsStmt(expr: Expr) {
   BLOCK_SCOPE.get().stmts.push({
     kind: 'expr',
     expr,
-    span: callSite(1),
+    span: Span.callSite(1),
   });
 }
 
@@ -142,7 +142,7 @@ export function mcsExecute(...templates: CommandTemplate[]) {
   BLOCK_SCOPE.get().stmts.push({
     kind: 'execute',
     templates,
-    span: callSite(1),
+    span: Span.callSite(1),
   });
 }
 
@@ -183,7 +183,7 @@ export function mcsIntrinsic(
 ) {
   BLOCK_SCOPE.get().stmts.push({
     kind: 'intrinsic',
-    span: callSite(1),
+    span: Span.callSite(1),
     name,
     macro,
     arg_types,

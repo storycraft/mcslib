@@ -1,5 +1,5 @@
 import { Chalk } from 'chalk';
-import { Diagnostic } from 'mcslib/diagnostic.js';
+import { Diagnostic } from '@mcslib/core';
 
 export class DiagnosticPrinter {
   private readonly chalk = new Chalk();

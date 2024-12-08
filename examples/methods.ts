@@ -1,5 +1,5 @@
-import { defineMcsFunction, mcsExecute, mcsCmd, mcsLit } from 'mcslib/builder.js';
-import { McsNumber, McsString } from 'mcslib/builder/primitive.js';
+import { defineMcsFunction, mcsExecute, mcsCmd, mcsLit } from '@mcslib/builder';
+import { McsNumber, McsString } from '@mcslib/builder/primitive.js';
 
 export const numberMethods = defineMcsFunction(
   [McsNumber],

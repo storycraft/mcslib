@@ -1,9 +1,9 @@
-import { Assign, Binary, Call, Expr, Id, If, Intrinsic, Return, Stmt, Unary } from '@/ast.js';
-import { acceptExpr, acceptStmt, ExprVisitor, StmtVisitor } from '@/ast/visit.js';
-import { diagnostic, Diagnostic } from '@/diagnostic.js';
-import { Fn } from '@/fn.js';
-import { TypeResolver } from '../type-resolver.js';
-import { AstType } from '@/ast/type.js';
+import { Assign, Binary, Call, Expr, Id, If, Intrinsic, Return, Stmt, Unary } from '@mcslib/builder/ast.js';
+import { acceptExpr, acceptStmt, ExprVisitor, StmtVisitor } from '@mcslib/builder/ast/visit.js';
+import { diagnostic, Diagnostic } from '@mcslib/core';
+import { Fn } from '@mcslib/builder/fn.js';
+import { TypeResolver } from '@mcslib/builder/ast/type-resolver.js';
+import { AstType } from '@mcslib/builder/ast/type.js';
 
 /**
  * Perform type checking

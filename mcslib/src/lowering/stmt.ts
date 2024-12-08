@@ -1,10 +1,10 @@
 import { Env, newStorage, parseTemplate } from '../lowering.js';
 import { lowExpr } from './expr.js';
-import { acceptStmt, StmtVisitor } from '@/ast/visit.js';
-import { Local, Return, If, Break, Continue, Stmt, Assign, Loop, Execute, Intrinsic } from '@/ast.js';
-import { emptyNode, Node } from '@/ir/node.js';
-import { SwitchInt } from '@/ir/end.js';
-import { newConst } from '@/ir.js';
+import { acceptStmt, StmtVisitor } from '@mcslib/builder/ast/visit.js';
+import { Local, Return, If, Break, Continue, Stmt, Assign, Loop, Execute, Intrinsic } from '@mcslib/builder/ast.js';
+import { emptyNode, Node } from 'mcslib/ir/node.js';
+import { SwitchInt } from 'mcslib/ir/end.js';
+import { newConst } from 'mcslib/ir.js';
 
 export function lowStmt(env: Env, node: Node, stmt: Stmt): Node {
   const visitor = new StmtLowVisitor(env, node);
