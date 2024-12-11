@@ -1,8 +1,9 @@
-import { Id } from './ast.js';
 import { Span } from '@mcslib/core';
-import { AstType } from './ast/type.js';
+import { Id } from './ast.js';
+import { Serializable } from './serialize.js';
 
-export interface VarType<This extends Id = Id> {
-  new(id: number, span: Span): This;
-  readonly type: AstType;
+export interface McsType<T extends Id = Id> extends Serializable {
+  create(id: number, span: Span): T;
 };
+
+export type TypedId<T extends McsType> = T extends McsType<infer I> ? I : never;

@@ -1,18 +1,25 @@
-import { AstType } from '@/ast/type.js';
 import { McsPrimitive } from './base.js';
 import { McsNumber } from './number.js';
 import { mcsAssign, mcsIntrinsic, mcsVar } from '../stmt.js';
 import { Expr } from '@/ast.js';
+import { McsSymbol } from '@/symbol.js';
+import { Span } from '@mcslib/core';
 
 export class McsString extends McsPrimitive {
-  static readonly type: AstType = 'string';
+  private constructor(id: number, span: Span) {
+    super(id, span);
+  }
+
+  static create(id: number, span: Span): McsString {
+    return new McsString(id, span);
+  }
 
   get length(): McsNumber {
     const length = mcsVar(McsNumber);
     mcsIntrinsic(
       'string_length',
       false,
-      ['string'],
+      [McsString],
       [this],
       length
     );
@@ -27,7 +34,7 @@ export class McsString extends McsPrimitive {
       mcsIntrinsic(
         'slice_start_end',
         true,
-        ['string', 'number', 'number'],
+        [McsString, McsNumber, McsNumber],
         [this, start, end],
         sliced
       );
@@ -35,7 +42,7 @@ export class McsString extends McsPrimitive {
       mcsIntrinsic(
         'slice_start',
         true,
-        ['string', 'number'],
+        [McsString, McsNumber],
         [this, start],
         sliced
       );
@@ -44,5 +51,9 @@ export class McsString extends McsPrimitive {
     }
 
     return sliced;
+  }
+
+  static [McsSymbol.serialize](value: string): string {
+    return `"${value}"`;
   }
 }

@@ -4,6 +4,7 @@ import { acceptExpr, ExprVisitor } from '@mcslib/builder/ast/visit.js';
 import { BinaryOp, Ref, UnaryOp } from 'mcslib/ir.js';
 import { Node } from 'mcslib/ir/node.js';
 import { Span } from '@mcslib/core';
+import { McsNumber } from '@mcslib/builder/primitive.js';
 
 export function lowExpr(env: Env, node: Node, expr: Expr): Ref {
   return new ExprLowVisitor(env, node).low(expr);
@@ -34,7 +35,7 @@ class ExprLowVisitor implements ExprVisitor {
     let op: BinaryOp;
     switch (expr.op) {
       case '+': {
-        if (this.env.resolver.resolve(expr) === 'number') {
+        if (this.env.resolver.resolve(expr) === McsNumber) {
           op = 'add';
         } else {
           op = 'concat';

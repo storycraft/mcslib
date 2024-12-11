@@ -6,7 +6,7 @@ import { join, relative } from 'node:path';
 import { Readable, Writable } from 'node:stream';
 import { ZipFile } from 'yazl';
 import { DiagnosticPrinter } from './diagnostic.js';
-import { VarType } from '@mcslib/builder/var.js';
+import { McsType } from '@mcslib/builder/var.js';
 
 export class DatapackWriter {
   private readonly compiler: Compiler;
@@ -43,7 +43,7 @@ export class DatapackWriter {
     await new Promise(resolve => stream.once('close', resolve));
   }
 
-  async export<const Args extends VarType[]>(settings: Export<Args>): Promise<boolean> {
+  async export<const Args extends McsType[]>(settings: Export<Args>): Promise<boolean> {
     const {
       diagnostics,
     } = await this.compiler.export(settings);

@@ -3,7 +3,8 @@ import { acceptExpr, acceptStmt, ExprVisitor, StmtVisitor } from '@mcslib/builde
 import { diagnostic, Diagnostic } from '@mcslib/core';
 import { Fn } from '@mcslib/builder/fn.js';
 import { TypeResolver } from '@mcslib/builder/ast/type-resolver.js';
-import { AstType } from '@mcslib/builder/ast/type.js';
+import { McsType } from '@mcslib/builder/var.js';
+import { McsEmpty, McsNumber } from '@mcslib/builder/primitive.js';
 
 /**
  * Perform type checking
@@ -36,7 +37,7 @@ class Checker implements StmtVisitor, ExprVisitor {
     acceptStmt(stmt, this);
   }
 
-  checkExpr(expr: Expr): AstType | undefined {
+  checkExpr(expr: Expr): McsType | undefined {
     acceptExpr(expr, this);
     return this.cx.resolver.resolve(expr);
   }
@@ -44,7 +45,7 @@ class Checker implements StmtVisitor, ExprVisitor {
   visitReturn(stmt: Return): boolean {
     if (stmt.expr) {
       const ty = this.checkExpr(stmt.expr);
-      if (ty !== this.cx.f.sig.returns.type) {
+      if (ty !== this.cx.f.sig.returns) {
         this.cx.messages.push(
           diagnostic(
             'error',
@@ -54,7 +55,7 @@ class Checker implements StmtVisitor, ExprVisitor {
         );
       }
     } else {
-      if (this.cx.f.sig.returns.type !== 'empty') {
+      if (this.cx.f.sig.returns !== McsEmpty) {
         this.cx.messages.push(
           diagnostic(
             'error',
@@ -86,7 +87,7 @@ class Checker implements StmtVisitor, ExprVisitor {
   }
 
   visitIf(stmt: If): boolean {
-    if (this.checkExpr(stmt.condition) !== 'number') {
+    if (this.checkExpr(stmt.condition) !== McsNumber) {
       this.cx.messages.push(
         diagnostic(
           'error',
@@ -128,7 +129,7 @@ class Checker implements StmtVisitor, ExprVisitor {
         || expr.op === '/'
         || expr.op === '%'
       )
-      && (leftTy !== 'number' || rightTy !== 'number')
+      && (leftTy !== McsNumber || rightTy !== McsNumber)
     ) {
       this.cx.messages.push(
         diagnostic(
@@ -143,7 +144,7 @@ class Checker implements StmtVisitor, ExprVisitor {
 
   visitUnary(expr: Unary): boolean {
     const ty = this.checkExpr(expr.operand);
-    if (expr.op === '-' && ty !== 'number') {
+    if (expr.op === '-' && ty !== McsNumber) {
       this.cx.messages.push(
         diagnostic(
           'error',
@@ -169,7 +170,7 @@ class Checker implements StmtVisitor, ExprVisitor {
 
     const length = expr.args.length;
     for (let i = 0; i < length; i++) {
-      const argTy = expr.fn.sig.args[i].type;
+      const argTy = expr.fn.sig.args[i];
       const ty = this.checkExpr(expr.args[i]);
 
       if (ty != argTy) {

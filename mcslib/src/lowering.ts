@@ -6,6 +6,7 @@ import { CommandTemplate, Id, Label } from '@mcslib/builder/ast.js';
 import { lowExpr } from './lowering/expr.js';
 import { Span } from '@mcslib/core';
 import { TypeResolver } from '@mcslib/builder/ast/type-resolver.js';
+import { McsEmpty } from '@mcslib/builder/primitive.js';
 
 /**
  * create intermediate representation of a function
@@ -38,7 +39,7 @@ export function low(f: Fn, resolver: TypeResolver): IrFunction {
   const node = emptyNode();
 
   const last = lowStmt(env, node, f.block);
-  if (last.end.ins === 'unreachable' && env.sig.returns.type === 'empty') {
+  if (last.end.ins === 'unreachable' && env.sig.returns === McsEmpty) {
     last.end = {
       ins: 'ret',
       span: f.block.span,

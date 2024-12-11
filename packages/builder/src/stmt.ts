@@ -1,21 +1,20 @@
 import { BLOCK_SCOPE, FN_SCOPE } from './lib.js';
 import { Break, CommandTemplate, Continue, Expr, Id, If, Loop } from './ast.js';
 import { Span } from '@mcslib/core';
-import { VarType } from './var.js';
-import { AstType } from './ast/type.js';
+import { McsType } from './var.js';
 
 export function mcsVar<
   const T extends Id,
->(constructor: VarType<T>, init?: Expr): T {
+>(type: McsType<T>, init?: Expr): T {
   const span = Span.callSite(1);
 
-  const id = new constructor(FN_SCOPE.get().varCounter++, span);
+  const id = type.create(FN_SCOPE.get().varCounter++, span);
   const stmts = BLOCK_SCOPE.get().stmts;
   stmts.push({
     kind: 'local',
     span,
     id,
-    type: constructor.type,
+    type,
   });
   if (init) {
     stmts.push({
@@ -177,7 +176,7 @@ export function mcsCmd(arr: TemplateStringsArray, ...exprs: Expr[]): CommandTemp
 export function mcsIntrinsic(
   name: string,
   macro: boolean,
-  arg_types: AstType[],
+  arg_types: McsType[],
   args: Expr[],
   out?: Id
 ) {

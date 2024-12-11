@@ -1,6 +1,6 @@
 import { Stmt } from './ast.js';
 import { McsEmpty } from './primitive.js';
-import { VarType } from './var.js';
+import { McsType } from './var.js';
 import { Fn, CallArgs, FnSig, McsBuildFn, McsFunction } from './fn.js';
 import { diagnostic, Diagnostic, Span } from '@mcslib/core';
 import { create, Store } from './store.js';
@@ -22,15 +22,15 @@ export const FN_SCOPE: Store<FnScope> = create();
 export const BLOCK_SCOPE: Store<BlockScope> = create();
 
 export function defineMcsFunction<
-  const Args extends VarType[]
+  const Args extends McsType[]
 >(
   args: Args,
   buildFn: McsBuildFn<Args>
 ): McsFunction<FnSig<Args, typeof McsEmpty>>;
 
 export function defineMcsFunction<
-  const Args extends VarType[],
-  const Ret extends VarType,
+  const Args extends McsType[],
+  const Ret extends McsType,
 >(
   args: Args,
   buildFn: McsBuildFn<Args>,
@@ -38,9 +38,9 @@ export function defineMcsFunction<
 ): McsFunction<FnSig<Args, Ret>>;
 
 export function defineMcsFunction(
-  args: VarType[],
+  args: McsType[],
   buildFn: McsBuildFn,
-  returns: VarType = McsEmpty,
+  returns: McsType = McsEmpty,
 ): McsFunction {
   return {
     span: Span.callSite(1),
@@ -69,8 +69,8 @@ export function build<const Sig extends FnSig>(fn: McsFunction<Sig>): Result<Sig
 
   const f: Fn<Sig> = {
     span,
-    args: fn.sig.args.map((constructor, id) => {
-      return new constructor(id, span);
+    args: fn.sig.args.map((type, id) => {
+      return type.create(id, span);
     }) as CallArgs<Sig['args']>,
     sig: fn.sig,
     block: {

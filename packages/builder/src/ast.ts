@@ -1,6 +1,6 @@
 import { FnSig, McsFunction } from './fn.js';
 import { Span } from '@mcslib/core';
-import { AstType } from './ast/type.js';
+import { McsType } from './var.js';
 
 /**
  * identifier for ast types
@@ -16,9 +16,9 @@ export type Block = Ast<'block'> & {
   stmts: Stmt[],
 }
 
-export type Local = Ast<'local'> & {
+export interface Local extends Ast<'local'> {
   id: Id,
-  type: AstType,
+  type: McsType,
 }
 
 export type Assign = Ast<'assign'> & {
@@ -67,12 +67,12 @@ export type Break = Ast<'break'> & {
   label?: Label,
 }
 
-export type Intrinsic = Ast<'intrinsic'> & {
+export interface Intrinsic extends Ast<'intrinsic'> {
   name: string,
   macro: boolean,
   out?: Id,
   args: Expr[],
-  arg_types: AstType[],
+  arg_types: McsType[],
 }
 
 export type Expr = Id | Binary | Unary | Call | Output | Literal;
@@ -86,7 +86,7 @@ export type Literal = Ast<'literal'> & (
   | LiteralVariant<'string', string>
 );
 
-type LiteralVariant<T extends AstType, V> = {
+type LiteralVariant<T extends string, V> = {
   type: T,
   value: V,
 }
