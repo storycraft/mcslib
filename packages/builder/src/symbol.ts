@@ -10,4 +10,16 @@ export const McsSymbol = {
   iterable: Symbol('McsSymbol.iterable'),
 
   call: Symbol('McsSymbol.call'),
-} as const;
+} as {
+  readonly serialize: unique symbol,
+
+  readonly add: unique symbol,
+  readonly sub: unique symbol,
+  readonly mul: unique symbol,
+  readonly div: unique symbol,
+  readonly remi: unique symbol,
+
+  readonly iterable: unique symbol,
+
+  readonly call: unique symbol,
+};
