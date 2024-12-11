@@ -3,7 +3,6 @@ import { Span } from '@mcslib/core';
 import { McsEmpty } from './primitive.js';
 import { VarType } from './var.js';
 
-
 export type Fn<Sig extends FnSig = FnSig> = {
   span: Span,
   args: CallArgs<Sig['args']>,

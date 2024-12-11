@@ -6,7 +6,7 @@ import { AstType } from './ast/type.js';
  * identifier for ast types
  */
 type Ast<T extends string> = {
-  kind: T,
+  readonly kind: T,
   span: Span,
 }
 
