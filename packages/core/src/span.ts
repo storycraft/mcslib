@@ -40,4 +40,4 @@ export const Span = {
       location: '<unknown>',
     };
   }
-}
+} as const;

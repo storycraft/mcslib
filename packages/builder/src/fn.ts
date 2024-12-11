@@ -1,7 +1,7 @@
 import { Expr, Call, Block } from './ast.js';
 import { Span } from '@mcslib/core';
-import { McsEmpty } from './primitive.js';
 import { VarType } from './var.js';
+import { McsEmpty } from './primitive.js';
 
 export type Fn<Sig extends FnSig = FnSig> = {
   span: Span,

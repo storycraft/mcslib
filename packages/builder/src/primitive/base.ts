@@ -1,7 +1,7 @@
 import { Span } from '@mcslib/core';
 import { Id } from '@/ast.js';
 
-export abstract class Primitive implements Id {
+export abstract class McsPrimitive implements Id {
   readonly kind = 'id';
 
   constructor(

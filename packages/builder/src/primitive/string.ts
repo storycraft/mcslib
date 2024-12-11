@@ -1,10 +1,10 @@
 import { AstType } from '@/ast/type.js';
-import { Primitive } from './base.js';
+import { McsPrimitive } from './base.js';
 import { McsNumber } from './number.js';
 import { mcsAssign, mcsIntrinsic, mcsVar } from '../stmt.js';
 import { Expr } from '@/ast.js';
 
-export class McsString extends Primitive {
+export class McsString extends McsPrimitive {
   static readonly type: AstType = 'string';
 
   get length(): McsNumber {

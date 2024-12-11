@@ -1,4 +1,4 @@
-export const McsSymbol = Object.freeze({
+export const McsSymbol = {
   serialize: Symbol('McsSymbol.serialize'),
 
   add: Symbol('McsSymbol.add'),
@@ -10,4 +10,4 @@ export const McsSymbol = Object.freeze({
   iterable: Symbol('McsSymbol.iterable'),
 
   call: Symbol('McsSymbol.call'),
-});
+} as const;

@@ -1,9 +1,9 @@
 import { AstType } from '@/ast/type.js';
-import { Primitive } from './base.js';
+import { McsPrimitive } from './base.js';
 import { mcsIntrinsic, mcsVar } from '../stmt.js';
 import { Expr } from '@/ast.js';
 
-export class McsNumber extends Primitive {
+export class McsNumber extends McsPrimitive {
   static readonly type: AstType = 'number';
 
   floor(): McsNumber {
