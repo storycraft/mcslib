@@ -8,4 +8,6 @@ export const McsSymbol = Object.freeze({
   remi: Symbol('McsSymbol.remi'),
 
   iterable: Symbol('McsSymbol.iterable'),
+
+  call: Symbol('McsSymbol.call'),
 });
