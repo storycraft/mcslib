@@ -43,7 +43,7 @@ export function low(f: Fn, resolver: TypeResolver): IrFunction {
     last.end = {
       ins: 'ret',
       span: f.block.span,
-      ref: newConst('empty', '', f.block.span),
+      ref: newConst(McsEmpty, '', f.block.span),
     };
   }
 

@@ -4,7 +4,7 @@ import { acceptExpr, ExprVisitor } from '@mcslib/builder/ast/visit.js';
 import { BinaryOp, Ref, UnaryOp } from 'mcslib/ir.js';
 import { Node } from 'mcslib/ir/node.js';
 import { Span } from '@mcslib/core';
-import { McsNumber } from '@mcslib/builder/primitive.js';
+import { McsEmpty, McsNumber, McsString } from '@mcslib/builder/primitive.js';
 
 export function lowExpr(env: Env, node: Node, expr: Expr): Ref {
   return new ExprLowVisitor(env, node).low(expr);
@@ -14,7 +14,7 @@ class ExprLowVisitor implements ExprVisitor {
   private ref: Ref = {
     kind: 'const',
     span: Span.unknown(),
-    type: 'empty',
+    type: McsEmpty,
     value: '',
   };
 
@@ -170,7 +170,7 @@ class ExprLowVisitor implements ExprVisitor {
     this.ref = {
       kind: 'const',
       span: expr.span,
-      type: expr.type,
+      type: expr.type === 'string' ? McsString : McsNumber,
       value: expr.value.toString(),
     };
     return true;

@@ -5,6 +5,7 @@ import { Local, Return, If, Break, Continue, Stmt, Assign, Loop, Execute, Intrin
 import { emptyNode, Node } from 'mcslib/ir/node.js';
 import { SwitchInt } from 'mcslib/ir/end.js';
 import { newConst } from 'mcslib/ir.js';
+import { McsEmpty } from '@mcslib/builder/primitive.js';
 
 export function lowStmt(env: Env, node: Node, stmt: Stmt): Node {
   const visitor = new StmtLowVisitor(env, node);
@@ -39,7 +40,7 @@ class StmtLowVisitor implements StmtVisitor {
       this.node.end = {
         ins: 'ret',
         span: stmt.span,
-        ref: newConst('empty', '', stmt.span),
+        ref: newConst(McsEmpty, '', stmt.span),
       };
     }
 

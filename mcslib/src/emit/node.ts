@@ -4,6 +4,7 @@ import { EndIns } from '@/ir/end.js';
 import { Node } from '@/ir/node.js';
 import { binary, call, unary } from './rvalue.js';
 import { Location } from './alloc.js';
+import { McsNumber } from '@mcslib/builder/primitive.js';
 
 export async function walkNode(env: Env, node: Node, writer: TrackedWriter) {
   for (const ins of node.ins) {
@@ -215,7 +216,7 @@ async function walkEndIns(env: Env, ins: EndIns, writer: TrackedWriter) {
 
           const name = await env.nodeMap.branch(env, target, writer);
           await writer.copyConst(
-            'number',
+            McsNumber,
             i.toString(),
             Location.register(1)
           );

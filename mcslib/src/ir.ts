@@ -1,7 +1,7 @@
 import { FnSig, McsFunction } from '@mcslib/builder/fn.js';
 import { Node } from './ir/node.js';
-import { AstType } from '@mcslib/builder/ast/type.js';
 import { Span } from '@mcslib/core';
+import { McsType } from '@mcslib/builder/var.js';
 
 export type IrFunction = {
   sig: FnSig,
@@ -81,11 +81,11 @@ export type Call = RvalueKind<'call'> & {
 export type Ref = Const | Index;
 
 export type Const = RvalueKind<'const'> & {
-  type: AstType,
+  type: McsType,
   value: string,
 };
 
-export function newConst(type: AstType, value: string, span: Span): Const {
+export function newConst(type: McsType, value: string, span: Span): Const {
   return {
     kind: 'const',
     span,
