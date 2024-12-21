@@ -6,6 +6,9 @@ About language guide, see [guide.md](./guide.md) (in progress)
 
 About language reference, see [reference.md](./reference.md) (in progress)
 
+## Template
+See https://github.com/storycraft/mcslib-template
+
 ## Project milestone
  - [x] Expression template literal lexer and parser
  - [x] Number type
