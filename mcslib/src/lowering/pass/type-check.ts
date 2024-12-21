@@ -49,7 +49,7 @@ class Checker implements StmtVisitor, ExprVisitor {
         this.cx.messages.push(
           diagnostic(
             'error',
-            `invalid return value expected: ${this.cx.f.sig.returns} got: ${ty}`,
+            `invalid return value expected: ${this.cx.f.sig.returns.constructor.name} got: ${ty}`,
             stmt.span
           )
         );
@@ -59,7 +59,7 @@ class Checker implements StmtVisitor, ExprVisitor {
         this.cx.messages.push(
           diagnostic(
             'error',
-            `cannot return without an expression on ${this.cx.f.sig.returns} return type`,
+            `cannot return without an expression on ${this.cx.f.sig.returns.constructor.name} return type`,
             stmt.span
           )
         );
@@ -109,7 +109,7 @@ class Checker implements StmtVisitor, ExprVisitor {
         this.cx.messages.push(
           diagnostic(
             'error',
-            `expected '${expectedTy}' got '${exprTy}'`,
+            `expected '${expectedTy.constructor.name}' got '${exprTy}'`,
             stmt.span,
           )
         );
@@ -177,7 +177,7 @@ class Checker implements StmtVisitor, ExprVisitor {
         this.cx.messages.push(
           diagnostic(
             'error',
-            `expected type ${argTy} got ${ty} at argument pos: ${i}`,
+            `expected type ${argTy.constructor.name} got ${ty} at argument pos: ${i}`,
             expr.span,
           )
         );
